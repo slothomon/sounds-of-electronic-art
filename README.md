@@ -1,12 +1,13 @@
-# Sounds of Electronic Art — GitHub Pages site
+# sounds of electronic art — GitHub Pages site
 
-A dependency-light static site for the Sounds of Electronic Art radio show.
+A dependency-light static site for the sounds of electronic art radio show.
 
 ## What is included
 
 - Responsive one-page design
 - Next-show card and calendar link
-- SoundCloud player
+- Selectable SoundCloud archive with an in-page player
+- German default interface with an English language switch
 - Searchable broadcast archive
 - RSS feed, sitemap, robots.txt and custom 404 page
 - Automatic deployment with GitHub Actions and GitHub Pages
@@ -78,7 +79,7 @@ A custom domain also removes the repository sub-path.
 ```bash
 git init
 git add .
-git commit -m "Initial Sounds of Electronic Art website"
+git commit -m "Initial sounds of electronic art website"
 git branch -M main
 git remote add origin git@github.com:YOUR-USERNAME/sounds-of-electronic-art.git
 git push -u origin main

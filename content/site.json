@@ -1,46 +1,69 @@
 {
-  "name": "Sounds of Electronic Art",
-  "short_name": "SOEA",
-  "tagline": "Electronic music, radio and club culture from Leipzig.",
-  "description": "Sounds of Electronic Art is a bimonthly radio show on Radio Blau exploring electronic music, artists and club culture.",
+  "name": "sounds of electronic art",
+  "short_name": "sofea",
+  "tagline_de": "Elektronische Musik, Radio und Clubkultur aus Leipzig.",
+  "tagline_en": "Electronic music, radio and club culture from Leipzig.",
+  "description_de": "sounds of electronic art ist eine zweimonatliche Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Clubkultur.",
+  "description_en": "sounds of electronic art is a bimonthly radio show on Radio Blau exploring electronic music, artists and club culture.",
   "url": "https://example.github.io/sounds-of-electronic-art",
-  "locale": "en_GB",
+  "locale": "de_DE",
   "radio": {
     "name": "Radio Blau",
     "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/",
     "stream_url": "https://www.radioblau.de/stream/"
   },
   "social": [
-    {
-      "label": "SoundCloud",
-      "url": "https://soundcloud.com/sounds-of-electronic-art"
-    },
-    {
-      "label": "Radio Blau",
-      "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
-    },
-    {
-      "label": "Old archive",
-      "url": "https://sounds-of-electronic-art.blogspot.com/"
-    }
+    {"label": "SoundCloud", "url": "https://soundcloud.com/sounds-of-electronic-art"},
+    {"label": "Radio Blau", "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"},
+    {"label": "Altes Archiv", "url": "https://sounds-of-electronic-art.blogspot.com/"}
   ],
   "team": [
-    {
-      "name": "Robert Bernsdorf",
-      "alias": "fumé"
-    },
-    {
-      "name": "Robert Petroschke",
-      "alias": "easy.miner"
-    },
-    {
-      "name": "Matthias Kämmerer",
-      "alias": "96kbps"
-    }
+    {"name": "Robert Bernsdorf", "alias": "fumé"},
+    {"name": "Robert Petroschke", "alias": "easy.miner"},
+    {"name": "Matthias Kämmerer", "alias": "96kbps"}
   ],
-  "featured_mix": {
-    "title": "Weekender Veranda 2023",
-    "url": "https://soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023",
-    "embed": "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023&color=%23b8ff2c&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
-  }
+  "mixes": [
+    {
+      "title": "R22 (2025-06-07)",
+      "subtitle_de": "Gastset aus der Sendung vom 7. Juni 2025",
+      "subtitle_en": "Guest set from the show on 7 June 2025",
+      "duration": "2:16:56",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07"
+    },
+    {
+      "title": "M.ono (2024-07-06)",
+      "subtitle_de": "House-Set aus der Sendung vom 6. Juli 2024",
+      "subtitle_en": "House set from the show on 6 July 2024",
+      "duration": "58:31",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea"
+    },
+    {
+      "title": "Dahmar (2024-03-16)",
+      "subtitle_de": "Gastset aus der Sendung vom 16. März 2024",
+      "subtitle_en": "Guest set from the show on 16 March 2024",
+      "duration": "2:12:56",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16"
+    },
+    {
+      "title": "Kontinum (2023-11-25)",
+      "subtitle_de": "Techno-Set aus der Sendung vom 25. November 2023",
+      "subtitle_en": "Techno set from the show on 25 November 2023",
+      "duration": "1:15:01",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25"
+    },
+    {
+      "title": "Johnminusplus (2023-08-05)",
+      "subtitle_de": "Gastset aus der Sendung vom 5. August 2023",
+      "subtitle_en": "Guest set from the show on 5 August 2023",
+      "duration": "1:35:45",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/johnminusplus-2023-08-05"
+    },
+    {
+      "title": "Weekender Veranda 2023",
+      "subtitle_de": "Aufnahme vom Conne Island Freisitz",
+      "subtitle_en": "Recording from the Conne Island terrace",
+      "duration": "",
+      "url": "https://soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023"
+    }
+  ]
 }

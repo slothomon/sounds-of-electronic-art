@@ -39,7 +39,7 @@ def render(template: str, values: dict[str, str]) -> str:
 def soundcloud_embed(url: str) -> str:
     return (
         "https://w.soundcloud.com/player/?url=" + quote(url, safe="")
-        + "&color=%23d99a72&auto_play=false&hide_related=true"
+        + "&color=%23e7a06f&auto_play=false&hide_related=true"
         + "&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
     )
 

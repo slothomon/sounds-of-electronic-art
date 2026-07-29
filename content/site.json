@@ -1,0 +1,46 @@
+{
+  "name": "Sounds of Electronic Art",
+  "short_name": "SOEA",
+  "tagline": "Electronic music, radio and club culture from Leipzig.",
+  "description": "Sounds of Electronic Art is a bimonthly radio show on Radio Blau exploring electronic music, artists and club culture.",
+  "url": "https://example.github.io/sounds-of-electronic-art",
+  "locale": "en_GB",
+  "radio": {
+    "name": "Radio Blau",
+    "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/",
+    "stream_url": "https://www.radioblau.de/stream/"
+  },
+  "social": [
+    {
+      "label": "SoundCloud",
+      "url": "https://soundcloud.com/sounds-of-electronic-art"
+    },
+    {
+      "label": "Radio Blau",
+      "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
+    },
+    {
+      "label": "Old archive",
+      "url": "https://sounds-of-electronic-art.blogspot.com/"
+    }
+  ],
+  "team": [
+    {
+      "name": "Robert Bernsdorf",
+      "alias": "fumé"
+    },
+    {
+      "name": "Robert Petroschke",
+      "alias": "easy.miner"
+    },
+    {
+      "name": "Matthias Kämmerer",
+      "alias": "96kbps"
+    }
+  ],
+  "featured_mix": {
+    "title": "Weekender Veranda 2023",
+    "url": "https://soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023",
+    "embed": "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023&color=%23b8ff2c&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
+  }
+}

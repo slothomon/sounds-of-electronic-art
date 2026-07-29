@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48" role="img" aria-labelledby="title desc">
+  <title id="title">SOEA</title>
+  <desc id="desc">Sounds of Electronic Art waveform logo</desc>
+  <g fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="3">
+    <path d="M3 24h9l5-13 8 29 7-22 7 12 7-25 8 38 8-27 7 18 8-10h10"/>
+  </g>
+  <text x="96" y="31" fill="currentColor" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" letter-spacing="2">SOEA</text>
+</svg>

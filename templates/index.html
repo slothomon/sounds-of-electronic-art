@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta name="theme-color" content="#0b0b0d">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
+  <link rel="alternate" type="application/rss+xml" title="Sounds of Electronic Art" href="{{ base_path }}/feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page_title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="{{ base_path }}/" aria-label="Sounds of Electronic Art home">{{ logo_svg }}</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#next">Next show</a>
+        <a href="#listen">Listen</a>
+        <a href="#about">About</a>
+        <a href="#archive">Archive</a>
+        <a class="listen-link" href="{{ radio_stream_url }}">Live stream</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <p class="eyebrow">Radio Blau · Leipzig · Since 2011</p>
+          <h1>Sounds of<br>Electronic<br>Art</h1>
+          <p class="hero-subtitle">Electronic music, radio and club culture—broadcast every eight weeks from Leipzig.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="frequency">99.2<small>FM Leipzig</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="next">
+      <div class="shell">
+        <div class="section-header">
+          <h2>Next transmission</h2>
+          <p class="section-intro">Live on Radio Blau. Three hours of selections, conversations and detours through electronic music.</p>
+        </div>
+        <article class="next-card">
+          <div class="date-panel">
+            <div>
+              <div class="day">{{ next_day }}</div>
+              <div class="month">{{ next_month }}</div>
+            </div>
+            <div class="year">{{ next_year }}</div>
+          </div>
+          <div class="next-copy">
+            <div>
+              <p class="eyebrow">On air</p>
+              <h3>{{ next_title }}</h3>
+              <p>{{ next_summary }}</p>
+              <div class="next-meta">
+                <span>{{ next_date_long }}</span>
+                <span>{{ next_time }}–00:00 {{ next_timezone }}</span>
+                <span>Radio Blau, Leipzig</span>
+              </div>
+            </div>
+            <div class="actions">
+              <a class="button button-primary" href="{{ radio_stream_url }}">Listen live</a>
+              <a class="button" href="{{ radio_page_url }}">Radio Blau schedule</a>
+              <a class="button" href="{{ calendar_url }}">Add to calendar</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="listen">
+      <div class="shell">
+        <div class="section-header">
+          <h2>Listen</h2>
+          <p class="section-intro">A recent recording from the Sounds of Electronic Art archive.</p>
+        </div>
+        <div class="player-wrap">
+          <div class="player-art" aria-hidden="true">
+            <div class="ring"></div>
+            <div class="label">{{ featured_title }}</div>
+          </div>
+          <div class="player-frame">
+            <iframe title="{{ featured_title }} on SoundCloud" loading="lazy" allow="autoplay" src="{{ featured_embed }}"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="shell">
+        <div class="section-header">
+          <h2>About the show</h2>
+        </div>
+        <div class="about-grid">
+          <div class="about-copy">
+            <p><strong>Sounds of Electronic Art</strong> explores electronic music in all its forms. The show also invites guests to discuss club culture, music scenes and the spaces surrounding them.</p>
+          </div>
+          <div class="about-secondary">
+            <p><strong>Sounds of Electronic Art</strong> beschäftigt sich mit allen Aspekten elektronischer Musik. Regelmäßig sprechen Gäste über Club- und Musikkultur und ihre Perspektiven auf die Szene.</p>
+            <p>The programme was founded in 2011 and broadcasts from Radio Blau in Leipzig.</p>
+            <div class="team">{{ team_html }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="archive">
+      <div class="shell">
+        <div class="section-header">
+          <h2>Broadcast archive</h2>
+          <p class="section-intro">The initial archive below is ready to be extended with the historic Blogger posts and recordings.</p>
+        </div>
+        <div class="archive-tools">
+          <label>
+            <span class="skip-link">Search archive</span>
+            <input class="search" type="search" placeholder="Search dates, titles or guests" data-archive-search>
+          </label>
+        </div>
+        <div class="episode-list">{{ episodes_html }}</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-grid">
+      <div class="footer-logo">{{ logo_svg }}</div>
+      <div class="footer-links">{{ social_html }}</div>
+      <div class="footer-meta">
+        <span>© <span data-current-year>{{ build_year }}</span> Sounds of Electronic Art</span>
+        <span>No tracking. No cookies. Just radio.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="{{ base_path }}/assets/js/site.js" defer></script>
+</body>
+</html>

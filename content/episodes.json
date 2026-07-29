@@ -1,0 +1,50 @@
+[
+  {
+    "date": "2026-08-29T21:00:00+02:00",
+    "title": "Next transmission",
+    "status": "upcoming",
+    "summary": "Three hours of electronic music, conversation and unexpected connections. Live on Radio Blau.",
+    "guests": [],
+    "audio_url": null
+  },
+  {
+    "date": "2026-07-04T21:00:00+02:00",
+    "title": "Sounds of Electronic Art",
+    "status": "past",
+    "summary": "Electronic music and club culture live from Leipzig.",
+    "guests": [],
+    "audio_url": null
+  },
+  {
+    "date": "2026-03-14T21:00:00+01:00",
+    "title": "Sounds of Electronic Art",
+    "status": "past",
+    "summary": "Electronic music and club culture live from Leipzig.",
+    "guests": [],
+    "audio_url": null
+  },
+  {
+    "date": "2026-01-17T21:00:00+01:00",
+    "title": "Sounds of Electronic Art",
+    "status": "past",
+    "summary": "Electronic music and club culture live from Leipzig.",
+    "guests": [],
+    "audio_url": null
+  },
+  {
+    "date": "2025-11-22T21:00:00+01:00",
+    "title": "Sounds of Electronic Art",
+    "status": "past",
+    "summary": "Electronic music and club culture live from Leipzig.",
+    "guests": [],
+    "audio_url": null
+  },
+  {
+    "date": "2025-08-02T21:00:00+02:00",
+    "title": "Sounds of Electronic Art",
+    "status": "past",
+    "summary": "Electronic music and club culture live from Leipzig.",
+    "guests": [],
+    "audio_url": null
+  }
+]

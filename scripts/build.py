@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import os
@@ -27,7 +28,10 @@ def esc(value: object) -> str:
 
 
 def parse_date(value: str) -> datetime:
-    return datetime.fromisoformat(value)
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
 
 
 def render(template: str, values: dict[str, str]) -> str:
@@ -36,26 +40,102 @@ def render(template: str, values: dict[str, str]) -> str:
     return template
 
 
-def soundcloud_embed(url: str, *, playlist: bool = False) -> str:
-    height_options = "&visual=false" if playlist else ""
+def soundcloud_embed(url: str) -> str:
     return (
         "https://w.soundcloud.com/player/?url=" + quote(url, safe="")
         + "&color=%23ef9a55&auto_play=false&hide_related=true"
         + "&show_comments=true&show_user=true&show_reposts=true&show_playcount=true&show_teaser=false"
-        + height_options
     )
 
 
-def date_long(date: datetime, language: str) -> str:
+def date_long(value: datetime, language: str) -> str:
     if language == "de":
-        return f"{WEEKDAYS_DE[date.weekday()]}, {date.day}. {MONTHS_DE[date.month - 1]} {date.year}"
-    return f"{WEEKDAYS_EN[date.weekday()]}, {date.day} {MONTHS_EN[date.month - 1]} {date.year}"
+        return f"{WEEKDAYS_DE[value.weekday()]}, {value.day}. {MONTHS_DE[value.month - 1]} {value.year}"
+    return f"{WEEKDAYS_EN[value.weekday()]}, {value.day} {MONTHS_EN[value.month - 1]} {value.year}"
+
+
+def load_archive(episodes: list[dict]) -> list[dict]:
+    cache_path = ROOT / "content" / "archive-cache.json"
+    try:
+        cache = read_json(cache_path)
+        cached_episodes = cache.get("episodes", [])
+        if isinstance(cached_episodes, list) and cached_episodes:
+            result = []
+            for item in cached_episodes:
+                if not isinstance(item, dict):
+                    continue
+                if not item.get("date") or not item.get("title") or not item.get("audio_url"):
+                    continue
+                result.append(
+                    {
+                        "date": str(item["date"]),
+                        "title_de": str(item["title"]),
+                        "title_en": str(item["title"]),
+                        "summary_de": str(item.get("summary") or ""),
+                        "summary_en": str(item.get("summary") or ""),
+                        "audio_url": str(item["audio_url"]),
+                    }
+                )
+            if result:
+                return sorted(result, key=lambda item: parse_date(item["date"]), reverse=True)
+    except (OSError, json.JSONDecodeError, AttributeError, TypeError, ValueError):
+        pass
+
+    result = []
+    for item in episodes:
+        if item.get("status") == "upcoming" or not item.get("audio_url"):
+            continue
+        result.append(
+            {
+                "date": item["date"],
+                "title_de": item["title_de"],
+                "title_en": item.get("title_en") or item["title_de"],
+                "summary_de": item.get("summary_de") or "",
+                "summary_en": item.get("summary_en") or item.get("summary_de") or "",
+                "audio_url": item["audio_url"],
+            }
+        )
+    return sorted(result, key=lambda item: parse_date(item["date"]), reverse=True)
+
+
+def episode_rows(archive: list[dict]) -> str:
+    rows = []
+    for item in archive:
+        value = parse_date(item["date"])
+        date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
+        date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1][:3]} {value.year}"
+        title_de = item["title_de"]
+        title_en = item.get("title_en") or title_de
+        summary_de = item.get("summary_de") or ""
+        summary_en = item.get("summary_en") or summary_de
+        search_text = " ".join(
+            [item["date"], date_de, date_en, title_de, title_en, summary_de, summary_en]
+        )
+        summary_html = ""
+        if summary_de or summary_en:
+            summary_html = (
+                f'<p data-bilingual data-de="{esc(summary_de)}" data-en="{esc(summary_en)}">'
+                f"{esc(summary_de)}</p>"
+            )
+        rows.append(
+            f'<article class="episode" data-episode data-search="{esc(search_text)}">'
+            f'<time class="episode-date" datetime="{esc(item["date"])}" data-bilingual '
+            f'data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
+            "<div>"
+            f'<h3 data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</h3>'
+            f"{summary_html}</div>"
+            f'<a class="episode-link" href="{esc(item["audio_url"])}" target="_blank" '
+            'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
+            "</article>"
+        )
+    return "".join(rows)
 
 
 def main() -> None:
     site = read_json(ROOT / "content" / "site.json")
     episodes = read_json(ROOT / "content" / "episodes.json")
     episodes.sort(key=lambda item: parse_date(item["date"]), reverse=True)
+    archive = load_archive(episodes)
 
     pages_url = os.environ.get("SITE_URL") or "http://localhost:8000"
     parsed = urlparse(pages_url)
@@ -76,46 +156,12 @@ def main() -> None:
             )
         else:
             alias = f'<span>{esc(member["alias"])}</span>'
-        team_rows.append(
-            f'<div class="team-member"><span>{esc(member["name"])}</span>{alias}</div>'
-        )
+        team_rows.append(f'<div class="team-member"><span>{esc(member["name"])}</span>{alias}</div>')
     team_html = "".join(team_rows)
     social_html = "".join(
         f'<a href="{esc(link["url"])}" target="_blank" rel="noopener noreferrer">{esc(link["label"])}</a>'
         for link in site["social"]
     )
-
-    # Static records remain as a no-JavaScript/privacy-blocker fallback. When the
-    # SoundCloud widget is available, site.js replaces these rows with the full
-    # playlist contents at runtime.
-    past_episodes = [item for item in episodes if item.get("status") != "upcoming"]
-    episode_rows = []
-    for item in past_episodes:
-        date = parse_date(item["date"])
-        audio_url = item.get("audio_url")
-        if audio_url:
-            audio = (
-                f'<a class="episode-link" href="{esc(audio_url)}" target="_blank" '
-                'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
-            )
-        else:
-            audio = '<span class="episode-link" aria-disabled="true" data-i18n="recording_pending">Aufnahme folgt</span>'
-        date_de = f"{date.day:02d}. {MONTHS_DE[date.month - 1]} {date.year}"
-        date_en = f"{date.day:02d} {MONTHS_EN[date.month - 1][:3]} {date.year}"
-        search_text = " ".join(
-            [
-                item["date"], date_de, date_en, item["title_de"], item["title_en"],
-                item["summary_de"], item["summary_en"],
-            ]
-        )
-        episode_rows.append(
-            f'<article class="episode" data-episode data-search="{esc(search_text)}">'
-            f'<time class="episode-date" datetime="{esc(item["date"])}" data-bilingual data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
-            '<div>'
-            f'<h3 data-bilingual data-de="{esc(item["title_de"])}" data-en="{esc(item["title_en"])}">{esc(item["title_de"])}</h3>'
-            f'<p data-bilingual data-de="{esc(item["summary_de"])}" data-en="{esc(item["summary_en"])}">{esc(item["summary_de"])}</p>'
-            '</div>' + audio + '</article>'
-        )
 
     mix_rows = []
     for index, mix in enumerate(site["mixes"]):
@@ -169,10 +215,11 @@ def main() -> None:
         "first_mix_url": esc(first_mix["url"]),
         "first_mix_embed": esc(soundcloud_embed(first_mix["url"])),
         "team_html": team_html,
-        "episodes_html": "".join(episode_rows),
+        "episodes_html": episode_rows(archive),
+        "archive_status_de": esc(f"{len(archive)} Sendungen geladen."),
+        "archive_status_en": esc(f"{len(archive)} broadcasts loaded."),
         "social_html": social_html,
         "archive_playlist_url": esc(archive_playlist_url),
-        "archive_playlist_embed": esc(soundcloud_embed(archive_playlist_url, playlist=True)),
         "build_year": str(datetime.now().year),
     }
 
@@ -181,16 +228,42 @@ def main() -> None:
     PUBLIC.mkdir(parents=True)
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
     (PUBLIC / "index.html").write_text(render(template, values), encoding="utf-8")
+    archive_export = {
+        "source": archive_playlist_url,
+        "count": len(archive),
+        "episodes": [
+            {
+                "date": item["date"],
+                "title": item["title_de"],
+                "summary": item.get("summary_de") or "",
+                "audio_url": item["audio_url"],
+            }
+            for item in archive
+        ],
+    }
+    (PUBLIC / "archive.json").write_text(
+        json.dumps(archive_export, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
     feed_items = []
-    for item in episodes:
-        date = parse_date(item["date"])
+    feed_records = [
+        {
+            "date": item["date"],
+            "title": item["title_de"],
+            "summary": item.get("summary_de") or "",
+            "url": item.get("audio_url") or canonical_url,
+        }
+        for item in archive
+    ]
+    for item in feed_records:
+        value = parse_date(item["date"])
         feed_items.append(
             "<item>"
-            f"<title>{esc(item['title_de'])}</title>"
-            f"<description>{esc(item['summary_de'])}</description>"
-            f"<pubDate>{format_datetime(date)}</pubDate>"
-            f"<guid isPermaLink=\"false\">sofea-{date.strftime('%Y%m%d')}</guid>"
+            f"<title>{esc(item['title'])}</title>"
+            f"<description>{esc(item['summary'])}</description>"
+            f"<link>{esc(item['url'])}</link>"
+            f"<pubDate>{format_datetime(value)}</pubDate>"
+            f"<guid isPermaLink=\"false\">sofea-{value.strftime('%Y%m%d')}-{hashlib.sha1(item['title'].encode('utf-8')).hexdigest()[:12]}</guid>"
             "</item>"
         )
     feed = (
@@ -212,7 +285,7 @@ def main() -> None:
     (PUBLIC / ".nojekyll").write_text("", encoding="utf-8")
     not_found_template = (ROOT / "templates" / "404.html").read_text(encoding="utf-8")
     (PUBLIC / "404.html").write_text(render(not_found_template, values), encoding="utf-8")
-    print(f"Built {PUBLIC} for {pages_url}")
+    print(f"Built {PUBLIC} for {pages_url} with {len(archive)} cached broadcasts")
 
 
 if __name__ == "__main__":

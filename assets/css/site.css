@@ -469,13 +469,6 @@ h1 {
   align-items: flex-end;
   gap: 0.55rem;
 }
-.player-likes {
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 750;
-  white-space: nowrap;
-}
-.player-likes::first-letter { color: var(--rose); }
 .player-frame {
   min-width: 0;
   overflow: hidden;
@@ -574,17 +567,6 @@ h1 {
 .episode p { margin: 0; color: var(--muted); }
 .episode-link { color: var(--ink); text-decoration: none; font-weight: 760; }
 .episode-link[aria-disabled="true"] { color: var(--muted); opacity: 0.55; pointer-events: none; }
-.playlist-loader {
-  position: fixed;
-  left: -10000px;
-  top: 0;
-  width: 2px;
-  height: 2px;
-  overflow: hidden;
-  opacity: 0.001;
-  pointer-events: none;
-}
-.playlist-loader iframe { width: 1px; height: 1px; border: 0; }
 
 .archive-empty {
   margin: 1.5rem 0 0;

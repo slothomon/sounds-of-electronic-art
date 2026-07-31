@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
+  "updated_at": null,
+  "count": 8,
+  "episodes": [
+    {
+      "date": "2026-03-14",
+      "title": "Neele",
+      "summary": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2026-01-17",
+      "title": "sofea & friends",
+      "summary": "Extended Geburtstagsmix mit Neele, Thomas Heinrich, HAL und John Minus Plus.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2025-11-22",
+      "title": "Werner Benzo",
+      "summary": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2025-06-07",
+      "title": "R22",
+      "summary": "Gastset aus der Sendung vom 7. Juni 2025.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2024-10-26",
+      "title": "Moritz Kaiser",
+      "summary": "Zwei Stunden Musikvorstellungen und Gespräche, gefolgt von einem einstündigen Gastset.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2024-07-06",
+      "title": "M.ono",
+      "summary": "House-Set aus der Sendung vom 6. Juli 2024.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2024-03-16",
+      "title": "Dahmar",
+      "summary": "Gastset aus der Sendung vom 16. März 2024.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16",
+      "soundcloud_id": "",
+      "duration_ms": null
+    },
+    {
+      "date": "2023-11-25",
+      "title": "Kontinum",
+      "summary": "Techno-Set aus der Sendung vom 25. November 2023.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25",
+      "soundcloud_id": "",
+      "duration_ms": null
+    }
+  ]
+}

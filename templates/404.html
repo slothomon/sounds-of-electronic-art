@@ -1,11 +1,20 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme="dark" data-palette="warm">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seite nicht gefunden — sounds of electronic art</title>
   <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#151210">
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem('sofea-theme') || 'dark';
+        document.documentElement.dataset.palette = localStorage.getItem('sofea-palette') || 'warm';
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
 </head>
 <body>

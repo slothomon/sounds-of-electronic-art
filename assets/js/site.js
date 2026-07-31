@@ -8,8 +8,9 @@
       listen_intro: 'Wähle eine Aufnahme aus unserem SoundCloud-Archiv. Der Player wird direkt hier aktualisiert.', selected_recording: 'Ausgewählte Aufnahme', open_soundcloud: 'Auf SoundCloud öffnen ↗',
       about_heading: 'Über die Sendung', about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
-      archive_heading: 'Sendungsarchiv', archive_intro: 'Das Archiv wird schrittweise um frühere Blogbeiträge und Aufnahmen ergänzt.', search_label: 'Archiv durchsuchen',
-      play_recording: 'Aufnahme abspielen ↗', recording_pending: 'Aufnahme folgt', privacy: 'Kein Tracking. Keine Cookies. Nur Radio.'
+      archive_heading: 'Sendungsarchiv', archive_intro: 'Das Archiv wird schrittweise um frühere Blogbeiträge und Aufnahmen ergänzt.', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
+      play_recording: 'Aufnahme abspielen ↗', recording_pending: 'Aufnahme folgt', privacy: 'Kein Tracking. Keine Cookies. Nur Radio.',
+      palette_label: 'Farbwelt', theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren'
     },
     en: {
       skip: 'Skip to content', nav_next: 'Next show', nav_listen: 'Listen', nav_about: 'About', nav_archive: 'Archive', nav_live: 'Live stream',
@@ -19,12 +20,21 @@
       listen_intro: 'Choose a recording from our SoundCloud archive. The player updates directly on this page.', selected_recording: 'Selected recording', open_soundcloud: 'Open on SoundCloud ↗',
       about_heading: 'About the show', about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
       about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
-      archive_heading: 'Broadcast archive', archive_intro: 'The archive will gradually be extended with earlier blog posts and recordings.', search_label: 'Search archive',
-      play_recording: 'Play recording ↗', recording_pending: 'Recording pending', privacy: 'No tracking. No cookies. Just radio.'
+      archive_heading: 'Broadcast archive', archive_intro: 'The archive will gradually be extended with earlier blog posts and recordings.', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
+      play_recording: 'Play recording ↗', recording_pending: 'Recording pending', privacy: 'No tracking. No cookies. Just radio.',
+      palette_label: 'Colour palette', theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme'
     }
   };
 
+  const paletteColors = {
+    warm: '#ef9a55',
+    elegant: '#dc7fa8',
+    contrast: '#ff8542'
+  };
+
+  const root = document.documentElement;
   const search = document.querySelector('[data-archive-search]');
+  const archiveEmpty = document.querySelector('[data-archive-empty]');
   const episodes = [...document.querySelectorAll('[data-episode]')];
   const languageButtons = [...document.querySelectorAll('[data-language]')];
   const mixButtons = [...document.querySelectorAll('[data-mix-index]')];
@@ -32,13 +42,91 @@
   const playerTitle = document.querySelector('[data-player-title]');
   const playerSubtitle = document.querySelector('[data-player-subtitle]');
   const playerLink = document.querySelector('[data-player-link]');
-  let language = localStorage.getItem('sofea-language') || 'de';
+  const paletteSelect = document.querySelector('[data-palette-select]');
+  const themeToggle = document.querySelector('[data-theme-toggle]');
+  const themeIcon = document.querySelector('[data-theme-icon]');
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+  const storageGet = (key) => {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  };
+  const storageSet = (key, value) => {
+    try { localStorage.setItem(key, value); } catch (_) {}
+  };
+
+  let language = storageGet('sofea-language') || 'de';
   let activeMix = 0;
+
+  const normalise = (value) => String(value || '')
+    .toLocaleLowerCase(language === 'de' ? 'de' : 'en')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const currentPalette = () => root.dataset.palette || 'warm';
+  const currentTheme = () => root.dataset.theme || 'dark';
+
+  const updateExternalLinks = () => {
+    document.querySelectorAll('a[href]').forEach((link) => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+      try {
+        const url = new URL(href, window.location.href);
+        if (url.protocol === 'http:' || url.protocol === 'https:') {
+          if (url.origin !== window.location.origin) {
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+          }
+        }
+      } catch (_) {}
+    });
+  };
+
+  const colorisedEmbed = (embed) => {
+    try {
+      const url = new URL(embed);
+      url.searchParams.set('color', paletteColors[currentPalette()] || paletteColors.warm);
+      return url.toString();
+    } catch (_) {
+      return embed;
+    }
+  };
+
+  const updatePlayerText = () => {
+    const button = mixButtons[activeMix];
+    if (!button) return;
+    if (playerTitle) playerTitle.textContent = button.dataset.title || '';
+    if (playerSubtitle) playerSubtitle.textContent = button.dataset[language === 'de' ? 'subtitleDe' : 'subtitleEn'] || '';
+  };
+
+  const updateThemeControls = () => {
+    const light = currentTheme() === 'light';
+    const label = translations[language][light ? 'theme_to_dark' : 'theme_to_light'];
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-label', label);
+      themeToggle.title = label;
+      themeToggle.setAttribute('aria-pressed', String(light));
+    }
+    if (themeIcon) themeIcon.textContent = light ? '☾' : '☀';
+    if (themeColorMeta) themeColorMeta.content = light ? '#f7f0e8' : '#151210';
+  };
+
+  const applySearch = () => {
+    if (!search) return;
+    const query = normalise(search.value.trim());
+    let visible = 0;
+    episodes.forEach((episode) => {
+      const haystack = normalise(episode.dataset.search || episode.textContent);
+      const matches = !query || haystack.includes(query);
+      episode.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    if (archiveEmpty) archiveEmpty.hidden = visible !== 0;
+  };
 
   const applyLanguage = (nextLanguage) => {
     language = translations[nextLanguage] ? nextLanguage : 'de';
-    document.documentElement.lang = language;
-    localStorage.setItem('sofea-language', language);
+    root.lang = language;
+    storageSet('sofea-language', language);
 
     document.querySelectorAll('[data-i18n]').forEach((element) => {
       const value = translations[language][element.dataset.i18n];
@@ -53,44 +141,57 @@
     });
     document.querySelectorAll('[data-mix-subtitle]').forEach((element) => {
       const button = element.closest('[data-mix-index]');
-      element.textContent = button?.dataset[`subtitle${language === 'de' ? 'De' : 'En'}`] || '';
+      element.textContent = button?.dataset[language === 'de' ? 'subtitleDe' : 'subtitleEn'] || '';
     });
-    if (search) search.placeholder = search.dataset[`placeholder${language === 'de' ? 'De' : 'En'}`] || '';
+    document.querySelectorAll('option[data-de][data-en]').forEach((option) => {
+      option.textContent = option.dataset[language] || option.dataset.de;
+    });
+    if (search) search.placeholder = search.dataset[language === 'de' ? 'placeholderDe' : 'placeholderEn'] || '';
     languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
     updatePlayerText();
+    updateThemeControls();
+    applySearch();
   };
 
-  const updatePlayerText = () => {
-    const button = mixButtons[activeMix];
-    if (!button) return;
-    if (playerTitle) playerTitle.textContent = button.dataset.title || '';
-    if (playerSubtitle) playerSubtitle.textContent = button.dataset[`subtitle${language === 'de' ? 'De' : 'En'}`] || '';
-  };
-
-  const selectMix = (index) => {
+  const selectMix = (index, scroll = true) => {
     const button = mixButtons[index];
     if (!button) return;
     activeMix = index;
     mixButtons.forEach((item, itemIndex) => item.setAttribute('aria-pressed', String(itemIndex === index)));
-    if (player && player.src !== button.dataset.embed) player.src = button.dataset.embed;
+    const embed = colorisedEmbed(button.dataset.embed || '');
+    if (player && player.src !== embed) player.src = embed;
     if (playerLink) playerLink.href = button.dataset.url || '#';
     updatePlayerText();
-    document.querySelector('.player-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    updateExternalLinks();
+    if (scroll) document.querySelector('.player-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  const setPalette = (palette) => {
+    const selected = paletteColors[palette] ? palette : 'warm';
+    root.dataset.palette = selected;
+    storageSet('sofea-palette', selected);
+    if (paletteSelect) paletteSelect.value = selected;
+    selectMix(activeMix, false);
+  };
+
+  const toggleTheme = () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    storageSet('sofea-theme', next);
+    updateThemeControls();
   };
 
   languageButtons.forEach((button) => button.addEventListener('click', () => applyLanguage(button.dataset.language)));
   mixButtons.forEach((button, index) => button.addEventListener('click', () => selectMix(index)));
-
-  if (search) {
-    search.addEventListener('input', () => {
-      const query = search.value.trim().toLocaleLowerCase(language === 'de' ? 'de' : 'en');
-      episodes.forEach((episode) => {
-        episode.hidden = query !== '' && !episode.textContent.toLocaleLowerCase().includes(query);
-      });
-    });
-  }
+  paletteSelect?.addEventListener('change', () => setPalette(paletteSelect.value));
+  themeToggle?.addEventListener('click', toggleTheme);
+  search?.addEventListener('input', applySearch);
 
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = String(new Date().getFullYear());
+
+  updateExternalLinks();
+  setPalette(currentPalette());
   applyLanguage(language);
+  updateThemeControls();
 })();

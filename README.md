@@ -2,63 +2,115 @@
 
 A dependency-light static site for the sounds of electronic art radio show.
 
-## What is included
+## Included
 
 - Responsive one-page design
-- Next-show card and calendar link
-- Selectable SoundCloud archive with an in-page player
 - German default interface with an English language switch
+- Three selectable colour palettes: Orange, Rose/Lavender and Contrast
+- Light/dark theme switch; both choices are stored in the browser
+- Next-show card and calendar link
+- Ten selectable SoundCloud recordings with an in-page player
 - Searchable broadcast archive
 - RSS feed, sitemap, robots.txt and custom 404 page
 - Automatic deployment with GitHub Actions and GitHub Pages
 - No analytics, cookies or external web fonts
 
-## Edit content
+## Edit general content
 
-- General information, team and links: `content/site.json`
-- Broadcast dates and recordings: `content/episodes.json`
+General information, team, links and the SoundCloud recording list are in:
 
-Use ISO 8601 dates including the Leipzig time offset, for example:
+```text
+content/site.json
+```
+
+The SoundCloud list is the `mixes` array. A recording uses this structure:
 
 ```json
 {
-  "date": "2026-08-29T21:00:00+02:00",
-  "title": "Next transmission",
-  "status": "upcoming",
-  "summary": "Live on Radio Blau.",
-  "guests": ["Guest name"],
-  "audio_url": null
+  "title": "Name der Aufnahme (2026-03-14)",
+  "subtitle_de": "Deutsche Beschreibung",
+  "subtitle_en": "English description",
+  "duration": "2:08:00",
+  "url": "https://soundcloud.com/sounds-of-electronic-art/example"
 }
 ```
 
-Change `status` to `past` after the broadcast and add a recording URL when available.
+The order in `site.json` is also the order shown on the website.
 
-## Preview locally
+## Populate the broadcast archive
 
-```bash
-python scripts/build.py
+Broadcasts are stored in:
+
+```text
+content/episodes.json
+```
+
+Add one JSON object for each broadcast. The build script sorts all entries by date automatically, so their order in the file is not important.
+
+```json
+{
+  "date": "2026-03-14T21:00:00+01:00",
+  "title_de": "Neele",
+  "title_en": "Neele",
+  "status": "past",
+  "summary_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
+  "summary_en": "Recording of Neele's set from the 98th show in March 2026.",
+  "guests": ["Neele"],
+  "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14"
+}
+```
+
+Field notes:
+
+- `date`: ISO 8601 date including the Leipzig UTC offset. Use `+01:00` in winter and `+02:00` in summer.
+- `title_de` / `title_en`: title shown in each language.
+- `status`: `upcoming` for a future transmission, otherwise `past`.
+- `summary_de` / `summary_en`: short description in both languages.
+- `guests`: list of names; use `[]` when there are no named guests.
+- `audio_url`: SoundCloud or another recording URL. Use `null` until a recording is available.
+
+Remember the comma between consecutive objects. A quick syntax check is:
+
+```cmd
+python -m json.tool content\episodes.json > nul
+```
+
+After editing, build locally or commit and push. GitHub Actions rebuilds the archive automatically.
+
+## Migrating the Blogger archive
+
+Export the old Blogger site through **Settings > Manage blog > Back up content**. The export XML can then be converted into entries for `content/episodes.json`. Keep the Blogspot site online during migration and add a final post linking to the new site.
+
+## Preview locally on Windows
+
+```cmd
+cd /d M:\dev\sofea-github-pages
+python scripts\build.py
 python -m http.server 8000 --directory public
 ```
 
-Open `http://localhost:8000`.
+Open:
+
+```text
+http://localhost:8000
+```
 
 To test the repository sub-path used by a GitHub project site:
 
-```bash
-SITE_URL=https://YOUR-USERNAME.github.io/sounds-of-electronic-art \
-  python scripts/build.py
+```cmd
+set SITE_URL=https://YOUR-USERNAME.github.io/sounds-of-electronic-art
+python scripts\build.py
 python -m http.server 8000 --directory public
 ```
 
 ## Deploy to GitHub Pages
 
-1. Create a new GitHub repository, preferably named `sounds-of-electronic-art`.
-2. Push this repository to the `main` branch.
-3. Open **Settings > Pages** in the GitHub repository.
-4. Under **Build and deployment**, select **GitHub Actions** as the source.
-5. Open the **Actions** tab and wait for the `Deploy GitHub Pages` workflow to finish.
+1. Push the repository to the `main` branch.
+2. Open **Settings > Pages** in the GitHub repository.
+3. Under **Build and deployment**, select **GitHub Actions** as the source.
+4. Open the **Actions** tab and wait for `Deploy GitHub Pages` to finish.
 
-The included workflow is `.github/workflows/pages.yml`. It builds the site, obtains the correct GitHub Pages base URL, uploads the `public` directory and deploys it.
+The included workflow is `.github/workflows/pages.yml`. It obtains the correct GitHub Pages base URL, builds the site, uploads the `public` directory and deploys it.
 
 A normal project repository is published at:
 
@@ -66,34 +118,20 @@ A normal project repository is published at:
 https://YOUR-USERNAME.github.io/sounds-of-electronic-art/
 ```
 
-A repository named exactly `YOUR-USERNAME.github.io` is published at the root URL:
+## Update and publish
 
-```text
-https://YOUR-USERNAME.github.io/
-```
-
-A custom domain also removes the repository sub-path.
-
-## Initial Git commands
-
-```bash
-git init
+```cmd
+git status
 git add .
-git commit -m "Initial sounds of electronic art website"
-git branch -M main
-git remote add origin git@github.com:YOUR-USERNAME/sounds-of-electronic-art.git
-git push -u origin main
+git commit -m "Update website"
+git push
 ```
+
+Do not edit files inside `public` directly. They are regenerated by `scripts/build.py`.
 
 ## Custom domain
 
 1. Open **Settings > Pages**.
 2. Enter the chosen name under **Custom domain**.
-3. Add the DNS records requested by GitHub.
-4. After the certificate is ready, enable **Enforce HTTPS**.
-
-GitHub recommends verifying the domain before assigning it and generally recommends configuring the `www` subdomain even when the apex domain is also used. Do not add a `CNAME` file manually for this repository: custom GitHub Actions deployments use the domain configured in the repository settings, and the workflow automatically supplies that URL to the build script.
-
-## Migrating the Blogger archive
-
-Export the Blogger site from **Settings > Manage blog > Back up content**. Historic posts can then be converted into structured episode records. Keep the old Blogspot address online during migration and add a final post linking to the new domain.
+3. Add the required DNS records.
+4. Enable **Enforce HTTPS** after the certificate is ready.

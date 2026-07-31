@@ -39,7 +39,7 @@ def render(template: str, values: dict[str, str]) -> str:
 def soundcloud_embed(url: str) -> str:
     return (
         "https://w.soundcloud.com/player/?url=" + quote(url, safe="")
-        + "&color=%23f0a45f&auto_play=false&hide_related=true"
+        + "&color=%23ef9a55&auto_play=false&hide_related=true"
         + "&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
     )
 
@@ -69,7 +69,8 @@ def main() -> None:
         for member in site["team"]
     )
     social_html = "".join(
-        f'<a href="{esc(link["url"])}">{esc(link["label"])}</a>' for link in site["social"]
+        f'<a href="{esc(link["url"])}" target="_blank" rel="noopener noreferrer">{esc(link["label"])}</a>'
+        for link in site["social"]
     )
 
     past_episodes = [item for item in episodes if item.get("status") != "upcoming"]
@@ -78,7 +79,10 @@ def main() -> None:
         date = parse_date(item["date"])
         audio_url = item.get("audio_url")
         if audio_url:
-            audio = f'<a class="episode-link" href="{esc(audio_url)}" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
+            audio = (
+                f'<a class="episode-link" href="{esc(audio_url)}" target="_blank" '
+                'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
+            )
         else:
             audio = '<span class="episode-link" aria-disabled="true" data-i18n="recording_pending">Aufnahme folgt</span>'
         guests = item.get("guests") or []
@@ -86,8 +90,14 @@ def main() -> None:
         guest_en = f' · Guests: {", ".join(guests)}' if guests else ""
         date_de = f"{date.day:02d}. {MONTHS_DE[date.month - 1]} {date.year}"
         date_en = f"{date.day:02d} {MONTHS_EN[date.month - 1][:3]} {date.year}"
+        search_text = " ".join(
+            [
+                item["date"], date_de, date_en, item["title_de"], item["title_en"],
+                item["summary_de"], item["summary_en"], *guests,
+            ]
+        )
         episode_rows.append(
-            '<article class="episode" data-episode>'
+            f'<article class="episode" data-episode data-search="{esc(search_text)}">'
             f'<time class="episode-date" datetime="{esc(item["date"])}" data-bilingual data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
             '<div>'
             f'<h3 data-bilingual data-de="{esc(item["title_de"])}" data-en="{esc(item["title_en"])}">{esc(item["title_de"])}</h3>'
@@ -103,7 +113,7 @@ def main() -> None:
             f'data-title="{esc(mix["title"])}" data-subtitle-de="{esc(mix["subtitle_de"])}" '
             f'data-subtitle-en="{esc(mix["subtitle_en"])}" data-url="{esc(mix["url"])}" '
             f'data-embed="{esc(soundcloud_embed(mix["url"]))}" aria-pressed="{"true" if index == 0 else "false"}">'
-            f'<span class="mix-number">{index + 1:02d}</span><span class="mix-copy"><strong>{esc(mix["title"])}</strong>'
+            f'<span class="mix-copy"><strong>{esc(mix["title"])}</strong>'
             f'<span data-mix-subtitle>{esc(mix["subtitle_de"])}</span></span>{duration}</button>'
         )
 

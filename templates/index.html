@@ -1,13 +1,23 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme="dark" data-palette="warm">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
   <meta name="description" content="{{ description }}">
-  <meta name="theme-color" content="#171513">
+  <meta name="theme-color" content="#151210">
   <link rel="canonical" href="{{ canonical_url }}">
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem('sofea-theme') || 'dark';
+        const palette = localStorage.getItem('sofea-palette') || 'warm';
+        document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
+        document.documentElement.dataset.palette = ['warm', 'elegant', 'contrast'].includes(palette) ? palette : 'warm';
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
   <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ base_path }}/feed.xml">
   <meta property="og:type" content="website">
@@ -25,11 +35,24 @@
         <a href="#listen" data-i18n="nav_listen">Hören</a>
         <a href="#about" data-i18n="nav_about">Über uns</a>
         <a href="#archive" data-i18n="nav_archive">Archiv</a>
-        <a class="listen-link" href="{{ radio_stream_url }}" data-i18n="nav_live">Livestream</a>
+        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
       </nav>
-      <div class="language-switch" role="group" aria-label="Sprache wählen">
-        <button type="button" data-language="de" aria-pressed="true">DE</button>
-        <button type="button" data-language="en" aria-pressed="false">EN</button>
+      <div class="header-tools">
+        <label class="palette-switch">
+          <span class="visually-hidden" data-i18n="palette_label">Farbwelt</span>
+          <select data-palette-select aria-label="Farbwelt">
+            <option value="warm" data-de="Orange" data-en="Orange">Orange</option>
+            <option value="elegant" data-de="Rosa / Lavendel" data-en="Rose / lavender">Rosa / Lavendel</option>
+            <option value="contrast" data-de="Kontrast" data-en="Contrast">Kontrast</option>
+          </select>
+        </label>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">
+          <span aria-hidden="true" data-theme-icon>☀</span>
+        </button>
+        <div class="language-switch" role="group" aria-label="Sprache wählen">
+          <button type="button" data-language="de" aria-pressed="true">DE</button>
+          <button type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
       </div>
     </div>
   </header>
@@ -66,14 +89,14 @@
               <p data-bilingual data-de="{{ next_summary_de }}" data-en="{{ next_summary_en }}">{{ next_summary_de }}</p>
               <div class="next-meta">
                 <span data-bilingual data-de="{{ next_date_de }}" data-en="{{ next_date_en }}">{{ next_date_de }}</span>
-                <span>{{ next_time }}–00:00 {{ next_timezone }}</span>
+                <span>{{ next_time }}–00:00 · {{ next_timezone }}</span>
                 <span>Radio Blau, Leipzig</span>
               </div>
             </div>
             <div class="actions">
-              <a class="button button-primary" href="{{ radio_stream_url }}" data-i18n="listen_live">Live hören</a>
-              <a class="button" href="{{ radio_page_url }}" data-i18n="schedule">Sendeplan</a>
-              <a class="button" href="{{ calendar_url }}" data-i18n="calendar">Zum Kalender hinzufügen</a>
+              <a class="button button-primary" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="listen_live">Live hören</a>
+              <a class="button" href="{{ radio_page_url }}" target="_blank" rel="noopener noreferrer" data-i18n="schedule">Sendeplan</a>
+              <a class="button" href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer" data-i18n="calendar">Zum Kalender hinzufügen</a>
             </div>
           </div>
         </article>
@@ -90,10 +113,16 @@
           <div class="mix-browser" role="list" aria-label="Aufnahmen auswählen">{{ mixes_html }}</div>
           <div class="player-panel">
             <div class="player-heading">
-              <div><p class="eyebrow" data-i18n="selected_recording">Ausgewählte Aufnahme</p><h3 data-player-title>{{ first_mix_title }}</h3><p data-player-subtitle>{{ first_mix_subtitle_de }}</p></div>
-              <a class="text-link" data-player-link href="{{ first_mix_url }}" target="_blank" rel="noopener" data-i18n="open_soundcloud">Auf SoundCloud öffnen ↗</a>
+              <div>
+                <p class="eyebrow" data-i18n="selected_recording">Ausgewählte Aufnahme</p>
+                <h3 data-player-title>{{ first_mix_title }}</h3>
+                <p data-player-subtitle>{{ first_mix_subtitle_de }}</p>
+              </div>
+              <a class="text-link" data-player-link href="{{ first_mix_url }}" target="_blank" rel="noopener noreferrer" data-i18n="open_soundcloud">Auf SoundCloud öffnen ↗</a>
             </div>
-            <iframe data-soundcloud-player title="{{ first_mix_title }} auf SoundCloud" loading="lazy" allow="autoplay" src="{{ first_mix_embed }}"></iframe>
+            <div class="player-frame">
+              <iframe data-soundcloud-player title="{{ first_mix_title }} auf SoundCloud" loading="lazy" allow="autoplay" src="{{ first_mix_embed }}"></iframe>
+            </div>
           </div>
         </div>
       </div>
@@ -118,8 +147,14 @@
           <h2 data-i18n="archive_heading">Sendungsarchiv</h2>
           <p class="section-intro" data-i18n="archive_intro">Das Archiv wird schrittweise um frühere Blogbeiträge und Aufnahmen ergänzt.</p>
         </div>
-        <div class="archive-tools"><label><span class="skip-link" data-i18n="search_label">Archiv durchsuchen</span><input class="search" type="search" placeholder="Datum, Titel oder Gäste durchsuchen" data-placeholder-de="Datum, Titel oder Gäste durchsuchen" data-placeholder-en="Search dates, titles or guests" data-archive-search></label></div>
+        <div class="archive-tools">
+          <label class="search-label">
+            <span class="visually-hidden" data-i18n="search_label">Archiv durchsuchen</span>
+            <input class="search" type="search" placeholder="Datum, Titel oder Gäste durchsuchen" data-placeholder-de="Datum, Titel oder Gäste durchsuchen" data-placeholder-en="Search dates, titles or guests" data-archive-search>
+          </label>
+        </div>
         <div class="episode-list">{{ episodes_html }}</div>
+        <p class="archive-empty" data-archive-empty hidden data-i18n="archive_empty">Keine passenden Sendungen gefunden.</p>
       </div>
     </section>
   </main>

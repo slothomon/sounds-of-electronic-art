@@ -63,7 +63,26 @@ def valid_date(year: Any, month: Any, day: Any) -> date | None:
 
 
 def date_from_metadata(sound: dict[str, Any]) -> date | None:
-    for field in ("release_date", "display_date", "published_at", "created_at"):
+    # yt-dlp commonly exposes compact YYYYMMDD values for upload/release dates.
+    for field in ("release_date", "upload_date"):
+        value = clean_text(sound.get(field))
+        if re.fullmatch(r"\d{8}", value):
+            parsed = valid_date(value[:4], value[4:6], value[6:8])
+            if parsed:
+                return parsed
+
+    # Some extractors expose Unix timestamps instead of formatted strings.
+    for field in ("release_timestamp", "timestamp", "modified_timestamp"):
+        value = sound.get(field)
+        try:
+            if value is not None:
+                parsed = datetime.fromtimestamp(float(value), tz=timezone.utc)
+                if parsed.year >= 2011:
+                    return parsed.date()
+        except (TypeError, ValueError, OSError, OverflowError):
+            pass
+
+    for field in ("display_date", "published_at", "created_at"):
         value = clean_text(sound.get(field))
         if not value:
             continue
@@ -173,32 +192,70 @@ def normalise_sounds(sounds: list[dict[str, Any]], playlist_url: str) -> dict[st
     }
 
 
+def _public_track_url(entry: dict[str, Any]) -> str:
+    for field in ("webpage_url", "original_url", "url"):
+        value = clean_text(entry.get(field))
+        if value.startswith("https://soundcloud.com/"):
+            return value
+    return ""
+
+
+def _entry_to_sound(entry: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": entry.get("id"),
+        "urn": entry.get("urn"),
+        "title": entry.get("title"),
+        "description": entry.get("description"),
+        "permalink_url": _public_track_url(entry),
+        "permalink": entry.get("display_id"),
+        "duration": int(float(entry["duration"]) * 1000) if entry.get("duration") else None,
+        "release_date": entry.get("release_date"),
+        "upload_date": entry.get("upload_date"),
+        "release_timestamp": entry.get("release_timestamp"),
+        "timestamp": entry.get("timestamp"),
+        "modified_timestamp": entry.get("modified_timestamp"),
+        "display_date": entry.get("display_date"),
+        "published_at": entry.get("published_at"),
+        "created_at": entry.get("created_at"),
+        "user": entry.get("user") if isinstance(entry.get("user"), dict) else {},
+    }
+
+
 def fetch_sounds(playlist_url: str, timeout_ms: int) -> list[dict[str, Any]]:
     try:
         import yt_dlp
     except ImportError as error:
         raise RuntimeError("yt-dlp is not installed") from error
-    opts = {"quiet": True, "no_warnings": True, "skip_download": True,
-            "extract_flat": "in_playlist", "socket_timeout": max(15, timeout_ms // 1000),
-            "retries": 3, "ignoreerrors": True}
+
+    # Do not use extract_flat here. Flat playlist entries generally contain only
+    # an ID/title and omit descriptions, public URLs and publication dates.
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "extract_flat": False,
+        "lazy_playlist": False,
+        "socket_timeout": max(15, timeout_ms // 1000),
+        "retries": 3,
+        "fragment_retries": 3,
+        "ignoreerrors": True,
+    }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(playlist_url, download=False)
+
     entries = info.get("entries") if isinstance(info, dict) else None
     if not isinstance(entries, list) or not entries:
         raise RuntimeError("SoundCloud playlist returned no tracks")
-    sounds = []
-    for entry in entries:
-        if not isinstance(entry, dict):
-            continue
-        url = clean_text(entry.get("webpage_url") or entry.get("url"))
-        upload = clean_text(entry.get("upload_date"))
-        published = f"{upload[:4]}-{upload[4:6]}-{upload[6:8]}T00:00:00Z" if re.fullmatch(r"\d{8}", upload) else ""
-        sounds.append({"id": entry.get("id"), "title": entry.get("title"),
-                       "description": entry.get("description"), "permalink_url": url,
-                       "duration": int(float(entry["duration"]) * 1000) if entry.get("duration") else None,
-                       "published_at": published, "release_date": entry.get("release_date")})
-    print(f"SoundCloud extractor returned {len(entries)} playlist entries.")
+
+    sounds = [_entry_to_sound(entry) for entry in entries if isinstance(entry, dict)]
+    usable_urls = sum(bool(sound.get("permalink_url")) for sound in sounds)
+    usable_dates = sum(bool(extract_episode_date(sound)) for sound in sounds)
+    print(
+        f"SoundCloud extractor returned {len(entries)} playlist entries; "
+        f"{usable_urls} have public URLs and {usable_dates} have readable dates."
+    )
     return sounds
+
 
 def read_existing_cache(path: Path) -> dict[str, Any]:
     try:

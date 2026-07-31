@@ -175,90 +175,30 @@ def normalise_sounds(sounds: list[dict[str, Any]], playlist_url: str) -> dict[st
 
 def fetch_sounds(playlist_url: str, timeout_ms: int) -> list[dict[str, Any]]:
     try:
-        from playwright.sync_api import sync_playwright
+        import yt_dlp
     except ImportError as error:
-        raise RuntimeError(
-            "Playwright is not installed. Run: python -m pip install 'playwright<2'"
-        ) from error
-
-    embed = (
-        "https://w.soundcloud.com/player/?url="
-        + quote(playlist_url, safe="")
-        + "&auto_play=false&hide_related=true&show_comments=false&show_user=false"
-        + "&show_reposts=false&show_playcount=false&show_teaser=false&visual=false"
-    )
-    page_html = f"""<!doctype html>
-<html><body>
-<iframe id="playlist" width="600" height="450" allow="autoplay" src="{embed}"></iframe>
-<script src="https://w.soundcloud.com/player/api.js"></script>
-</body></html>"""
-
-    extraction_script = """
-    async ({ timeoutMs }) => {
-      const frame = document.querySelector('#playlist');
-      if (!frame || !window.SC || !window.SC.Widget) throw new Error('SoundCloud Widget API unavailable');
-      const widget = window.SC.Widget(frame);
-      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      const getter = (method, timeout = 2500) => new Promise((resolve) => {
-        let done = false;
-        const finish = (value) => { if (!done) { done = true; clearTimeout(timer); resolve(value); } };
-        const timer = setTimeout(() => finish(null), timeout);
-        try { widget[method]((value) => finish(value)); } catch (_) { finish(null); }
-      });
-      const readable = (sound) => Boolean(
-        sound && sound.title && (sound.permalink_url || (sound.user && sound.user.permalink && sound.permalink))
-      );
-
-      let stubs = await getter('getSounds', 3500);
-      if (!Array.isArray(stubs) || stubs.length === 0) {
-        await new Promise((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error('SoundCloud widget READY timeout')), timeoutMs);
-          widget.bind(window.SC.Widget.Events.READY, () => { clearTimeout(timer); resolve(); });
-          widget.bind(window.SC.Widget.Events.ERROR, () => { clearTimeout(timer); reject(new Error('SoundCloud widget error')); });
-        });
-        stubs = await getter('getSounds', timeoutMs);
-      }
-      if (!Array.isArray(stubs) || stubs.length === 0) throw new Error('Playlist returned no tracks');
-      const originalIndex = await getter('getCurrentSoundIndex', 2000);
-      try { widget.pause(); } catch (_) {}
-
-      const result = [];
-      for (let index = 0; index < stubs.length; index += 1) {
-        let sound = stubs[index] || {};
-        if (!readable(sound)) {
-          try { widget.skip(index); } catch (_) {}
-          for (let attempt = 0; attempt < 12; attempt += 1) {
-            await wait(attempt === 0 ? 180 : 220);
-            const [current, currentIndex] = await Promise.all([
-              getter('getCurrentSound', 1800),
-              getter('getCurrentSoundIndex', 1800),
-            ]);
-            if (Number(currentIndex) === index && readable(current)) {
-              sound = { ...sound, ...current, user: current.user || sound.user };
-              break;
-            }
-          }
-        }
-        result.push(sound);
-      }
-
-      if (Number.isInteger(Number(originalIndex))) {
-        try { widget.skip(Number(originalIndex)); widget.pause(); } catch (_) {}
-      }
-      return result;
-    }
-    """
-
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 900, "height": 700})
-        page.set_content(page_html, wait_until="domcontentloaded", timeout=timeout_ms)
-        page.wait_for_function("window.SC && window.SC.Widget", timeout=timeout_ms)
-        sounds = page.evaluate(extraction_script, {"timeoutMs": timeout_ms})
-        browser.close()
-
+        raise RuntimeError("yt-dlp is not installed") from error
+    opts = {"quiet": True, "no_warnings": True, "skip_download": True,
+            "extract_flat": "in_playlist", "socket_timeout": max(15, timeout_ms // 1000),
+            "retries": 3, "ignoreerrors": True}
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        info = ydl.extract_info(playlist_url, download=False)
+    entries = info.get("entries") if isinstance(info, dict) else None
+    if not isinstance(entries, list) or not entries:
+        raise RuntimeError("SoundCloud playlist returned no tracks")
+    sounds = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        url = clean_text(entry.get("webpage_url") or entry.get("url"))
+        upload = clean_text(entry.get("upload_date"))
+        published = f"{upload[:4]}-{upload[4:6]}-{upload[6:8]}T00:00:00Z" if re.fullmatch(r"\d{8}", upload) else ""
+        sounds.append({"id": entry.get("id"), "title": entry.get("title"),
+                       "description": entry.get("description"), "permalink_url": url,
+                       "duration": int(float(entry["duration"]) * 1000) if entry.get("duration") else None,
+                       "published_at": published, "release_date": entry.get("release_date")})
+    print(f"SoundCloud extractor returned {len(entries)} playlist entries.")
     return sounds
-
 
 def read_existing_cache(path: Path) -> dict[str, Any]:
     try:

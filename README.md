@@ -6,8 +6,8 @@ A dependency-light static website for the sounds of electronic art radio show.
 
 - Responsive orange design
 - German default interface with English language switch
-- Light/dark theme switch
-- Next-show card and calendar link
+- Dark theme and a Solarized-Light-inspired light theme
+- Multiple upcoming broadcasts and events
 - Ten selectable SoundCloud recordings with an in-page player
 - Statically generated and searchable broadcast archive
 - Automatic SoundCloud archive refresh during deployment and once per day
@@ -23,67 +23,117 @@ General information, team, links and the SoundCloud recording list are in:
 content/site.json
 ```
 
-The `mixes` array controls the ten recordings in the **Listen** section. A recording uses this structure:
+The `mixes` array controls the recordings in the **Hören / Listen** section.
+
+## Add broadcasts and events to “Upcoming”
+
+Upcoming items are maintained in:
+
+```text
+content/episodes.json
+```
+
+Every object with
+
+```json
+"status": "upcoming"
+```
+
+is rendered in the Upcoming section. Entries are automatically sorted by date, so the file can contain one, two or more upcoming items.
+
+### Broadcast example
 
 ```json
 {
-  "title": "Name der Aufnahme (2026-03-14)",
-  "subtitle_de": "Deutsche Beschreibung",
-  "subtitle_en": "English description",
-  "duration": "2:08:00",
-  "url": "https://soundcloud.com/sounds-of-electronic-art/example"
+  "date": "2026-08-29T21:00:00+02:00",
+  "end": "2026-08-30T00:00:00+02:00",
+  "type": "broadcast",
+  "title_de": "sounds of electronic art",
+  "title_en": "sounds of electronic art",
+  "status": "upcoming",
+  "summary_de": "Drei Stunden elektronische Musik und Gespräche live auf Radio Blau.",
+  "summary_en": "Three hours of electronic music and conversation live on Radio Blau.",
+  "audio_url": null
 }
+```
+
+For broadcasts, the site automatically adds the **Live hören** and **Sendeplan** buttons. If `end` is omitted, a duration of three hours is assumed.
+
+### Event example
+
+Add another object to the same JSON array:
+
+```json
+{
+  "date": "2026-09-12T20:00:00+02:00",
+  "end": "2026-09-13T02:00:00+02:00",
+  "type": "event",
+  "title_de": "sofea night",
+  "title_en": "sofea night",
+  "status": "upcoming",
+  "summary_de": "Eine Nacht mit dem sofea-Team und Gästen.",
+  "summary_en": "A night with the sofea team and guests.",
+  "location_de": "Conne Island, Leipzig",
+  "location_en": "Conne Island, Leipzig",
+  "links": [
+    {
+      "label_de": "Veranstaltungsdetails",
+      "label_en": "Event details",
+      "url": "https://example.org/event",
+      "primary": true
+    }
+  ],
+  "audio_url": null
+}
+```
+
+Supported optional fields:
+
+- `end`: end date and time; otherwise 3 hours for broadcasts and 2 hours for events
+- `duration_hours`: alternative duration when `end` is omitted
+- `type`: `broadcast` or `event`
+- `label_de` / `label_en`: custom category label above the title
+- `location`, or separate `location_de` / `location_en`
+- `links`: any number of buttons with bilingual labels, URL and optional `primary: true`
+
+A calendar link is generated automatically for every upcoming item.
+
+Check the JSON syntax after editing:
+
+```cmd
+python -m json.tool content\episodes.json > nul
 ```
 
 ## Static broadcast archive
 
-The archive is generated from this SoundCloud playlist:
+The archive is generated from:
 
 ```text
 https://soundcloud.com/sounds-of-electronic-art/sets/sendungen
 ```
 
-The update process is:
+`scripts/update_archive.py` reads the playlist through `yt-dlp`, cleans titles, dates, descriptions and URLs, and writes the result to:
 
-1. `scripts/update_archive.py` opens the SoundCloud playlist widget in headless Chromium.
-2. It reads every playlist position through the SoundCloud Widget API.
-3. Titles, descriptions, URLs and dates are cleaned and normalized.
-4. The result is written to `content/archive-cache.json`.
-5. `scripts/build.py` renders the cache directly into the generated HTML.
+```text
+content/archive-cache.json
+```
 
-The public page therefore does not have to query or rebuild the archive in the visitor's browser. The archive is immediately searchable, works when third-party widgets are blocked and can be indexed as ordinary HTML.
+`scripts/build.py` then renders the cache into static HTML and `public/archive.json`. The public page does not need to query SoundCloud when a visitor opens it.
 
 The GitHub Actions workflow refreshes the cache:
 
 - on every push to `main`
 - when manually started
-- once per day on a schedule
+- once per day
 
-When the playlist changed, the workflow commits the new `content/archive-cache.json` back to the repository as `github-actions[bot]`. This keeps the last complete cache available for later builds. If SoundCloud is temporarily unavailable, the updater retains the existing cache instead of replacing it with an incomplete result.
+When the playlist changes, GitHub Actions commits the refreshed cache as `github-actions[bot]`.
 
-`content/episodes.json` remains responsible for the next scheduled broadcast. Its past entries also act as an emergency fallback if no archive cache exists.
+## Build and preview locally
 
-## Refresh the archive locally on Windows
-
-The website build itself only needs Python. Updating the SoundCloud archive additionally requires Playwright and Chromium.
-
-Install the updater once:
+A normal website build only needs Python:
 
 ```cmd
 cd /d M:\dev\sofea-github-pages
-python -m pip install -r requirements-archive.txt
-python -m playwright install chromium
-```
-
-Refresh the cache:
-
-```cmd
-python scripts\update_archive.py
-```
-
-Then build and preview:
-
-```cmd
 python scripts\build.py
 python -m http.server 8000 --directory public
 ```
@@ -94,71 +144,20 @@ Open:
 http://localhost:8000
 ```
 
-A normal content edit does not require a local archive refresh; GitHub Actions performs it during deployment.
-
-## Edit the next broadcast
-
-Edit the upcoming entry in:
-
-```text
-content/episodes.json
-```
-
-Example:
-
-```json
-{
-  "date": "2026-08-29T21:00:00+02:00",
-  "title_de": "Nächste Sendung",
-  "title_en": "Next transmission",
-  "status": "upcoming",
-  "summary_de": "Drei Stunden elektronische Musik, Gespräche und unerwartete Verbindungen.",
-  "summary_en": "Three hours of electronic music, conversation and unexpected connections.",
-  "audio_url": null
-}
-```
-
-Check JSON syntax with:
+Updating the SoundCloud archive locally is optional. Install the additional dependency once:
 
 ```cmd
-python -m json.tool content\episodes.json > nul
+python -m pip install -r requirements-archive.txt
+python scripts\update_archive.py
 ```
 
-## Preview the GitHub project path locally
-
-```cmd
-set SITE_URL=https://YOUR-USERNAME.github.io/sounds-of-electronic-art
-python scripts\build.py
-python -m http.server 8000 --directory public
-```
+GitHub Actions performs the archive update automatically during deployment.
 
 ## Deploy to GitHub Pages
 
-1. Push the repository to the `main` branch.
-2. Open **Settings > Pages** in the GitHub repository.
-3. Under **Build and deployment**, select **GitHub Actions**.
-4. Wait for the `Deploy GitHub Pages` workflow to finish.
-
-A normal project repository is published at:
-
-```text
-https://YOUR-USERNAME.github.io/sounds-of-electronic-art/
-```
-
-## Update and publish
-
-```cmd
-git status
-git add .
-git commit -m "Update website"
-git push
-```
+1. Push the repository to `main`.
+2. Open **Settings > Pages**.
+3. Select **GitHub Actions** as the source.
+4. Wait for the **Deploy GitHub Pages** workflow.
 
 Do not edit files inside `public` directly. They are regenerated by `scripts/build.py`.
-
-## Custom domain
-
-1. Open **Settings > Pages**.
-2. Enter the domain under **Custom domain**.
-3. Add the required DNS records.
-4. Enable **Enforce HTTPS** after the certificate is ready.

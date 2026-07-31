@@ -32,7 +32,7 @@
         <span class="brand-vector">{{ logo_svg }}</span>
       </a>
       <nav class="nav" aria-label="Hauptnavigation">
-        <a href="#next" data-i18n="nav_next">Nächste Sendung</a>
+        <a href="#upcoming" data-i18n="nav_next">Upcoming</a>
         <a href="#listen" data-i18n="nav_listen">Hören</a>
         <a href="#about" data-i18n="nav_about">Über uns</a>
         <a href="#archive" data-i18n="nav_archive">Archiv</a>
@@ -64,35 +64,12 @@
       </div>
     </section>
 
-    <section class="section" id="next">
+    <section class="section" id="upcoming">
       <div class="shell">
         <div class="section-header">
-          <h2 data-i18n="next_heading">Nächste Sendung</h2>
-          <p class="section-intro" data-i18n="next_intro">Live auf Radio Blau. Drei Stunden mit Musik, Gesprächen und Umwegen durch elektronische Klangwelten.</p>
+          <h2 data-i18n="next_heading">Upcoming</h2>
         </div>
-        <article class="next-card">
-          <div class="date-panel">
-            <div><div class="day">{{ next_day }}</div><div class="month" data-date-month data-de="{{ next_month_de }}" data-en="{{ next_month_en }}">{{ next_month_de }}</div></div>
-            <div class="year">{{ next_year }}</div>
-          </div>
-          <div class="next-copy">
-            <div>
-              <p class="eyebrow" data-i18n="on_air">On Air</p>
-              <h3 data-bilingual data-de="{{ next_title_de }}" data-en="{{ next_title_en }}">{{ next_title_de }}</h3>
-              <p data-bilingual data-de="{{ next_summary_de }}" data-en="{{ next_summary_en }}">{{ next_summary_de }}</p>
-              <div class="next-meta">
-                <span data-bilingual data-de="{{ next_date_de }}" data-en="{{ next_date_en }}">{{ next_date_de }}</span>
-                <span>{{ next_time }}–00:00 · {{ next_timezone }}</span>
-                <span>Radio Blau, Leipzig</span>
-              </div>
-            </div>
-            <div class="actions">
-              <a class="button button-primary" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="listen_live">Live hören</a>
-              <a class="button" href="{{ radio_page_url }}" target="_blank" rel="noopener noreferrer" data-i18n="schedule">Sendeplan</a>
-              <a class="button" href="{{ calendar_url }}" target="_blank" rel="noopener noreferrer" data-i18n="calendar">Zum Kalender hinzufügen</a>
-            </div>
-          </div>
-        </article>
+        <div class="upcoming-list">{{ upcoming_html }}</div>
       </div>
     </section>
 
@@ -100,7 +77,6 @@
       <div class="shell">
         <div class="section-header">
           <h2 data-i18n="listen_heading">Hören</h2>
-          <p class="section-intro" data-i18n="listen_intro">Wähle eine Aufnahme aus unserem SoundCloud-Archiv. Der Player wird direkt hier aktualisiert.</p>
         </div>
         <div class="listen-layout">
           <div class="mix-browser" role="list" aria-label="Aufnahmen auswählen">{{ mixes_html }}</div>

@@ -54,6 +54,132 @@ def date_long(value: datetime, language: str) -> str:
     return f"{WEEKDAYS_EN[value.weekday()]}, {value.day} {MONTHS_EN[value.month - 1]} {value.year}"
 
 
+def calendar_url(title: str, start: datetime, end: datetime, summary: str, location: str) -> str:
+    start_value = start.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    end_value = end.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return (
+        "https://calendar.google.com/calendar/render?action=TEMPLATE"
+        f"&text={quote(title)}&dates={start_value}/{end_value}"
+        f"&details={quote(summary)}&location={quote(location)}"
+    )
+
+
+def upcoming_rows(items: list[dict], site: dict) -> str:
+    if not items:
+        return (
+            '<p class="upcoming-empty" data-bilingual '
+            'data-de="Aktuell sind keine Termine eingetragen." '
+            'data-en="No upcoming dates are currently listed.">'
+            'Aktuell sind keine Termine eingetragen.</p>'
+        )
+
+    rows = []
+    for item in sorted(items, key=lambda entry: parse_date(entry["date"])):
+        start = parse_date(item["date"])
+        item_type = str(item.get("type") or "broadcast").lower()
+        default_hours = 3 if item_type == "broadcast" else 2
+        end = parse_date(item["end"]) if item.get("end") else start + timedelta(
+            hours=float(item.get("duration_hours") or default_hours)
+        )
+
+        title_de = str(item.get("title_de") or site["name"])
+        title_en = str(item.get("title_en") or title_de)
+        summary_de = str(item.get("summary_de") or "")
+        summary_en = str(item.get("summary_en") or summary_de)
+        default_label_de = "Sendung" if item_type == "broadcast" else "Veranstaltung"
+        default_label_en = "Broadcast" if item_type == "broadcast" else "Event"
+        label_de = str(item.get("label_de") or default_label_de)
+        label_en = str(item.get("label_en") or default_label_en)
+
+        default_location = "Radio Blau, Leipzig" if item_type == "broadcast" else ""
+        location_de = str(item.get("location_de") or item.get("location") or default_location)
+        location_en = str(item.get("location_en") or item.get("location") or location_de)
+
+        date_de = date_long(start, "de")
+        date_en = date_long(start, "en")
+        utc_offset = start.utcoffset()
+        if utc_offset == timedelta(hours=2):
+            timezone_label = "CEST"
+        elif utc_offset == timedelta(hours=1):
+            timezone_label = "CET"
+        else:
+            timezone_label = start.tzname() or "Europe/Berlin"
+        time_text = f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')} · {timezone_label}"
+
+        summary_html = ""
+        if summary_de or summary_en:
+            summary_html = (
+                f'<p data-bilingual data-de="{esc(summary_de)}" data-en="{esc(summary_en)}">'
+                f'{esc(summary_de)}</p>'
+            )
+
+        meta_parts = [
+            f'<span data-bilingual data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</span>',
+            f'<span>{esc(time_text)}</span>',
+        ]
+        if location_de or location_en:
+            meta_parts.append(
+                f'<span data-bilingual data-de="{esc(location_de)}" data-en="{esc(location_en)}">'
+                f'{esc(location_de)}</span>'
+            )
+
+        links = item.get("links")
+        if not isinstance(links, list):
+            links = []
+        if not links and item_type == "broadcast":
+            links = [
+                {
+                    "label_de": "Live hören",
+                    "label_en": "Listen live",
+                    "url": site["radio"]["stream_url"],
+                    "primary": True,
+                },
+                {
+                    "label_de": "Sendeplan",
+                    "label_en": "Radio Blau schedule",
+                    "url": site["radio"]["url"],
+                },
+            ]
+
+        action_parts = []
+        for link in links:
+            if not isinstance(link, dict) or not link.get("url"):
+                continue
+            link_de = str(link.get("label_de") or link.get("label") or "Details")
+            link_en = str(link.get("label_en") or link.get("label") or link_de)
+            button_class = "button button-primary" if link.get("primary") else "button"
+            action_parts.append(
+                f'<a class="{button_class}" href="{esc(link["url"])}" target="_blank" '
+                f'rel="noopener noreferrer" data-bilingual data-de="{esc(link_de)}" '
+                f'data-en="{esc(link_en)}">{esc(link_de)}</a>'
+            )
+
+        action_parts.append(
+            f'<a class="button" href="{esc(calendar_url(title_de, start, end, summary_de, location_de))}" '
+            'target="_blank" rel="noopener noreferrer" data-bilingual '
+            'data-de="Zum Kalender hinzufügen" data-en="Add to calendar">'
+            'Zum Kalender hinzufügen</a>'
+        )
+
+        rows.append(
+            '<article class="upcoming-card">'
+            '<div class="date-panel">'
+            f'<div><div class="day">{start.strftime("%d")}</div>'
+            f'<div class="month" data-bilingual data-de="{esc(MONTHS_DE[start.month - 1])}" '
+            f'data-en="{esc(MONTHS_EN[start.month - 1])}">{esc(MONTHS_DE[start.month - 1])}</div></div>'
+            f'<div class="year">{start.strftime("%Y")}</div>'
+            '</div>'
+            '<div class="upcoming-copy"><div>'
+            f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">'
+            f'{esc(label_de)}</p>'
+            f'<h3 data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</h3>'
+            f'{summary_html}<div class="upcoming-meta">{"".join(meta_parts)}</div>'
+            f'</div><div class="actions">{"".join(action_parts)}</div></div>'
+            '</article>'
+        )
+    return "".join(rows)
+
+
 def load_archive(episodes: list[dict]) -> list[dict]:
     cache_path = ROOT / "content" / "archive-cache.json"
     try:
@@ -143,8 +269,6 @@ def main() -> None:
     canonical_url = pages_url.rstrip("/") + "/"
 
     upcoming = [item for item in episodes if item.get("status") == "upcoming"]
-    next_episode = min(upcoming, key=lambda item: parse_date(item["date"])) if upcoming else episodes[0]
-    next_date = parse_date(next_episode["date"])
 
     team_rows = []
     for member in site["team"]:
@@ -180,14 +304,6 @@ def main() -> None:
     logo_svg = (ROOT / "assets" / "icons" / "logo.svg").read_text(encoding="utf-8")
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
 
-    calendar_start = next_date.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    calendar_end = (next_date + timedelta(hours=3)).astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    calendar_url = (
-        "https://calendar.google.com/calendar/render?action=TEMPLATE"
-        f"&text={quote(site['name'])}&dates={calendar_start}/{calendar_end}"
-        f"&details={quote(next_episode['summary_de'])}&location={quote('Radio Blau, Leipzig')}"
-    )
-
     values = {
         "page_title": esc(site["name"] + " — Radio Blau Leipzig"),
         "description": esc(site["description_de"]),
@@ -196,19 +312,7 @@ def main() -> None:
         "logo_svg": logo_svg,
         "radio_stream_url": esc(site["radio"]["stream_url"]),
         "radio_page_url": esc(site["radio"]["url"]),
-        "next_day": next_date.strftime("%d"),
-        "next_month_de": esc(MONTHS_DE[next_date.month - 1]),
-        "next_month_en": esc(MONTHS_EN[next_date.month - 1]),
-        "next_year": next_date.strftime("%Y"),
-        "next_title_de": esc(next_episode["title_de"]),
-        "next_title_en": esc(next_episode["title_en"]),
-        "next_summary_de": esc(next_episode["summary_de"]),
-        "next_summary_en": esc(next_episode["summary_en"]),
-        "next_date_de": esc(date_long(next_date, "de")),
-        "next_date_en": esc(date_long(next_date, "en")),
-        "next_time": next_date.strftime("%H:%M"),
-        "next_timezone": next_date.tzname() or "Europe/Berlin",
-        "calendar_url": esc(calendar_url),
+        "upcoming_html": upcoming_rows(upcoming, site),
         "mixes_html": "".join(mix_rows),
         "first_mix_title": esc(first_mix["title"]),
         "first_mix_subtitle_de": esc(first_mix["subtitle_de"]),

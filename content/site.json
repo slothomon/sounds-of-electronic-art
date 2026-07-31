@@ -18,26 +18,29 @@
       "url": "https://soundcloud.com/sounds-of-electronic-art"
     },
     {
-      "label": "Radio Blau",
-      "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
+      "label": "Instagram",
+      "url": "https://www.instagram.com/sounds_of_electronic_art/"
     },
     {
-      "label": "Altes Archiv",
-      "url": "https://sounds-of-electronic-art.blogspot.com/"
+      "label": "Radio Blau",
+      "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
     }
   ],
   "team": [
     {
       "name": "Robert Bernsdorf",
-      "alias": "fumé"
+      "alias": "fumé",
+      "alias_url": "https://soundcloud.com/fume"
     },
     {
       "name": "Robert Petroschke",
-      "alias": "easy.miner"
+      "alias": "easy.miner",
+      "alias_url": "https://soundcloud.com/easy_miner"
     },
     {
       "name": "Matthias Kämmerer",
-      "alias": "96kbps"
+      "alias": "96kbps",
+      "alias_url": "https://soundcloud.com/skile"
     }
   ],
   "mixes": [

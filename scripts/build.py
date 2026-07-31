@@ -41,7 +41,7 @@ def soundcloud_embed(url: str, *, playlist: bool = False) -> str:
     return (
         "https://w.soundcloud.com/player/?url=" + quote(url, safe="")
         + "&color=%23ef9a55&auto_play=false&hide_related=true"
-        + "&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+        + "&show_comments=true&show_user=true&show_reposts=true&show_playcount=true&show_teaser=false"
         + height_options
     )
 
@@ -66,10 +66,20 @@ def main() -> None:
     next_episode = min(upcoming, key=lambda item: parse_date(item["date"])) if upcoming else episodes[0]
     next_date = parse_date(next_episode["date"])
 
-    team_html = "".join(
-        f'<div class="team-member"><span>{esc(member["name"])}</span><span>{esc(member["alias"])}</span></div>'
-        for member in site["team"]
-    )
+    team_rows = []
+    for member in site["team"]:
+        alias_url = member.get("alias_url")
+        if alias_url:
+            alias = (
+                f'<a class="artist-link" href="{esc(alias_url)}" target="_blank" '
+                f'rel="noopener noreferrer">{esc(member["alias"])} ↗</a>'
+            )
+        else:
+            alias = f'<span>{esc(member["alias"])}</span>'
+        team_rows.append(
+            f'<div class="team-member"><span>{esc(member["name"])}</span>{alias}</div>'
+        )
+    team_html = "".join(team_rows)
     social_html = "".join(
         f'<a href="{esc(link["url"])}" target="_blank" rel="noopener noreferrer">{esc(link["label"])}</a>'
         for link in site["social"]

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" data-theme="dark" data-palette="warm">
+<html lang="de" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,9 +12,8 @@
     (() => {
       try {
         const theme = localStorage.getItem('sofea-theme') || 'dark';
-        const palette = localStorage.getItem('sofea-palette') || 'warm';
         document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
-        document.documentElement.dataset.palette = ['warm', 'elegant', 'contrast', 'ascii'].includes(palette) ? palette : 'warm';
+        localStorage.removeItem('sofea-palette');
       } catch (_) {}
     })();
   </script>
@@ -31,7 +30,6 @@
     <div class="shell header-inner">
       <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
         <span class="brand-vector">{{ logo_svg }}</span>
-        <span class="brand-ascii" aria-hidden="true">~/\/\~ sofea</span>
       </a>
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="#next" data-i18n="nav_next">Nächste Sendung</a>
@@ -41,15 +39,6 @@
         <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
       </nav>
       <div class="header-tools">
-        <label class="palette-switch">
-          <span class="visually-hidden" data-i18n="palette_label">Farbwelt</span>
-          <select data-palette-select aria-label="Farbwelt">
-            <option value="warm" data-de="Orange" data-en="Orange">Orange</option>
-            <option value="elegant" data-de="Rosa / Lavendel" data-en="Rose / lavender">Rosa / Lavendel</option>
-            <option value="contrast" data-de="Kontrast" data-en="Contrast">Kontrast</option>
-            <option value="ascii" data-de="ASCII" data-en="ASCII">ASCII</option>
-          </select>
-        </label>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">
           <span aria-hidden="true" data-theme-icon>☀</span>
         </button>
@@ -67,25 +56,10 @@
         <div>
           <p class="eyebrow" data-i18n="hero_eyebrow">Radio Blau · Leipzig · seit 2011</p>
           <h1 class="hero-title">sounds of<br>electronic<br>art</h1>
-          <pre class="hero-ascii-logo" aria-label="sofea"> ____   ___  _____ _____    _
-/ ___| / _ \|  ___| ____|  / \
-\___ \| | | | |_  |  _|   / _ \
- ___) | |_| |  _| | |___ / ___ \
-|____/ \___/|_|   |_____/_/   \_\</pre>
           <p class="hero-subtitle" data-i18n="hero_subtitle">Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.</p>
         </div>
         <div class="hero-art" aria-hidden="true">
           <div class="frequency"><span>sofea</span><small>radio blau · leipzig</small></div>
-          <div class="ascii-signal">
-            <div class="ascii-signal-title">+-- SIGNAL / STATUS ----------------+</div>
-            <dl>
-              <div><dt>name</dt><dd>sofea</dd></div>
-              <div><dt>source</dt><dd>radio blau / leipzig</dd></div>
-              <div><dt>cycle</dt><dd>every 8 weeks</dd></div>
-              <div><dt>mode</dt><dd>electronic / live / archive</dd></div>
-            </dl>
-            <pre>~~/\/\___/\_/\/\____/\/\_/\~~</pre>
-          </div>
         </div>
       </div>
     </section>
@@ -137,7 +111,10 @@
                 <h3 data-player-title>{{ first_mix_title }}</h3>
                 <p data-player-subtitle>{{ first_mix_subtitle_de }}</p>
               </div>
-              <a class="text-link" data-player-link href="{{ first_mix_url }}" target="_blank" rel="noopener noreferrer" data-i18n="open_soundcloud">Auf SoundCloud öffnen ↗</a>
+              <div class="player-actions">
+                <a class="text-link" data-player-link href="{{ first_mix_url }}" target="_blank" rel="noopener noreferrer" data-i18n="open_soundcloud">Auf SoundCloud öffnen ↗</a>
+                <span class="player-likes" data-player-likes hidden aria-live="polite">♥ <span data-player-likes-count></span> Likes</span>
+              </div>
             </div>
             <div class="player-frame">
               <iframe data-soundcloud-player title="{{ first_mix_title }} auf SoundCloud" loading="lazy" allow="autoplay" src="{{ first_mix_embed }}"></iframe>
@@ -164,7 +141,6 @@
       <div class="shell">
         <div class="section-header">
           <h2 data-i18n="archive_heading">Sendungsarchiv</h2>
-          <p class="section-intro" data-i18n="archive_intro">Das Archiv wird automatisch aus unserer SoundCloud-Playlist geladen.</p>
         </div>
         <div class="archive-meta">
           <p class="archive-status" data-archive-status data-i18n="archive_loading">SoundCloud-Archiv wird geladen …</p>
@@ -186,11 +162,6 @@
     <div class="shell footer-grid">
       <div class="footer-logo">
         <span class="brand-vector">{{ logo_svg }}</span>
-        <pre class="footer-ascii-logo" aria-label="sofea"> ____   ___  _____ _____    _
-/ ___| / _ \|  ___| ____|  / \
-\___ \| | | | |_  |  _|   / _ \
- ___) | |_| |  _| | |___ / ___ \
-|____/ \___/|_|   |_____/_/   \_\</pre>
       </div>
       <div class="footer-links">{{ social_html }}</div>
       <div class="footer-meta">

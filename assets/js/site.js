@@ -10,11 +10,10 @@
       listen_intro: 'Wähle eine Aufnahme aus unserem SoundCloud-Archiv. Der Player wird direkt hier aktualisiert.', selected_recording: 'Ausgewählte Aufnahme', open_soundcloud: 'Auf SoundCloud öffnen ↗',
       about_heading: 'Über die Sendung', about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
-      archive_heading: 'Sendungsarchiv', archive_intro: 'Das Archiv wird automatisch aus unserer SoundCloud-Playlist geladen.', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
+      archive_heading: 'Sendungsarchiv', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
       archive_loading: 'SoundCloud-Archiv wird geladen …', archive_fallback: 'SoundCloud ist blockiert oder nicht erreichbar. Angezeigt wird der lokale Archivstand.',
       open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', recording_pending: 'Aufnahme folgt', privacy: 'Kein Tracking. Keine Cookies. Nur Radio.',
-      palette_label: 'Design', theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren',
-      generic_archive_summary: 'Aufnahme aus dem SoundCloud-Sendungsarchiv.'
+      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren',
     },
     en: {
       skip: 'Skip to content', nav_next: 'Next show', nav_listen: 'Listen', nav_about: 'About', nav_archive: 'Archive', nav_live: 'Live stream',
@@ -24,20 +23,14 @@
       listen_intro: 'Choose a recording from our SoundCloud archive. The player updates directly on this page.', selected_recording: 'Selected recording', open_soundcloud: 'Open on SoundCloud ↗',
       about_heading: 'About the show', about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
       about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
-      archive_heading: 'Broadcast archive', archive_intro: 'The archive is loaded automatically from our SoundCloud playlist.', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
+      archive_heading: 'Broadcast archive', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
       archive_loading: 'Loading the SoundCloud archive …', archive_fallback: 'SoundCloud is blocked or unavailable. Showing the locally stored archive instead.',
       open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', recording_pending: 'Recording pending', privacy: 'No tracking. No cookies. Just radio.',
-      palette_label: 'Design', theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme',
-      generic_archive_summary: 'Recording from the SoundCloud broadcast archive.'
+      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme',
     }
   };
 
-  const paletteColors = {
-    warm: '#ef9a55',
-    elegant: '#dc7fa8',
-    contrast: '#ff8542',
-    ascii: '#f0a05a'
-  };
+  const playerColor = '#ef9a55';
 
   const root = document.documentElement;
   const search = document.querySelector('[data-archive-search]');
@@ -51,7 +44,8 @@
   const playerTitle = document.querySelector('[data-player-title]');
   const playerSubtitle = document.querySelector('[data-player-subtitle]');
   const playerLink = document.querySelector('[data-player-link]');
-  const paletteSelect = document.querySelector('[data-palette-select]');
+  const playerLikes = document.querySelector('[data-player-likes]');
+  const playerLikesCount = document.querySelector('[data-player-likes-count]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeIcon = document.querySelector('[data-theme-icon]');
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -68,6 +62,7 @@
   let archiveTotal = 0;
   let archiveProgress = 0;
   let archiveReady = false;
+  let playerWidget = null;
 
   const normalise = (value) => String(value || '')
     .toLocaleLowerCase(language === 'de' ? 'de' : 'en')
@@ -86,7 +81,6 @@
       `${year}-${String(Number(month)).padStart(2, '0')}-${String(Number(day)).padStart(2, '0')}`
     ));
 
-  const currentPalette = () => root.dataset.palette || 'warm';
   const currentTheme = () => root.dataset.theme || 'dark';
 
   const updateExternalLinks = () => {
@@ -106,7 +100,7 @@
   const colorisedEmbed = (embed) => {
     try {
       const url = new URL(embed);
-      url.searchParams.set('color', paletteColors[currentPalette()] || paletteColors.warm);
+      url.searchParams.set('color', playerColor);
       return url.toString();
     } catch (_) { return embed; }
   };
@@ -134,8 +128,8 @@
     if (!archiveStatus) return;
     if (archiveState === 'synced') {
       archiveStatus.textContent = language === 'de'
-        ? `${archiveCount} Sendungen aus der SoundCloud-Playlist geladen.`
-        : `${archiveCount} broadcasts loaded from the SoundCloud playlist.`;
+        ? `${archiveCount} Sendungen geladen.`
+        : `${archiveCount} broadcasts loaded.`;
       return;
     }
     if (archiveState === 'partial') {
@@ -193,8 +187,39 @@
     languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
     updatePlayerText();
     updateThemeControls();
+    refreshPlayerLikes();
     updateArchiveStatus();
     applySearch();
+  };
+
+  const updatePlayerLikes = (sound) => {
+    const rawCount = sound?.likes_count ?? sound?.favoritings_count;
+    const count = Number(rawCount);
+    const available = Number.isFinite(count) && count >= 0;
+    if (playerLikes) playerLikes.hidden = !available;
+    if (playerLikesCount) {
+      playerLikesCount.textContent = available
+        ? new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-GB').format(count)
+        : '';
+    }
+  };
+
+  const refreshPlayerLikes = () => {
+    updatePlayerLikes(null);
+    if (!playerWidget) return;
+    try { playerWidget.getCurrentSound(updatePlayerLikes); } catch (_) {}
+  };
+
+  const initPlayerWidget = () => {
+    if (!player || !window.SC?.Widget) return;
+    try {
+      playerWidget = window.SC.Widget(player);
+      playerWidget.bind(window.SC.Widget.Events.READY, refreshPlayerLikes);
+      playerWidget.bind(window.SC.Widget.Events.PLAY, refreshPlayerLikes);
+      window.setTimeout(refreshPlayerLikes, 1200);
+    } catch (_) {
+      playerWidget = null;
+    }
   };
 
   const selectMix = (index, scroll = true) => {
@@ -203,20 +228,26 @@
     activeMix = index;
     mixButtons.forEach((item, itemIndex) => item.setAttribute('aria-pressed', String(itemIndex === index)));
     const embed = colorisedEmbed(button.dataset.embed || '');
-    if (player && player.src !== embed) player.src = embed;
+    updatePlayerLikes(null);
+    if (playerWidget && button.dataset.url) {
+      try {
+        playerWidget.load(button.dataset.url, {
+          color: playerColor, auto_play: false, hide_related: true,
+          show_comments: true, show_user: true, show_reposts: true,
+          show_playcount: true, show_teaser: false, callback: refreshPlayerLikes
+        });
+      } catch (_) {
+        if (player && player.src !== embed) player.src = embed;
+      }
+    } else if (player && player.src !== embed) {
+      player.src = embed;
+    }
     if (playerLink) playerLink.href = button.dataset.url || '#';
     updatePlayerText();
     updateExternalLinks();
     if (scroll) document.querySelector('.player-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
-  const setPalette = (palette) => {
-    const selected = paletteColors[palette] ? palette : 'warm';
-    root.dataset.palette = selected;
-    storageSet('sofea-palette', selected);
-    if (paletteSelect) paletteSelect.value = selected;
-    selectMix(activeMix, false);
-  };
 
   const toggleTheme = () => {
     root.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -294,8 +325,6 @@
     if (!date) return null;
     const title = cleanTitle(sound.title);
     const originalDescription = soundDescription(sound);
-    const descriptionDe = originalDescription || translations.de.generic_archive_summary;
-    const descriptionEn = originalDescription || translations.en.generic_archive_summary;
     const url = soundUrl(sound);
     const article = document.createElement('article');
     article.className = 'episode';
@@ -313,12 +342,12 @@
     const copy = document.createElement('div');
     const heading = document.createElement('h3');
     heading.textContent = title;
-    const paragraph = document.createElement('p');
-    paragraph.dataset.bilingual = '';
-    paragraph.dataset.de = descriptionDe;
-    paragraph.dataset.en = descriptionEn;
-    paragraph.textContent = language === 'de' ? descriptionDe : descriptionEn;
-    copy.append(heading, paragraph);
+    copy.append(heading);
+    if (originalDescription) {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = originalDescription;
+      copy.append(paragraph);
+    }
 
     const link = document.createElement('a');
     link.className = 'episode-link';
@@ -450,7 +479,6 @@
 
   languageButtons.forEach((button) => button.addEventListener('click', () => applyLanguage(button.dataset.language)));
   mixButtons.forEach((button, index) => button.addEventListener('click', () => selectMix(index)));
-  paletteSelect?.addEventListener('change', () => setPalette(paletteSelect.value));
   themeToggle?.addEventListener('click', toggleTheme);
   search?.addEventListener('input', applySearch);
 
@@ -458,7 +486,7 @@
   if (year) year.textContent = String(new Date().getFullYear());
 
   updateExternalLinks();
-  setPalette(currentPalette());
+  initPlayerWidget();
   applyLanguage(language);
   updateThemeControls();
   initPlaylistArchive();

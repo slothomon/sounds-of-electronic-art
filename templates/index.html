@@ -138,10 +138,16 @@
       <div class="footer-logo">
         <span class="brand-vector">{{ logo_svg }}</span>
       </div>
-      <div class="footer-links">{{ social_html }}</div>
+      <div class="footer-links">{{ social_html }}<a href="{{ base_path }}/impressum.html" data-i18n="imprint_link">Impressum</a><a href="{{ base_path }}/datenschutz.html" data-i18n="privacy_link">Datenschutz</a></div>
+      <a class="footer-partner" href="{{ radio_home_url }}" target="_blank" rel="noopener noreferrer" aria-label="Radio Blau in einem neuen Tab öffnen">
+        <span class="footer-partner-label" data-bilingual data-de="Ausgestrahlt auf" data-en="Broadcast on">Ausgestrahlt auf</span>
+        <span class="footer-partner-logo">
+          <img src="{{ base_path }}/assets/images/radioblau-logo.png" alt="Radio Blau">
+        </span>
+        <span class="footer-partner-url">radioblau.de</span>
+      </a>
       <div class="footer-meta">
         <span>© <span data-current-year>{{ build_year }}</span> sounds of electronic art</span>
-        <span data-i18n="privacy">Kein Tracking. Keine Cookies. Nur Radio.</span>
       </div>
     </div>
   </footer>

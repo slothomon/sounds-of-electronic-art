@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta name="theme-color" content="#151210">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem('sofea-theme') || 'dark';
+        document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
+        <span class="brand-vector">{{ logo_svg }}</span>
+      </a>
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a href="{{ base_path }}/#upcoming" data-i18n="nav_next">Upcoming</a>
+        <a href="{{ base_path }}/#listen" data-i18n="nav_listen">Hören</a>
+        <a href="{{ base_path }}/#about" data-i18n="nav_about">Über uns</a>
+        <a href="{{ base_path }}/#archive" data-i18n="nav_archive">Archiv</a>
+        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
+      </nav>
+      <div class="header-tools">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">
+          <span aria-hidden="true" data-theme-icon>☀</span>
+        </button>
+        <div class="language-switch" role="group" aria-label="Sprache wählen">
+          <button type="button" data-language="de" aria-pressed="true">DE</button>
+          <button type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="legal-main">
+    {{ legal_content }}
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-grid">
+      <div class="footer-logo">
+        <span class="brand-vector">{{ logo_svg }}</span>
+      </div>
+      <div class="footer-links">
+        {{ social_html }}
+        <a href="{{ base_path }}/impressum.html" data-i18n="imprint_link">Impressum</a>
+        <a href="{{ base_path }}/datenschutz.html" data-i18n="privacy_link">Datenschutz</a>
+      </div>
+      <a class="footer-partner" href="{{ radio_home_url }}" target="_blank" rel="noopener noreferrer" aria-label="Radio Blau in einem neuen Tab öffnen">
+        <span class="footer-partner-label" data-bilingual data-de="Ausgestrahlt auf" data-en="Broadcast on">Ausgestrahlt auf</span>
+        <span class="footer-partner-logo">
+          <img src="{{ base_path }}/assets/images/radioblau-logo.png" alt="Radio Blau">
+        </span>
+        <span class="footer-partner-url">radioblau.de</span>
+      </a>
+      <div class="footer-meta">
+        <span>© <span data-current-year>{{ build_year }}</span> sounds of electronic art</span>
+      </div>
+    </div>
+  </footer>
+  <script src="{{ base_path }}/assets/js/site.js" defer></script>
+</body>
+</html>

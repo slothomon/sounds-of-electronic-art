@@ -11,7 +11,7 @@
       about_heading: 'Über die Sendung', about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
       archive_heading: 'Sendungsarchiv', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
-      open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', privacy: 'Kein Tracking. Keine Cookies. Nur Radio.',
+      open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', imprint_link: 'Impressum', privacy_link: 'Datenschutz',
       theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren',
     },
     en: {
@@ -23,7 +23,7 @@
       about_heading: 'About the show', about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
       about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
       archive_heading: 'Broadcast archive', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
-      open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', privacy: 'No tracking. No cookies. Just radio.',
+      open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', imprint_link: 'Legal notice', privacy_link: 'Privacy',
       theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme',
     },
   };
@@ -145,6 +145,9 @@
     });
     document.querySelectorAll('[data-bilingual]').forEach((element) => {
       element.textContent = element.dataset[language] || element.dataset.de || '';
+    });
+    document.querySelectorAll('[data-language-panel]').forEach((element) => {
+      element.hidden = element.dataset.languagePanel !== language;
     });
     document.querySelectorAll('[data-mix-subtitle]').forEach((element) => {
       const button = element.closest('[data-mix-index]');

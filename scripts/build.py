@@ -257,8 +257,125 @@ def episode_rows(archive: list[dict]) -> str:
     return "".join(rows)
 
 
+
+def legal_pages_content(legal: dict[str, str]) -> dict[str, str]:
+    name = esc(legal["operator_name"])
+    street = esc(legal["street_address"])
+    postal_city = esc(legal["postal_city"])
+    country = esc(legal.get("country") or "Deutschland")
+    address = (
+        f'<address class="legal-address"><strong>{name}</strong><br>'
+        f'{street}<br>{postal_city}<br>{country}</address>'
+    )
+
+    imprint = f'''
+<section class="section legal-section">
+  <div class="shell legal-shell">
+    <div data-language-panel="de">
+      <p class="eyebrow">Rechtliche Hinweise</p>
+      <h1 class="legal-title">Impressum</h1>
+      <div class="legal-card">
+        <h2>Angaben gemäß § 18 Abs. 1 Medienstaatsvertrag</h2>
+        <p>Anbieter und Betreiber dieser Website:</p>
+        {address}
+      </div>
+      <p class="legal-note">Stand: Juli 2026</p>
+    </div>
+    <div data-language-panel="en" hidden>
+      <p class="eyebrow">Legal information</p>
+      <h1 class="legal-title">Legal notice</h1>
+      <div class="legal-card">
+        <h2>Information pursuant to section 18(1) of the German Interstate Media Treaty</h2>
+        <p>Provider and operator of this website:</p>
+        {address}
+      </div>
+      <p class="legal-note">Last updated: July 2026. The German version is authoritative.</p>
+    </div>
+  </div>
+</section>'''
+
+    privacy = f'''
+<section class="section legal-section">
+  <div class="shell legal-shell">
+    <div data-language-panel="de">
+      <p class="eyebrow">Rechtliche Hinweise</p>
+      <h1 class="legal-title">Datenschutzerklärung</h1>
+
+      <div class="legal-card legal-prose">
+        <h2>1. Verantwortlicher</h2>
+        <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+        {address}
+        <p>Datenschutzanfragen können postalisch an diese Anschrift gerichtet werden.</p>
+
+        <h2>2. Hosting über GitHub Pages</h2>
+        <p>Diese Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc. Beim Aufruf einer GitHub-Pages-Website wird die IP-Adresse des zugreifenden Geräts nach Angaben von GitHub zu Sicherheitszwecken protokolliert und gespeichert. Weitere technische Nutzungsdaten können durch GitHub verarbeitet werden.</p>
+        <p><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzhinweise von GitHub ↗</a></p>
+
+        <h2>3. Lokale Einstellungen</h2>
+        <p>Die Website speichert die gewählte Sprache und das helle oder dunkle Farbschema im lokalen Speicher des Browsers. Diese Angaben dienen ausschließlich dazu, die gewählten Anzeigeeinstellungen bei späteren Besuchen beizubehalten. Sie werden nicht zur Reichweitenmessung oder zur Erstellung von Nutzerprofilen verwendet.</p>
+
+        <h2>4. Eingebettete Inhalte von SoundCloud</h2>
+        <p>Im Bereich „Hören“ werden Audioplayer von SoundCloud eingebettet. Beim Laden eines Players stellt der Browser eine direkte Verbindung zu SoundCloud her. Dabei können insbesondere die IP-Adresse, Browser- und Geräteinformationen, die aufgerufene Seite sowie Nutzungsinformationen an SoundCloud übermittelt werden. SoundCloud weist darauf hin, dass bei eingebetteten Playern Nutzungsdaten zu Analysezwecken erhoben und Cookies oder vergleichbare Technologien eingesetzt werden können.</p>
+        <p><a href="https://help.soundcloud.com/hc/en-us/articles/360004066174-General-Data-Protection-Regulation-GDPR">Datenschutzhinweise zu eingebetteten SoundCloud-Playern ↗</a></p>
+
+        <h2>5. Externe Links</h2>
+        <p>Diese Website enthält Links zu externen Angeboten, insbesondere SoundCloud, Instagram und Radio Blau. Erst beim Anklicken eines solchen Links wird die jeweilige externe Website aufgerufen. Für die dortige Datenverarbeitung ist der jeweilige Anbieter verantwortlich.</p>
+
+        <h2>6. Eigene Reichweitenmessung und Kontaktformulare</h2>
+        <p>Diese Website verwendet keine eigene Webanalyse, kein eigenes Tracking, keine Werbenetzwerke und kein Kontaktformular. Es werden keine Newsletter angeboten.</p>
+
+        <h2>7. Rechte betroffener Personen</h2>
+        <p>Im Rahmen der gesetzlichen Voraussetzungen bestehen insbesondere Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Außerdem besteht das Recht, sich bei einer Datenschutzaufsichtsbehörde zu beschweren.</p>
+
+        <h2>8. Aktualisierung</h2>
+        <p>Diese Datenschutzerklärung wird angepasst, wenn sich die eingesetzten Dienste oder die rechtlichen Anforderungen ändern.</p>
+      </div>
+      <p class="legal-note">Stand: Juli 2026</p>
+    </div>
+
+    <div data-language-panel="en" hidden>
+      <p class="eyebrow">Legal information</p>
+      <h1 class="legal-title">Privacy notice</h1>
+
+      <div class="legal-card legal-prose">
+        <h2>1. Controller</h2>
+        <p>The controller responsible for processing personal data on this website is:</p>
+        {address}
+        <p>Privacy enquiries may be sent to this postal address.</p>
+
+        <h2>2. Hosting through GitHub Pages</h2>
+        <p>This website is hosted through GitHub Pages, a service provided by GitHub, Inc. GitHub states that the IP address of a device visiting a GitHub Pages site is logged and stored for security purposes. GitHub may process additional technical usage information.</p>
+        <p><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement ↗</a></p>
+
+        <h2>3. Local preferences</h2>
+        <p>The website stores the selected language and light or dark colour scheme in the browser's local storage. These values are used only to restore the selected display preferences. They are not used for audience measurement or profiling.</p>
+
+        <h2>4. Embedded SoundCloud content</h2>
+        <p>The “Listen” section embeds audio players provided by SoundCloud. Loading a player establishes a direct connection between the browser and SoundCloud. This may transmit the IP address, browser and device information, the referring page and usage information. SoundCloud states that embedded players may collect usage information for analytics and may use cookies or similar technologies.</p>
+        <p><a href="https://help.soundcloud.com/hc/en-us/articles/360004066174-General-Data-Protection-Regulation-GDPR">SoundCloud information for embedded players ↗</a></p>
+
+        <h2>5. External links</h2>
+        <p>This website links to external services, particularly SoundCloud, Instagram and Radio Blau. The external website is contacted only after a link is selected. The respective provider is responsible for processing data on that service.</p>
+
+        <h2>6. Analytics and contact forms</h2>
+        <p>This website does not operate its own analytics, tracking, advertising networks, contact forms or newsletter.</p>
+
+        <h2>7. Data subject rights</h2>
+        <p>Subject to the applicable legal requirements, data subjects may have rights of access, rectification, erasure, restriction, data portability and objection. They may also lodge a complaint with a data protection supervisory authority.</p>
+
+        <h2>8. Updates</h2>
+        <p>This privacy notice will be updated when the services used by this website or the applicable legal requirements change.</p>
+      </div>
+      <p class="legal-note">Last updated: July 2026. The German version is authoritative.</p>
+    </div>
+  </div>
+</section>'''
+
+    return {"impressum": imprint, "datenschutz": privacy}
+
 def main() -> None:
     site = read_json(ROOT / "content" / "site.json")
+    legal = read_json(ROOT / "content" / "legal.json")
     episodes = read_json(ROOT / "content" / "episodes.json")
     episodes.sort(key=lambda item: parse_date(item["date"]), reverse=True)
     archive = load_archive(episodes)
@@ -285,6 +402,8 @@ def main() -> None:
     social_html = "".join(
         f'<a href="{esc(link["url"])}" target="_blank" rel="noopener noreferrer">{esc(link["label"])}</a>'
         for link in site["social"]
+        if "radioblau" not in str(link.get("url", "")).lower()
+        and str(link.get("label", "")).strip().lower() != "radio blau"
     )
 
     mix_rows = []
@@ -312,6 +431,7 @@ def main() -> None:
         "logo_svg": logo_svg,
         "radio_stream_url": esc(site["radio"]["stream_url"]),
         "radio_page_url": esc(site["radio"]["url"]),
+        "radio_home_url": "https://www.radioblau.de/",
         "upcoming_html": upcoming_rows(upcoming, site),
         "mixes_html": "".join(mix_rows),
         "first_mix_title": esc(first_mix["title"]),
@@ -332,6 +452,26 @@ def main() -> None:
     PUBLIC.mkdir(parents=True)
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
     (PUBLIC / "index.html").write_text(render(template, values), encoding="utf-8")
+
+    legal_template = (ROOT / "templates" / "legal.html").read_text(encoding="utf-8")
+    legal_contents = legal_pages_content(legal)
+    legal_pages = {
+        "impressum.html": {
+            "page_title": "Impressum / Legal notice — sounds of electronic art",
+            "description": "Impressum und Anbieterkennzeichnung von sounds of electronic art.",
+            "canonical_url": canonical_url + "impressum.html",
+            "legal_content": legal_contents["impressum"],
+        },
+        "datenschutz.html": {
+            "page_title": "Datenschutz / Privacy — sounds of electronic art",
+            "description": "Datenschutzerklärung von sounds of electronic art.",
+            "canonical_url": canonical_url + "datenschutz.html",
+            "legal_content": legal_contents["datenschutz"],
+        },
+    }
+    for filename, page_values in legal_pages.items():
+        current_values = values | {key: esc(value) if key != "legal_content" else value for key, value in page_values.items()}
+        (PUBLIC / filename).write_text(render(legal_template, current_values), encoding="utf-8")
     archive_export = {
         "source": archive_playlist_url,
         "count": len(archive),
@@ -380,7 +520,10 @@ def main() -> None:
     (PUBLIC / "feed.xml").write_text(feed, encoding="utf-8")
     sitemap = (
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        f'<url><loc>{esc(canonical_url)}</loc></url></urlset>'
+        f'<url><loc>{esc(canonical_url)}</loc></url>'
+        f'<url><loc>{esc(canonical_url + "impressum.html")}</loc></url>'
+        f'<url><loc>{esc(canonical_url + "datenschutz.html")}</loc></url>'
+        '</urlset>'
     )
     (PUBLIC / "sitemap.xml").write_text(sitemap, encoding="utf-8")
     (PUBLIC / "robots.txt").write_text(

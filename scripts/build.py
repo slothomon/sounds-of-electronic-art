@@ -36,11 +36,13 @@ def render(template: str, values: dict[str, str]) -> str:
     return template
 
 
-def soundcloud_embed(url: str) -> str:
+def soundcloud_embed(url: str, *, playlist: bool = False) -> str:
+    height_options = "&visual=false" if playlist else ""
     return (
         "https://w.soundcloud.com/player/?url=" + quote(url, safe="")
         + "&color=%23ef9a55&auto_play=false&hide_related=true"
         + "&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+        + height_options
     )
 
 
@@ -73,6 +75,9 @@ def main() -> None:
         for link in site["social"]
     )
 
+    # Static records remain as a no-JavaScript/privacy-blocker fallback. When the
+    # SoundCloud widget is available, site.js replaces these rows with the full
+    # playlist contents at runtime.
     past_episodes = [item for item in episodes if item.get("status") != "upcoming"]
     episode_rows = []
     for item in past_episodes:
@@ -85,15 +90,12 @@ def main() -> None:
             )
         else:
             audio = '<span class="episode-link" aria-disabled="true" data-i18n="recording_pending">Aufnahme folgt</span>'
-        guests = item.get("guests") or []
-        guest_de = f' · Gäste: {", ".join(guests)}' if guests else ""
-        guest_en = f' · Guests: {", ".join(guests)}' if guests else ""
         date_de = f"{date.day:02d}. {MONTHS_DE[date.month - 1]} {date.year}"
         date_en = f"{date.day:02d} {MONTHS_EN[date.month - 1][:3]} {date.year}"
         search_text = " ".join(
             [
                 item["date"], date_de, date_en, item["title_de"], item["title_en"],
-                item["summary_de"], item["summary_en"], *guests,
+                item["summary_de"], item["summary_en"],
             ]
         )
         episode_rows.append(
@@ -101,7 +103,7 @@ def main() -> None:
             f'<time class="episode-date" datetime="{esc(item["date"])}" data-bilingual data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
             '<div>'
             f'<h3 data-bilingual data-de="{esc(item["title_de"])}" data-en="{esc(item["title_en"])}">{esc(item["title_de"])}</h3>'
-            f'<p data-bilingual data-de="{esc(item["summary_de"] + guest_de)}" data-en="{esc(item["summary_en"] + guest_en)}">{esc(item["summary_de"] + guest_de)}</p>'
+            f'<p data-bilingual data-de="{esc(item["summary_de"])}" data-en="{esc(item["summary_en"])}">{esc(item["summary_de"])}</p>'
             '</div>' + audio + '</article>'
         )
 
@@ -118,6 +120,7 @@ def main() -> None:
         )
 
     first_mix = site["mixes"][0]
+    archive_playlist_url = site.get("archive_playlist_url", "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen")
     logo_svg = (ROOT / "assets" / "icons" / "logo.svg").read_text(encoding="utf-8")
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
 
@@ -132,22 +135,39 @@ def main() -> None:
     values = {
         "page_title": esc(site["name"] + " — Radio Blau Leipzig"),
         "description": esc(site["description_de"]),
-        "canonical_url": esc(canonical_url), "base_path": esc(base_path), "logo_svg": logo_svg,
-        "radio_stream_url": esc(site["radio"]["stream_url"]), "radio_page_url": esc(site["radio"]["url"]),
-        "next_day": next_date.strftime("%d"), "next_month_de": esc(MONTHS_DE[next_date.month - 1]),
-        "next_month_en": esc(MONTHS_EN[next_date.month - 1]), "next_year": next_date.strftime("%Y"),
-        "next_title_de": esc(next_episode["title_de"]), "next_title_en": esc(next_episode["title_en"]),
-        "next_summary_de": esc(next_episode["summary_de"]), "next_summary_en": esc(next_episode["summary_en"]),
-        "next_date_de": esc(date_long(next_date, "de")), "next_date_en": esc(date_long(next_date, "en")),
-        "next_time": next_date.strftime("%H:%M"), "next_timezone": next_date.tzname() or "Europe/Berlin",
-        "calendar_url": esc(calendar_url), "mixes_html": "".join(mix_rows),
-        "first_mix_title": esc(first_mix["title"]), "first_mix_subtitle_de": esc(first_mix["subtitle_de"]),
-        "first_mix_url": esc(first_mix["url"]), "first_mix_embed": esc(soundcloud_embed(first_mix["url"])),
-        "team_html": team_html, "episodes_html": "".join(episode_rows), "social_html": social_html,
+        "canonical_url": esc(canonical_url),
+        "base_path": esc(base_path),
+        "logo_svg": logo_svg,
+        "radio_stream_url": esc(site["radio"]["stream_url"]),
+        "radio_page_url": esc(site["radio"]["url"]),
+        "next_day": next_date.strftime("%d"),
+        "next_month_de": esc(MONTHS_DE[next_date.month - 1]),
+        "next_month_en": esc(MONTHS_EN[next_date.month - 1]),
+        "next_year": next_date.strftime("%Y"),
+        "next_title_de": esc(next_episode["title_de"]),
+        "next_title_en": esc(next_episode["title_en"]),
+        "next_summary_de": esc(next_episode["summary_de"]),
+        "next_summary_en": esc(next_episode["summary_en"]),
+        "next_date_de": esc(date_long(next_date, "de")),
+        "next_date_en": esc(date_long(next_date, "en")),
+        "next_time": next_date.strftime("%H:%M"),
+        "next_timezone": next_date.tzname() or "Europe/Berlin",
+        "calendar_url": esc(calendar_url),
+        "mixes_html": "".join(mix_rows),
+        "first_mix_title": esc(first_mix["title"]),
+        "first_mix_subtitle_de": esc(first_mix["subtitle_de"]),
+        "first_mix_url": esc(first_mix["url"]),
+        "first_mix_embed": esc(soundcloud_embed(first_mix["url"])),
+        "team_html": team_html,
+        "episodes_html": "".join(episode_rows),
+        "social_html": social_html,
+        "archive_playlist_url": esc(archive_playlist_url),
+        "archive_playlist_embed": esc(soundcloud_embed(archive_playlist_url, playlist=True)),
         "build_year": str(datetime.now().year),
     }
 
-    if PUBLIC.exists(): shutil.rmtree(PUBLIC)
+    if PUBLIC.exists():
+        shutil.rmtree(PUBLIC)
     PUBLIC.mkdir(parents=True)
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
     (PUBLIC / "index.html").write_text(render(template, values), encoding="utf-8")
@@ -155,15 +175,30 @@ def main() -> None:
     feed_items = []
     for item in episodes:
         date = parse_date(item["date"])
-        feed_items.append("<item>" f"<title>{esc(item['title_de'])}</title>" f"<description>{esc(item['summary_de'])}</description>" f"<pubDate>{format_datetime(date)}</pubDate>" f"<guid isPermaLink=\"false\">sofea-{date.strftime('%Y%m%d')}</guid>" "</item>")
-    feed = ('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>'
-            f'<title>{esc(site["name"])}</title><link>{esc(canonical_url)}</link>'
-            f'<description>{esc(site["description_de"])}</description>' + "".join(feed_items) + '</channel></rss>')
+        feed_items.append(
+            "<item>"
+            f"<title>{esc(item['title_de'])}</title>"
+            f"<description>{esc(item['summary_de'])}</description>"
+            f"<pubDate>{format_datetime(date)}</pubDate>"
+            f"<guid isPermaLink=\"false\">sofea-{date.strftime('%Y%m%d')}</guid>"
+            "</item>"
+        )
+    feed = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>'
+        f'<title>{esc(site["name"])}</title><link>{esc(canonical_url)}</link>'
+        f'<description>{esc(site["description_de"])}</description>'
+        + "".join(feed_items)
+        + "</channel></rss>"
+    )
     (PUBLIC / "feed.xml").write_text(feed, encoding="utf-8")
-    sitemap = ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-               f'<url><loc>{esc(canonical_url)}</loc></url></urlset>')
+    sitemap = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f'<url><loc>{esc(canonical_url)}</loc></url></urlset>'
+    )
     (PUBLIC / "sitemap.xml").write_text(sitemap, encoding="utf-8")
-    (PUBLIC / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {canonical_url}sitemap.xml\n", encoding="utf-8")
+    (PUBLIC / "robots.txt").write_text(
+        f"User-agent: *\nAllow: /\nSitemap: {canonical_url}sitemap.xml\n", encoding="utf-8"
+    )
     (PUBLIC / ".nojekyll").write_text("", encoding="utf-8")
     not_found_template = (ROOT / "templates" / "404.html").read_text(encoding="utf-8")
     (PUBLIC / "404.html").write_text(render(not_found_template, values), encoding="utf-8")

@@ -14,7 +14,7 @@
         const theme = localStorage.getItem('sofea-theme') || 'dark';
         const palette = localStorage.getItem('sofea-palette') || 'warm';
         document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
-        document.documentElement.dataset.palette = ['warm', 'elegant', 'contrast'].includes(palette) ? palette : 'warm';
+        document.documentElement.dataset.palette = ['warm', 'elegant', 'contrast', 'ascii'].includes(palette) ? palette : 'warm';
       } catch (_) {}
     })();
   </script>
@@ -29,7 +29,10 @@
   <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">{{ logo_svg }}</a>
+      <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
+        <span class="brand-vector">{{ logo_svg }}</span>
+        <span class="brand-ascii" aria-hidden="true">~/\/\~ sofea</span>
+      </a>
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="#next" data-i18n="nav_next">Nächste Sendung</a>
         <a href="#listen" data-i18n="nav_listen">Hören</a>
@@ -44,6 +47,7 @@
             <option value="warm" data-de="Orange" data-en="Orange">Orange</option>
             <option value="elegant" data-de="Rosa / Lavendel" data-en="Rose / lavender">Rosa / Lavendel</option>
             <option value="contrast" data-de="Kontrast" data-en="Contrast">Kontrast</option>
+            <option value="ascii" data-de="ASCII" data-en="ASCII">ASCII</option>
           </select>
         </label>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">
@@ -62,11 +66,26 @@
       <div class="shell hero-grid">
         <div>
           <p class="eyebrow" data-i18n="hero_eyebrow">Radio Blau · Leipzig · seit 2011</p>
-          <h1>sounds of<br>electronic<br>art</h1>
+          <h1 class="hero-title">sounds of<br>electronic<br>art</h1>
+          <pre class="hero-ascii-logo" aria-label="sofea"> ____   ___  _____ _____    _
+/ ___| / _ \|  ___| ____|  / \
+\___ \| | | | |_  |  _|   / _ \
+ ___) | |_| |  _| | |___ / ___ \
+|____/ \___/|_|   |_____/_/   \_\</pre>
           <p class="hero-subtitle" data-i18n="hero_subtitle">Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.</p>
         </div>
         <div class="hero-art" aria-hidden="true">
-          <div class="frequency">99.2<small>FM Leipzig</small></div>
+          <div class="frequency"><span>sofea</span><small>radio blau · leipzig</small></div>
+          <div class="ascii-signal">
+            <div class="ascii-signal-title">+-- SIGNAL / STATUS ----------------+</div>
+            <dl>
+              <div><dt>name</dt><dd>sofea</dd></div>
+              <div><dt>source</dt><dd>radio blau / leipzig</dd></div>
+              <div><dt>cycle</dt><dd>every 8 weeks</dd></div>
+              <div><dt>mode</dt><dd>electronic / live / archive</dd></div>
+            </dl>
+            <pre>~~/\/\___/\_/\/\____/\/\_/\~~</pre>
+          </div>
         </div>
       </div>
     </section>
@@ -145,15 +164,19 @@
       <div class="shell">
         <div class="section-header">
           <h2 data-i18n="archive_heading">Sendungsarchiv</h2>
-          <p class="section-intro" data-i18n="archive_intro">Das Archiv wird schrittweise um frühere Blogbeiträge und Aufnahmen ergänzt.</p>
+          <p class="section-intro" data-i18n="archive_intro">Das Archiv wird automatisch aus unserer SoundCloud-Playlist geladen.</p>
+        </div>
+        <div class="archive-meta">
+          <p class="archive-status" data-archive-status data-i18n="archive_loading">SoundCloud-Archiv wird geladen …</p>
+          <a class="text-link" href="{{ archive_playlist_url }}" target="_blank" rel="noopener noreferrer" data-i18n="open_playlist">Playlist auf SoundCloud öffnen ↗</a>
         </div>
         <div class="archive-tools">
           <label class="search-label">
             <span class="visually-hidden" data-i18n="search_label">Archiv durchsuchen</span>
-            <input class="search" type="search" placeholder="Datum, Titel oder Gäste durchsuchen" data-placeholder-de="Datum, Titel oder Gäste durchsuchen" data-placeholder-en="Search dates, titles or guests" data-archive-search>
+            <input class="search" type="search" placeholder="Datum oder Titel durchsuchen" data-placeholder-de="Datum oder Titel durchsuchen" data-placeholder-en="Search dates or titles" data-archive-search>
           </label>
         </div>
-        <div class="episode-list">{{ episodes_html }}</div>
+        <div class="episode-list" data-episode-list>{{ episodes_html }}</div>
         <p class="archive-empty" data-archive-empty hidden data-i18n="archive_empty">Keine passenden Sendungen gefunden.</p>
       </div>
     </section>
@@ -161,7 +184,14 @@
 
   <footer class="footer">
     <div class="shell footer-grid">
-      <div class="footer-logo">{{ logo_svg }}</div>
+      <div class="footer-logo">
+        <span class="brand-vector">{{ logo_svg }}</span>
+        <pre class="footer-ascii-logo" aria-label="sofea"> ____   ___  _____ _____    _
+/ ___| / _ \|  ___| ____|  / \
+\___ \| | | | |_  |  _|   / _ \
+ ___) | |_| |  _| | |___ / ___ \
+|____/ \___/|_|   |_____/_/   \_\</pre>
+      </div>
       <div class="footer-links">{{ social_html }}</div>
       <div class="footer-meta">
         <span>© <span data-current-year>{{ build_year }}</span> sounds of electronic art</span>
@@ -169,6 +199,10 @@
       </div>
     </div>
   </footer>
+  <div class="playlist-loader" aria-hidden="true">
+    <iframe id="archive-playlist-widget" data-archive-playlist-widget tabindex="-1" title="SoundCloud archive data" src="{{ archive_playlist_embed }}"></iframe>
+  </div>
+  <script src="https://w.soundcloud.com/player/api.js" defer></script>
   <script src="{{ base_path }}/assets/js/site.js" defer></script>
 </body>
 </html>

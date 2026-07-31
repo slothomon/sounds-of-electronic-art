@@ -6,46 +6,51 @@ A dependency-light static site for the sounds of electronic art radio show.
 
 - Responsive one-page design
 - German default interface with an English language switch
-- Three selectable colour palettes: Orange, Rose/Lavender and Contrast
-- Light/dark theme switch; both choices are stored in the browser
+- Orange, rose/lavender and contrast colour palettes
+- Light/dark theme switch
 - Next-show card and calendar link
-- Ten selectable SoundCloud recordings with an in-page player
-- Searchable broadcast archive
+- Ten featured SoundCloud recordings with an in-page player
+- Broadcast archive loaded from the SoundCloud playlist `Sendungen`
+- Searchable local fallback archive
 - RSS feed, sitemap, robots.txt and custom 404 page
 - Automatic deployment with GitHub Actions and GitHub Pages
-- No analytics, cookies or external web fonts
+- No analytics or external web fonts
 
-## Edit general content
+## SoundCloud playlist archive
 
-General information, team, links and the SoundCloud recording list are in:
+The archive source is configured in:
 
 ```text
 content/site.json
 ```
 
-The SoundCloud list is the `mixes` array. A recording uses this structure:
-
 ```json
-{
-  "title": "Name der Aufnahme (2026-03-14)",
-  "subtitle_de": "Deutsche Beschreibung",
-  "subtitle_en": "English description",
-  "duration": "2:08:00",
-  "url": "https://soundcloud.com/sounds-of-electronic-art/example"
-}
+"archive_playlist_url": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen"
 ```
 
-The order in `site.json` is also the order shown on the website.
+At runtime the page uses the official SoundCloud Widget API to read all tracks from that playlist. Adding or removing a track in the playlist therefore updates the website archive without a new Git commit.
 
-## Populate the broadcast archive
+The page derives the broadcast date from the track title, description or URL when it finds one of these forms:
 
-Broadcasts are stored in:
+```text
+2026-03-14
+14.03.2026
+14. März 2026
+```
+
+When no broadcast date can be found, the SoundCloud publication date is used.
+
+Browser privacy extensions can block SoundCloud. In that case the locally stored fallback from `content/episodes.json` remains visible.
+
+## Local fallback and next transmission
+
+The next transmission and fallback archive are stored in:
 
 ```text
 content/episodes.json
 ```
 
-Add one JSON object for each broadcast. The build script sorts all entries by date automatically, so their order in the file is not important.
+A record uses this structure:
 
 ```json
 {
@@ -55,31 +60,33 @@ Add one JSON object for each broadcast. The build script sorts all entries by da
   "status": "past",
   "summary_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
   "summary_en": "Recording of Neele's set from the 98th show in March 2026.",
-  "guests": ["Neele"],
   "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14"
 }
 ```
 
+The former `guests` field is no longer needed. Guest names should be part of the title.
+
 Field notes:
 
-- `date`: ISO 8601 date including the Leipzig UTC offset. Use `+01:00` in winter and `+02:00` in summer.
-- `title_de` / `title_en`: title shown in each language.
-- `status`: `upcoming` for a future transmission, otherwise `past`.
-- `summary_de` / `summary_en`: short description in both languages.
-- `guests`: list of names; use `[]` when there are no named guests.
-- `audio_url`: SoundCloud or another recording URL. Use `null` until a recording is available.
+- `date`: ISO 8601 date including the Leipzig UTC offset
+- `title_de` / `title_en`: title in both languages
+- `status`: `upcoming` for a future transmission, otherwise `past`
+- `summary_de` / `summary_en`: short description
+- `audio_url`: recording URL or `null`
 
-Remember the comma between consecutive objects. A quick syntax check is:
+Check the JSON syntax with:
 
 ```cmd
 python -m json.tool content\episodes.json > nul
 ```
 
-After editing, build locally or commit and push. GitHub Actions rebuilds the archive automatically.
+## Featured recordings
 
-## Migrating the Blogger archive
+The ten cards in the **Hören** section are maintained in the `mixes` array in:
 
-Export the old Blogger site through **Settings > Manage blog > Back up content**. The export XML can then be converted into entries for `content/episodes.json`. Keep the Blogspot site online during migration and add a final post linking to the new site.
+```text
+content/site.json
+```
 
 ## Preview locally on Windows
 
@@ -95,30 +102,7 @@ Open:
 http://localhost:8000
 ```
 
-To test the repository sub-path used by a GitHub project site:
-
-```cmd
-set SITE_URL=https://YOUR-USERNAME.github.io/sounds-of-electronic-art
-python scripts\build.py
-python -m http.server 8000 --directory public
-```
-
 ## Deploy to GitHub Pages
-
-1. Push the repository to the `main` branch.
-2. Open **Settings > Pages** in the GitHub repository.
-3. Under **Build and deployment**, select **GitHub Actions** as the source.
-4. Open the **Actions** tab and wait for `Deploy GitHub Pages` to finish.
-
-The included workflow is `.github/workflows/pages.yml`. It obtains the correct GitHub Pages base URL, builds the site, uploads the `public` directory and deploys it.
-
-A normal project repository is published at:
-
-```text
-https://YOUR-USERNAME.github.io/sounds-of-electronic-art/
-```
-
-## Update and publish
 
 ```cmd
 git status
@@ -127,11 +111,4 @@ git commit -m "Update website"
 git push
 ```
 
-Do not edit files inside `public` directly. They are regenerated by `scripts/build.py`.
-
-## Custom domain
-
-1. Open **Settings > Pages**.
-2. Enter the chosen name under **Custom domain**.
-3. Add the required DNS records.
-4. Enable **Enforce HTTPS** after the certificate is ready.
+The included GitHub Actions workflow rebuilds and deploys the `public` directory. Do not edit files inside `public` directly.

@@ -289,8 +289,12 @@ h1 {
   position: absolute;
   inset: auto 1.5rem 1.3rem;
   color: var(--accent-soft);
-  font: 800 clamp(2.1rem, 5vw, 4rem) / 1 ui-monospace, SFMono-Regular, Consolas, monospace;
-  letter-spacing: -0.06em;
+  font: 850 clamp(2.1rem, 5vw, 4rem) / 1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: -0.065em;
+  text-transform: lowercase;
+}
+.frequency > span {
+  display: block;
 }
 .frequency small {
   display: block;
@@ -539,6 +543,18 @@ h1 {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
+.archive-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.archive-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
 .archive-tools {
   display: flex;
   gap: 0.8rem;
@@ -579,6 +595,18 @@ h1 {
 .episode p { margin: 0; color: var(--muted); }
 .episode-link { color: var(--ink); text-decoration: none; font-weight: 760; }
 .episode-link[aria-disabled="true"] { color: var(--muted); opacity: 0.55; pointer-events: none; }
+.playlist-loader {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  overflow: hidden;
+  opacity: 0.001;
+  pointer-events: none;
+}
+.playlist-loader iframe { width: 1px; height: 1px; border: 0; }
+
 .archive-empty {
   margin: 1.5rem 0 0;
   padding: 1.2rem;
@@ -657,6 +685,8 @@ h1 {
   .mix-item { grid-template-columns: 1fr; }
   .mix-duration { align-self: auto; }
   .player-heading { display: block; }
+  .archive-meta { display: block; }
+  .archive-meta .text-link { margin-top: 0.6rem; }
   .text-link { display: inline-block; margin-top: 0.8rem; white-space: normal; }
   .player-frame iframe { height: 230px; }
   .episode { grid-template-columns: 1fr; }
@@ -670,4 +700,258 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* ASCII design option ----------------------------------------------------- */
+.brand-vector { display: block; }
+.brand-ascii,
+.hero-ascii-logo,
+.ascii-signal,
+.footer-ascii-logo { display: none; }
+
+html[data-palette="ascii"] {
+  --accent: #ee9145;
+  --accent-soft: #ffb66f;
+  --accent-strong: #dc6c24;
+  --rose: #d87b72;
+  --lavender: #aa8bc0;
+  --sage: #91ab82;
+  --sand: #dba35e;
+  --line: rgba(255, 182, 111, 0.34);
+  --line-strong: rgba(255, 182, 111, 0.62);
+  --shadow: 8px 8px 0 rgb(var(--glow-3) / 0.13);
+  --glow-1: 170 139 192;
+  --glow-2: 216 123 114;
+  --glow-3: 238 145 69;
+  --radius: 0px;
+}
+
+html[data-palette="ascii"] body {
+  background:
+    linear-gradient(rgb(var(--glow-3) / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--glow-3) / 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 92% 0%, rgb(var(--glow-1) / 0.14), transparent 32rem),
+    var(--bg);
+  background-size: 24px 24px, 24px 24px, auto, auto;
+  font-family: "Cascadia Mono", "Lucida Console", Consolas, ui-monospace, monospace;
+}
+
+html[data-palette="ascii"] .site-header { border-bottom-style: dashed; }
+html[data-palette="ascii"] .brand { width: auto; }
+html[data-palette="ascii"] .brand-vector,
+html[data-palette="ascii"] .hero-title,
+html[data-palette="ascii"] .frequency,
+html[data-palette="ascii"] .footer-logo .brand-vector { display: none; }
+html[data-palette="ascii"] .brand-ascii {
+  display: inline-block;
+  color: var(--accent-soft);
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+  text-shadow: 0 0 16px rgb(var(--glow-3) / 0.25);
+}
+html[data-palette="ascii"] .hero-ascii-logo {
+  display: block;
+  max-width: 100%;
+  margin: 1.6rem 0 1.4rem;
+  overflow: hidden;
+  color: var(--accent-soft);
+  font-family: "Cascadia Mono", "Lucida Console", Consolas, ui-monospace, monospace;
+  font-size: clamp(0.68rem, 1.35vw, 1.12rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: 0;
+  white-space: pre;
+  text-shadow: 0 0 20px rgb(var(--glow-3) / 0.24);
+}
+html[data-palette="ascii"] .hero { min-height: min(720px, calc(100vh - 76px)); }
+html[data-palette="ascii"] .hero-art {
+  min-height: 330px;
+  border-style: solid;
+  background:
+    linear-gradient(135deg, rgb(var(--glow-3) / 0.09), transparent 48%),
+    var(--surface);
+  overflow: visible;
+}
+html[data-palette="ascii"] .hero-art::before,
+html[data-palette="ascii"] .hero-art::after { display: none; }
+html[data-palette="ascii"] .hero-art::before {
+  content: "+";
+  display: block;
+  position: absolute;
+  width: auto;
+  height: auto;
+  left: -0.42rem;
+  top: -0.7rem;
+  right: auto;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent-soft);
+  background: var(--bg);
+  opacity: 1;
+  font-weight: 900;
+}
+html[data-palette="ascii"] .hero-art::after {
+  content: "+";
+  display: block;
+  position: absolute;
+  width: auto;
+  height: auto;
+  right: -0.42rem;
+  bottom: -0.7rem;
+  left: auto;
+  top: auto;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent-soft);
+  background: var(--bg);
+  opacity: 1;
+  font-weight: 900;
+}
+html[data-palette="ascii"] .ascii-signal {
+  display: flex;
+  min-height: 330px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.6rem;
+  color: var(--ink);
+}
+html[data-palette="ascii"] .ascii-signal-title {
+  overflow: hidden;
+  color: var(--accent-soft);
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+html[data-palette="ascii"] .ascii-signal dl {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1.4rem 0;
+}
+html[data-palette="ascii"] .ascii-signal dl div {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 0.8rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px dotted var(--line);
+}
+html[data-palette="ascii"] .ascii-signal dt { color: var(--muted); }
+html[data-palette="ascii"] .ascii-signal dd { margin: 0; color: var(--ink); }
+html[data-palette="ascii"] .ascii-signal pre {
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--accent-soft);
+  font: 900 0.85rem/1 "Cascadia Mono", Consolas, monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+html[data-palette="ascii"] .section { border-top-style: dashed; }
+html[data-palette="ascii"] .section h2::before {
+  content: "## ";
+  color: var(--accent);
+  font-size: 0.42em;
+  vertical-align: middle;
+}
+html[data-palette="ascii"] .next-card,
+html[data-palette="ascii"] .player-panel,
+html[data-palette="ascii"] .mix-item,
+html[data-palette="ascii"] .player-frame,
+html[data-palette="ascii"] .archive-empty,
+html[data-palette="ascii"] .search,
+html[data-palette="ascii"] .palette-switch select,
+html[data-palette="ascii"] .language-switch,
+html[data-palette="ascii"] .language-switch button,
+html[data-palette="ascii"] .theme-toggle,
+html[data-palette="ascii"] .nav .listen-link,
+html[data-palette="ascii"] .button,
+html[data-palette="ascii"] .skip-link:focus { border-radius: 0; }
+html[data-palette="ascii"] .next-card { border-style: solid; }
+html[data-palette="ascii"] .date-panel {
+  background: var(--accent-soft);
+  border-right: 1px dashed var(--accent-ink);
+}
+html[data-palette="ascii"] .eyebrow::before { content: ":: "; }
+html[data-palette="ascii"] .next-meta span::before {
+  content: "> ";
+  color: var(--accent);
+}
+html[data-palette="ascii"] .button::before { content: "[ "; color: var(--accent); }
+html[data-palette="ascii"] .button::after { content: " ]"; color: var(--accent); }
+html[data-palette="ascii"] .button-primary::before,
+html[data-palette="ascii"] .button-primary::after { color: var(--bg); }
+html[data-palette="ascii"] .mix-item {
+  position: relative;
+  padding-left: 2.15rem;
+  border-style: solid;
+  box-shadow: none;
+}
+html[data-palette="ascii"] .mix-item::before {
+  content: ">";
+  position: absolute;
+  left: 0.85rem;
+  color: var(--muted);
+  font-weight: 900;
+}
+html[data-palette="ascii"] .mix-item[aria-pressed="true"]::before {
+  content: ">>";
+  left: 0.55rem;
+  color: var(--accent-soft);
+}
+html[data-palette="ascii"] .mix-item:hover { transform: none; }
+html[data-palette="ascii"] .player-panel { box-shadow: var(--shadow); }
+html[data-palette="ascii"] .text-link::before { content: "["; }
+html[data-palette="ascii"] .text-link::after { content: "]"; }
+html[data-palette="ascii"] .team-member { border-bottom-style: dotted; }
+html[data-palette="ascii"] .team-member span:first-child::before { content: "- "; color: var(--accent); }
+html[data-palette="ascii"] .archive-status::before { content: "status: "; color: var(--accent); }
+html[data-palette="ascii"] .episode {
+  border-top-style: dashed;
+  padding-block: 1.25rem;
+}
+html[data-palette="ascii"] .episode:last-child { border-bottom-style: dashed; }
+html[data-palette="ascii"] .episode-date::before { content: "["; }
+html[data-palette="ascii"] .episode-date::after { content: "]"; }
+html[data-palette="ascii"] .episode-link::before { content: "=> "; color: var(--accent); }
+html[data-palette="ascii"] .footer { border-top-style: dashed; }
+html[data-palette="ascii"] .footer-logo { width: auto; }
+html[data-palette="ascii"] .footer-ascii-logo {
+  display: block;
+  margin: 0;
+  color: var(--accent-soft);
+  font: 900 clamp(0.48rem, 1.05vw, 0.82rem)/1.08 "Cascadia Mono", Consolas, monospace;
+  white-space: pre;
+}
+html[data-palette="ascii"] .footer-links a::before { content: "["; color: var(--accent); }
+html[data-palette="ascii"] .footer-links a::after { content: "]"; color: var(--accent); }
+
+html[data-theme="light"][data-palette="ascii"] body {
+  background:
+    linear-gradient(rgb(var(--glow-3) / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--glow-3) / 0.06) 1px, transparent 1px),
+    var(--bg);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+@media (max-width: 900px) {
+  html[data-palette="ascii"] .date-panel {
+    border-right: 0;
+    border-bottom: 1px dashed var(--accent-ink);
+  }
+  html[data-palette="ascii"] .hero-ascii-logo {
+    font-size: clamp(0.57rem, 2vw, 0.95rem);
+  }
+}
+
+@media (max-width: 620px) {
+  html[data-palette="ascii"] .hero-ascii-logo {
+    font-size: clamp(0.41rem, 2.35vw, 0.67rem);
+    line-height: 1.05;
+  }
+  html[data-palette="ascii"] .hero-art,
+  html[data-palette="ascii"] .ascii-signal { min-height: 280px; }
+  html[data-palette="ascii"] .ascii-signal { padding: 1.15rem; }
+  html[data-palette="ascii"] .ascii-signal dl div { grid-template-columns: 66px 1fr; gap: 0.55rem; }
+  html[data-palette="ascii"] .footer-ascii-logo { font-size: clamp(0.38rem, 2vw, 0.58rem); }
 }

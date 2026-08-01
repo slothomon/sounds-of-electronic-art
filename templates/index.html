@@ -13,7 +13,6 @@
       try {
         const theme = localStorage.getItem('sofea-theme') || 'dark';
         document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
-        localStorage.removeItem('sofea-palette');
       } catch (_) {}
     })();
   </script>
@@ -24,6 +23,7 @@
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical_url }}">
   <meta property="og:site_name" content="sounds of electronic art">
+  <meta property="og:locale" content="de_DE">
   <meta property="og:image" content="{{ social_image_url }}">
   <meta property="og:image:secure_url" content="{{ social_image_url }}">
   <meta property="og:image:type" content="image/png">
@@ -35,7 +35,7 @@
   <meta name="twitter:description" content="{{ description }}">
   <meta name="twitter:image" content="{{ social_image_url }}">
 </head>
-<body>
+<body data-home-path="{{ home_path }}">
   <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
   <header class="site-header">
     <div class="shell header-inner">

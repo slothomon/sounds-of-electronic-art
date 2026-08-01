@@ -3,13 +3,13 @@
   "short_name": "sofea",
   "tagline_de": "Elektronische Musik, Radio und Clubkultur aus Leipzig.",
   "tagline_en": "Electronic music, radio and club culture from Leipzig.",
-  "description_de": "sounds of electronic art ist eine zweimonatliche Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Clubkultur.",
-  "description_en": "sounds of electronic art is a bimonthly radio show on Radio Blau exploring electronic music, artists and club culture.",
-  "url": "https://example.github.io/sounds-of-electronic-art",
+  "description_de": "sounds of electronic art ist eine Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Clubkultur — alle acht Wochen aus Leipzig.",
+  "description_en": "sounds of electronic art is a radio show on Radio Blau exploring electronic music, artists and club culture every eight weeks.",
+  "url": "https://sofea.radio",
   "locale": "de_DE",
   "radio": {
     "name": "Radio Blau",
-    "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/",
+    "url": "https://www.radioblau.de/",
     "stream_url": "https://www.radioblau.de/stream/"
   },
   "social": [
@@ -20,22 +20,18 @@
     {
       "label": "Instagram",
       "url": "https://www.instagram.com/sounds_of_electronic_art/"
-    },
-    {
-      "label": "Radio Blau",
-      "url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
     }
   ],
   "team": [
     {
-      "name": "Robert Petroschke",
-      "alias": "easy.miner",
-      "alias_url": "https://soundcloud.com/easy_miner"
-    },
-    {
       "name": "Robert Bernsdorf",
       "alias": "fumé",
       "alias_url": "https://soundcloud.com/fume"
+    },
+    {
+      "name": "Robert Petroschke",
+      "alias": "easy.miner",
+      "alias_url": "https://soundcloud.com/easy_miner"
     },
     {
       "name": "Matthias Kämmerer",

@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 205 48" role="img" aria-labelledby="title desc">
-  <title id="title">sofea</title>
-  <desc id="desc">sounds of electronic art waveform logo</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 205 48" role="img" aria-label="sofea — sounds of electronic art">
+  <title>sofea</title>
+  <desc>sounds of electronic art waveform logo</desc>
   <g fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="3">
     <path d="M3 24h9l5-13 8 29 7-22 7 12 7-25 8 38 8-27 7 18 8-10h10"/>
   </g>

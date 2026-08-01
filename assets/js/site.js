@@ -5,28 +5,26 @@
     de: {
       skip: 'Zum Inhalt springen', nav_next: 'Upcoming', nav_listen: 'Hören', nav_about: 'Über uns', nav_archive: 'Archiv', nav_live: 'Livestream',
       hero_eyebrow: 'Radio Blau · Leipzig · seit 2011', hero_subtitle: 'Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.',
-      next_heading: 'Upcoming', on_air: 'On Air',
-      listen_live: 'Live hören', schedule: 'Sendeplan', calendar: 'Zum Kalender hinzufügen', listen_heading: 'Hören',
+      next_heading: 'Upcoming', listen_heading: 'Hören',
       selected_recording: 'Ausgewählte Aufnahme', open_soundcloud: 'Auf SoundCloud öffnen ↗',
       about_heading: 'Über die Sendung', about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
       archive_heading: 'Sendungsarchiv', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
       open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', imprint_link: 'Impressum', privacy_link: 'Datenschutz',
       pagination_prev: '← Zurück', pagination_next: 'Weiter →', pagination_label: 'Archivseiten', pagination_pages: 'Seiten', pagination_page: 'Seite',
-      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren', back_to_top: 'Nach oben', permalink: 'Direktlink zu dieser Sendung', detail_open: 'Details öffnen', detail_close: 'Details schließen',
+      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren', back_to_top: 'Nach oben', detail_open: 'Details öffnen', detail_close: 'Details schließen',
     },
     en: {
       skip: 'Skip to content', nav_next: 'Upcoming', nav_listen: 'Listen', nav_about: 'About', nav_archive: 'Archive', nav_live: 'Live stream',
       hero_eyebrow: 'Radio Blau · Leipzig · since 2011', hero_subtitle: 'Electronic music, radio and club culture — broadcast every eight weeks from Leipzig.',
-      next_heading: 'Upcoming', on_air: 'On air',
-      listen_live: 'Listen live', schedule: 'Radio Blau schedule', calendar: 'Add to calendar', listen_heading: 'Listen',
+      next_heading: 'Upcoming', listen_heading: 'Listen',
       selected_recording: 'Selected recording', open_soundcloud: 'Open on SoundCloud ↗',
       about_heading: 'About the show', about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
       about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
       archive_heading: 'Broadcast archive', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
       open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', imprint_link: 'Legal notice', privacy_link: 'Privacy',
       pagination_prev: '← Previous', pagination_next: 'Next →', pagination_label: 'Archive pages', pagination_pages: 'Pages', pagination_page: 'Page',
-      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme', back_to_top: 'Back to top', permalink: 'Direct link to this broadcast', detail_open: 'Open details', detail_close: 'Close details',
+      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme', back_to_top: 'Back to top', detail_open: 'Open details', detail_close: 'Close details',
     },
   };
 
@@ -59,6 +57,7 @@
     .map((link) => ({ link, target: document.querySelector(link.getAttribute('href')) }))
     .filter((entry) => entry.target);
   const mobileNavigation = window.matchMedia('(max-width: 900px)');
+  const homePath = document.body.dataset.homePath || '/';
 
   const storageGet = (key) => { try { return localStorage.getItem(key); } catch (_) { return null; } };
   const storageSet = (key, value) => { try { localStorage.setItem(key, value); } catch (_) {} };
@@ -90,6 +89,10 @@
 
 
   const openDialog = () => detailDialogs.find((dialog) => dialog.open) || null;
+  const normalisePath = (value) => {
+    const path = String(value || '/').replace(/\/{2,}/g, '/');
+    return path.endsWith('/') ? path : `${path}/`;
+  };
 
   const revealEpisodeForDetail = (detailId) => {
     const target = episodes.find((episode) => episode.dataset.detailId === detailId);
@@ -102,6 +105,27 @@
     }
   };
 
+  const detailPath = (dialog) => {
+    try {
+      return normalisePath(new URL(dialog?.dataset.detailUrl || homePath, window.location.origin).pathname);
+    } catch (_) {
+      return normalisePath(homePath);
+    }
+  };
+
+  const dialogFromLocation = () => {
+    const pathname = normalisePath(window.location.pathname);
+    const byPath = detailDialogs.find((dialog) => detailPath(dialog) === pathname);
+    if (byPath) return byPath;
+    const legacyId = decodeURIComponent(window.location.hash.slice(1));
+    const byHash = legacyId ? document.getElementById(legacyId) : null;
+    if (byHash?.matches('[data-detail-dialog]')) return byHash;
+    if (byHash?.matches('[data-episode]')) {
+      return document.getElementById(byHash.dataset.detailId || '');
+    }
+    return null;
+  };
+
   const showDetail = (dialog, { updateHistory = true } = {}) => {
     if (!dialog) return false;
     const current = openDialog();
@@ -109,29 +133,32 @@
     revealEpisodeForDetail(dialog.id);
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('detail-open');
-    if (updateHistory && window.location.hash !== `#${dialog.id}`) {
-      window.history.pushState({ sofeaDetail: dialog.id }, '', `#${dialog.id}`);
+    if (updateHistory) {
+      const target = dialog.dataset.detailUrl || `#${dialog.id}`;
+      const currentTarget = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (currentTarget !== target) {
+        window.history.pushState({ sofeaDetail: dialog.id }, '', target);
+      }
     }
     return true;
   };
 
   const hideDetail = (dialog, { updateHistory = true } = {}) => {
     if (!dialog) return;
-    if (updateHistory && window.location.hash === `#${dialog.id}`) {
+    if (updateHistory) {
       if (window.history.state?.sofeaDetail === dialog.id) {
         window.history.back();
         return;
       }
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      window.history.replaceState(null, '', homePath);
     }
     if (dialog.open) dialog.close();
     if (!openDialog()) document.body.classList.remove('detail-open');
   };
 
   const syncDetailFromLocation = () => {
-    const id = decodeURIComponent(window.location.hash.slice(1));
-    const dialog = id ? document.getElementById(id) : null;
-    if (dialog?.matches('[data-detail-dialog]')) {
+    const dialog = dialogFromLocation();
+    if (dialog) {
       showDetail(dialog, { updateHistory: false });
       return true;
     }
@@ -305,20 +332,6 @@
     renderPagination(totalPages);
   };
 
-  const revealEpisodeFromHash = ({ scroll = true } = {}) => {
-    if (!window.location.hash.startsWith('#episode-')) return false;
-    const target = document.getElementById(window.location.hash.slice(1));
-    if (!target || !target.matches('[data-episode]')) return false;
-    if (search) search.value = '';
-    const index = episodes.indexOf(target);
-    if (index < 0) return false;
-    currentPage = Math.floor(index / PAGE_SIZE) + 1;
-    applyArchive();
-    if (scroll) window.requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-    target.classList.add('is-linked');
-    window.setTimeout(() => target.classList.remove('is-linked'), 1800);
-    return true;
-  };
 
   function goToPage(page) {
     const totalPages = Math.ceil(filteredEpisodes().length / PAGE_SIZE);
@@ -353,10 +366,6 @@
     });
     if (search) search.placeholder = search.dataset[language === 'de' ? 'placeholderDe' : 'placeholderEn'] || '';
     languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
-    document.querySelectorAll('[data-episode-permalink]').forEach((link) => {
-      link.setAttribute('aria-label', translations[language].permalink);
-      link.title = translations[language].permalink;
-    });
     detailLinks.forEach((link) => {
       link.setAttribute('aria-label', `${translations[language].detail_open}: ${link.textContent.trim()}`);
     });
@@ -386,8 +395,8 @@
   languageButtons.forEach((button) => button.addEventListener('click', () => applyLanguage(button.dataset.language)));
   mixButtons.forEach((button, index) => button.addEventListener('click', () => selectMix(index)));
   detailLinks.forEach((link) => link.addEventListener('click', (event) => {
-    const id = decodeURIComponent((link.getAttribute('href') || '').replace(/^#/, ''));
-    const dialog = document.getElementById(id);
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const dialog = document.getElementById(link.dataset.detailId || '');
     if (!dialog?.matches('[data-detail-dialog]')) return;
     event.preventDefault();
     showDetail(dialog);
@@ -415,8 +424,7 @@
   window.addEventListener('scroll', updateScrollUi, { passive: true });
   window.addEventListener('resize', updateScrollUi);
   const syncLocationUi = () => {
-    if (syncDetailFromLocation()) return;
-    if (!revealEpisodeFromHash()) updateScrollUi();
+    if (!syncDetailFromLocation()) updateScrollUi();
   };
   window.addEventListener('hashchange', syncLocationUi);
   window.addEventListener('popstate', syncLocationUi);
@@ -427,6 +435,6 @@
   updateExternalLinks();
   applyLanguage(language);
   updateThemeControls();
-  if (!syncDetailFromLocation()) revealEpisodeFromHash({ scroll: false });
+  syncDetailFromLocation();
   updateScrollUi();
 })();

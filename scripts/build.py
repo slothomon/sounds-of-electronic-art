@@ -147,7 +147,7 @@ def calendar_event_content(item: dict, site: dict, canonical_url: str) -> str:
     links = item.get("links") if isinstance(item.get("links"), list) else []
     event_url = next(
         (str(link.get("url")) for link in links if isinstance(link, dict) and link.get("url")),
-        canonical_url + "#upcoming",
+        absolute_detail_url(canonical_url, "upcoming", item, site),
     )
     uid_source = f"{start.isoformat()}|{title}"
     uid = hashlib.sha1(uid_source.encode("utf-8")).hexdigest()[:24] + "@sofea.radio"
@@ -184,24 +184,6 @@ def calendar_event_content(item: dict, site: dict, canonical_url: str) -> str:
     folded = [part for line in raw_lines for part in fold_ical_line(line)]
     return "\r\n".join(folded) + "\r\n"
 
-def upcoming_icon(item_type: str) -> str:
-    if item_type == "event":
-        return (
-            '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-            '<path d="M7 3v3M17 3v3M4.5 9h15M5 5.5h14a1 1 0 0 1 1 1V20H4V6.5a1 1 0 0 1 1-1Z"/>'
-            '<path d="M8 13h2M14 13h2M8 17h2M14 17h2"/>'
-            '</svg>'
-        )
-    return (
-        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-        '<circle cx="12" cy="4.3" r="1.1"/>'
-        '<path d="M12 5.5 7.6 21h8.8L12 5.5Z"/>'
-        '<path d="M9.2 15.4h5.6M8.4 18.2h7.2M9.1 20.7l5-8.5M14.9 20.7l-5-8.5"/>'
-        '<path d="M6.8 7.1a7.3 7.3 0 0 0 0 6.2M17.2 7.1a7.3 7.3 0 0 1 0 6.2"/>'
-        '<path d="M4.2 4.8a11 11 0 0 0 0 10.6M19.8 4.8a11 11 0 0 1 0 10.6"/>'
-        '</svg>'
-    )
-
 
 def upcoming_end(item: dict) -> datetime:
     start = parse_upcoming_date(item["date"])
@@ -223,6 +205,54 @@ def detail_identifier(kind: str, item: dict, site: dict) -> str:
         seed = str(item.get("audio_url") or f"{item.get('date')}|{title}")
     digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:8]
     return f"detail-{kind}-{date_part}-{slugify(title)}-{digest}"
+
+
+def detail_route(kind: str, item: dict, site: dict) -> str:
+    """Return a stable, crawlable route for a broadcast or event detail page."""
+    title = str(item.get("title_de") or item.get("title") or site["name"])
+    if kind == "upcoming":
+        value = parse_upcoming_date(str(item["date"]))
+        section = "termine" if str(item.get("type") or "broadcast").lower() == "event" else "sendungen"
+    else:
+        value = parse_date(str(item["date"]))
+        section = "sendungen"
+    custom_slug = str(item.get("slug") or "").strip()
+    clean_title = re.sub(r"[\(\[]?\d{4}[-_. ]\d{2}[-_. ]\d{2}[\)\]]?", " ", title)
+    route_slug = slugify(custom_slug or clean_title)
+    return f"{section}/{value.strftime('%Y-%m-%d')}-{route_slug}/"
+
+
+def site_href(base_path: str, route: str = "") -> str:
+    root = (base_path.rstrip("/") + "/") if base_path else "/"
+    return root + route.lstrip("/")
+
+
+def absolute_detail_url(canonical_url: str, kind: str, item: dict, site: dict) -> str:
+    return canonical_url.rstrip("/") + "/" + detail_route(kind, item, site)
+
+
+def detail_social_image(item: dict, canonical_url: str) -> str:
+    raw = str(item.get("image") or item.get("image_url") or "").strip()
+    if raw.startswith(("https://", "http://")):
+        return raw
+    if raw:
+        return canonical_url.rstrip("/") + "/" + raw.lstrip("/")
+    return canonical_url.rstrip("/") + "/assets/images/sofea-social-card-v3.png"
+
+
+def meta_excerpt(item: dict, site: dict, limit: int = 160) -> str:
+    raw = str(
+        item.get("summary_de")
+        or item.get("details_de")
+        or item.get("summary")
+        or site.get("description_de")
+        or site["name"]
+    )
+    value = " ".join(raw.split())
+    if len(value) <= limit:
+        return value
+    shortened = value[: limit + 1].rsplit(" ", 1)[0].rstrip(" .,;:–—-")
+    return (shortened or value[:limit].rstrip()) + "…"
 
 
 def asset_href(value: object, base_path: str) -> str:
@@ -357,7 +387,14 @@ def external_action_links(item: dict) -> list[str]:
     return actions
 
 
-def upcoming_detail_dialog(item: dict, site: dict, base_path: str, calendar_href: str) -> str:
+def upcoming_detail_inner(
+    item: dict,
+    site: dict,
+    base_path: str,
+    calendar_href: str,
+    heading_tag: str = "h2",
+    heading_id: str = "",
+) -> str:
     start = parse_upcoming_date(item["date"])
     end = upcoming_end(item)
     item_type = str(item.get("type") or "broadcast").lower()
@@ -370,8 +407,6 @@ def upcoming_detail_dialog(item: dict, site: dict, base_path: str, calendar_href
     default_location = "Radio Blau, Leipzig" if item_type == "broadcast" else ""
     location_de = str(item.get("location_de") or item.get("location") or default_location)
     location_en = str(item.get("location_en") or item.get("location") or location_de)
-    dialog_id = detail_identifier("upcoming", item, site)
-    heading_id = f"{dialog_id}-heading"
     date_de = date_long(start, "de")
     date_en = date_long(start, "en")
     time_de = hour_range(start, end, "de")
@@ -401,15 +436,11 @@ def upcoming_detail_dialog(item: dict, site: dict, base_path: str, calendar_href
         '<path d="m9 14 2 2 4-4"/></svg>'
         '<span data-bilingual data-de="Termin speichern" data-en="Save event">Termin speichern</span></a>'
     )
-
+    heading_attr = f' id="{esc(heading_id)}"' if heading_id else ""
     return (
-        f'<dialog class="detail-dialog" id="{esc(dialog_id)}" data-detail-dialog aria-labelledby="{esc(heading_id)}">'
-        '<article class="detail-dialog-shell">'
-        '<button class="detail-close" type="button" data-detail-close '
-        'data-label-de="Details schließen" data-label-en="Close details" aria-label="Details schließen">×</button>'
         '<header class="detail-header">'
         f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">{esc(label_de)}</p>'
-        f'<h2 id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</h2>'
+        f'<{heading_tag}{heading_attr} data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</{heading_tag}>'
         f'<div class="detail-meta">{"".join(meta)}</div>'
         '</header>'
         f'{detail_image(item, base_path, title_de, title_en)}'
@@ -418,18 +449,21 @@ def upcoming_detail_dialog(item: dict, site: dict, base_path: str, calendar_href
         f'{detail_collection_section(item, "lineup", "Line-up", "Line-up")}'
         f'{detail_collection_section(item, "tracklist", "Tracklist", "Track list", ordered=True)}'
         f'<div class="detail-actions">{"".join(actions)}</div>'
-        '</article></dialog>'
     )
 
 
-def archive_detail_dialog(item: dict, site: dict, base_path: str) -> str:
+def archive_detail_inner(
+    item: dict,
+    site: dict,
+    base_path: str,
+    heading_tag: str = "h2",
+    heading_id: str = "",
+) -> str:
     value = parse_date(item["date"])
     title_de = str(item["title_de"])
     title_en = str(item.get("title_en") or title_de)
     summary_de = str(item.get("summary_de") or "")
     summary_en = str(item.get("summary_en") or summary_de)
-    dialog_id = detail_identifier("episode", item, site)
-    heading_id = f"{dialog_id}-heading"
     date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
     date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1]} {value.year}"
     summary_html = ""
@@ -445,14 +479,11 @@ def archive_detail_dialog(item: dict, site: dict, base_path: str) -> str:
         'rel="noopener noreferrer" data-bilingual data-de="Auf SoundCloud anhören ↗" '
         'data-en="Listen on SoundCloud ↗">Auf SoundCloud anhören ↗</a>',
     )
+    heading_attr = f' id="{esc(heading_id)}"' if heading_id else ""
     return (
-        f'<dialog class="detail-dialog" id="{esc(dialog_id)}" data-detail-dialog aria-labelledby="{esc(heading_id)}">'
-        '<article class="detail-dialog-shell">'
-        '<button class="detail-close" type="button" data-detail-close '
-        'data-label-de="Details schließen" data-label-en="Close details" aria-label="Details schließen">×</button>'
         '<header class="detail-header">'
         '<p class="eyebrow" data-bilingual data-de="Sendung" data-en="Broadcast">Sendung</p>'
-        f'<h2 id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</h2>'
+        f'<{heading_tag}{heading_attr} data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</{heading_tag}>'
         '<div class="detail-meta">'
         f'<time datetime="{esc(item["date"])}" data-bilingual data-de="{esc(date_de)}" '
         f'data-en="{esc(date_en)}">{esc(date_de)}</time>'
@@ -463,8 +494,46 @@ def archive_detail_dialog(item: dict, site: dict, base_path: str) -> str:
         f'{detail_collection_section(item, "lineup", "Mitwirkende", "Contributors")}'
         f'{detail_collection_section(item, "tracklist", "Tracklist", "Track list", ordered=True)}'
         f'<div class="detail-actions">{"".join(actions)}</div>'
-        '</article></dialog>'
     )
+
+
+def upcoming_detail_dialog(item: dict, site: dict, base_path: str, calendar_href: str) -> str:
+    dialog_id = detail_identifier("upcoming", item, site)
+    heading_id = f"{dialog_id}-heading"
+    detail_href = site_href(base_path, detail_route("upcoming", item, site))
+    inner = upcoming_detail_inner(item, site, base_path, calendar_href, "h2", heading_id)
+    return (
+        f'<dialog class="detail-dialog" id="{esc(dialog_id)}" data-detail-dialog '
+        f'data-detail-url="{esc(detail_href)}" aria-labelledby="{esc(heading_id)}">'
+        '<article class="detail-dialog-shell">'
+        '<button class="detail-close" type="button" data-detail-close '
+        'data-label-de="Details schließen" data-label-en="Close details" aria-label="Details schließen">×</button>'
+        f'{inner}</article></dialog>'
+    )
+
+
+def archive_detail_dialog(item: dict, site: dict, base_path: str) -> str:
+    dialog_id = detail_identifier("episode", item, site)
+    heading_id = f"{dialog_id}-heading"
+    detail_href = site_href(base_path, detail_route("episode", item, site))
+    inner = archive_detail_inner(item, site, base_path, "h2", heading_id)
+    return (
+        f'<dialog class="detail-dialog" id="{esc(dialog_id)}" data-detail-dialog '
+        f'data-detail-url="{esc(detail_href)}" aria-labelledby="{esc(heading_id)}">'
+        '<article class="detail-dialog-shell">'
+        '<button class="detail-close" type="button" data-detail-close '
+        'data-label-de="Details schließen" data-label-en="Close details" aria-label="Details schließen">×</button>'
+        f'{inner}</article></dialog>'
+    )
+
+
+def static_detail_content(kind: str, item: dict, site: dict, base_path: str) -> str:
+    if kind == "upcoming":
+        calendar_href = site_href(base_path, f"calendar/{calendar_filename(item, site)}")
+        inner = upcoming_detail_inner(item, site, base_path, calendar_href, "h1")
+    else:
+        inner = archive_detail_inner(item, site, base_path, "h1")
+    return f'<article class="detail-page-card">{inner}</article>'
 
 
 def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, str]:
@@ -497,7 +566,9 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
         location_de = str(item.get("location_de") or item.get("location") or default_location)
         location_en = str(item.get("location_en") or item.get("location") or location_de)
         dialog_id = detail_identifier("upcoming", item, site)
-        calendar_href = f"calendar/{calendar_filename(item, site)}"
+        route = detail_route("upcoming", item, site)
+        detail_href = site_href(base_path, route)
+        calendar_href = site_href(base_path, f"calendar/{calendar_filename(item, site)}")
 
         summary_html = ""
         if card_summary_de or card_summary_en:
@@ -509,10 +580,7 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
         footer_date_de = date_long(start, "de")
         footer_date_en = date_long(start, "en")
         footer_time = hour_range_clock(start, end)
-        footer_parts = [
-            (footer_date_de, footer_date_en),
-            (footer_time, footer_time),
-        ]
+        footer_parts = [(footer_date_de, footer_date_en), (footer_time, footer_time)]
         if location_de or location_en:
             footer_parts.append((location_de, location_en))
         footer_html = '<span class="upcoming-footer-separator" aria-hidden="true">·</span>'.join(
@@ -539,22 +607,19 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
             '</div>'
             '<div class="upcoming-copy">'
             '<div class="upcoming-card-header">'
-            f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" '
-            f'data-en="{esc(label_en)}">{esc(label_de)}</p>'
-            f'{calendar_button}'
-            '</div>'
+            f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">{esc(label_de)}</p>'
+            f'{calendar_button}</div>'
             '<div class="upcoming-card-body">'
-            f'<h3><a class="upcoming-title-link detail-title-link" href="#{esc(dialog_id)}" '
-            f'data-detail-link data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">'
-            f'{esc(title_de)}</a></h3>'
-            f'{summary_html}'
-            '</div>'
+            f'<h3><a class="upcoming-title-link detail-title-link" href="{esc(detail_href)}" '
+            f'data-detail-link data-detail-id="{esc(dialog_id)}" data-bilingual '
+            f'data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</a></h3>'
+            f'{summary_html}</div>'
             f'<footer class="upcoming-card-footer">{footer_html}</footer>'
-            '</div>'
-            '</article>'
+            '</div></article>'
         )
         dialogs.append(upcoming_detail_dialog(item, site, base_path, calendar_href))
     return "".join(rows), "".join(dialogs)
+
 
 def archive_match_key(item: dict) -> tuple[str, str]:
     date_value = str(item.get("date") or "")[:10]
@@ -657,23 +722,24 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
         url_hash = hashlib.sha1(str(item["audio_url"]).encode("utf-8")).hexdigest()[:7]
         episode_id = f"episode-{value.strftime('%Y-%m-%d')}-{slugify(title_de)}-{url_hash}"
         dialog_id = detail_identifier("episode", item, site)
+        detail_href = site_href(base_path, detail_route("episode", item, site))
         rows.append(
             f'<article class="episode" id="{esc(episode_id)}" data-episode '
             f'data-detail-id="{esc(dialog_id)}" data-search="{esc(search_text)}">'
             f'<time class="episode-date" datetime="{esc(item["date"])}" data-bilingual '
             f'data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
-            '<div class="episode-copy">'
-            '<div class="episode-title-row">'
-            f'<h3><a class="episode-title-link detail-title-link" href="#{esc(dialog_id)}" data-detail-link '
-            f'data-bilingual data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</a></h3>'
-            '</div>'
-            f'{summary_html}</div>'
+            '<div class="episode-copy"><div class="episode-title-row">'
+            f'<h3><a class="episode-title-link detail-title-link" href="{esc(detail_href)}" '
+            f'data-detail-link data-detail-id="{esc(dialog_id)}" data-bilingual '
+            f'data-de="{esc(title_de)}" data-en="{esc(title_en)}">{esc(title_de)}</a></h3>'
+            f'</div>{summary_html}</div>'
             f'<a class="episode-link" href="{esc(item["audio_url"])}" target="_blank" '
             'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
             '</article>'
         )
         dialogs.append(archive_detail_dialog(item, site, base_path))
     return "".join(rows), "".join(dialogs)
+
 
 def legal_pages_content(legal: dict[str, str]) -> dict[str, str]:
     name = esc(legal["operator_name"])
@@ -797,10 +863,10 @@ def main() -> None:
     episodes.sort(key=lambda item: parse_date(item["date"]), reverse=True)
     archive = load_archive(episodes)
 
-    pages_url = os.environ.get("SITE_URL") or "http://localhost:8000"
+    pages_url = str(os.environ.get("SITE_URL") or site.get("url") or "http://localhost:8000").rstrip("/")
     parsed = urlparse(pages_url)
     base_path = parsed.path.rstrip("/")
-    canonical_url = pages_url.rstrip("/") + "/"
+    canonical_url = pages_url + "/"
 
     now_utc = datetime.now(timezone.utc)
     upcoming = [
@@ -824,11 +890,11 @@ def main() -> None:
     social_html = "".join(
         f'<a href="{esc(link["url"])}" target="_blank" rel="noopener noreferrer">{esc(link["label"])}</a>'
         for link in site["social"]
-        if "radioblau" not in str(link.get("url", "")).lower()
-        and str(link.get("label", "")).strip().lower() != "radio blau"
     )
 
     featured_mixes = site["mixes"][:5]
+    if not featured_mixes:
+        raise ValueError("content/site.json must contain at least one mix")
     mix_rows = []
     for index, mix in enumerate(featured_mixes):
         duration = f'<span class="mix-duration">{esc(mix["duration"])}</span>' if mix.get("duration") else ""
@@ -842,7 +908,10 @@ def main() -> None:
         )
 
     first_mix = featured_mixes[0]
-    archive_playlist_url = site.get("archive_playlist_url", "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen")
+    archive_playlist_url = site.get(
+        "archive_playlist_url",
+        "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
+    )
     logo_svg = (ROOT / "assets" / "icons" / "logo.svg").read_text(encoding="utf-8")
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
 
@@ -855,10 +924,10 @@ def main() -> None:
         "canonical_url": esc(canonical_url),
         "social_image_url": esc(canonical_url + "assets/images/sofea-social-card-v3.png"),
         "base_path": esc(base_path),
+        "home_path": esc(site_href(base_path)),
         "logo_svg": logo_svg,
         "radio_stream_url": esc(site["radio"]["stream_url"]),
-        "radio_page_url": esc(site["radio"]["url"]),
-        "radio_home_url": "https://www.radioblau.de/",
+        "radio_home_url": esc(site["radio"]["url"]),
         "upcoming_html": upcoming_html,
         "mixes_html": "".join(mix_rows),
         "first_mix_title": esc(first_mix["title"]),
@@ -877,6 +946,7 @@ def main() -> None:
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir(parents=True)
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
+
     calendar_dir = PUBLIC / "calendar"
     calendar_dir.mkdir(parents=True, exist_ok=True)
     for item in upcoming:
@@ -884,6 +954,7 @@ def main() -> None:
         (calendar_dir / filename).write_text(
             calendar_event_content(item, site, canonical_url), encoding="utf-8", newline=""
         )
+
     (PUBLIC / "index.html").write_text(render(template, values), encoding="utf-8")
 
     legal_template = (ROOT / "templates" / "legal.html").read_text(encoding="utf-8")
@@ -903,8 +974,62 @@ def main() -> None:
         },
     }
     for filename, page_values in legal_pages.items():
-        current_values = values | {key: esc(value) if key != "legal_content" else value for key, value in page_values.items()}
+        current_values = values | {
+            key: esc(value) if key != "legal_content" else value
+            for key, value in page_values.items()
+        }
         (PUBLIC / filename).write_text(render(legal_template, current_values), encoding="utf-8")
+
+    # Generate crawlable detail pages while retaining the homepage modal/drawer UX.
+    detail_template = (ROOT / "templates" / "detail.html").read_text(encoding="utf-8")
+    detail_records: list[dict[str, str]] = []
+    used_routes: set[str] = set()
+
+    def write_detail(kind: str, item: dict) -> None:
+        route = detail_route(kind, item, site)
+        if route in used_routes:
+            raise ValueError(f"Duplicate detail route generated: {route}")
+        used_routes.add(route)
+        detail_url = canonical_url + route
+        title_de = str(item.get("title_de") or item.get("title") or site["name"])
+        page_title = f"{title_de} — {site['name']}"
+        item_type = str(item.get("type") or "broadcast").lower()
+        is_event = kind == "upcoming" and item_type == "event"
+        back_anchor = "upcoming" if kind == "upcoming" else "archive"
+        back_de = "← Zurück zu Upcoming" if kind == "upcoming" else "← Zurück zum Sendungsarchiv"
+        back_en = "← Back to upcoming" if kind == "upcoming" else "← Back to the broadcast archive"
+        page_values = values | {
+            "page_title": esc(page_title),
+            "description": esc(meta_excerpt(item, site)),
+            "canonical_url": esc(detail_url),
+            "social_image_url": esc(detail_social_image(item, canonical_url)),
+            "detail_content": static_detail_content(kind, item, site, base_path),
+            "back_href": esc(site_href(base_path, f"#{back_anchor}")),
+            "back_label_de": esc(back_de),
+            "back_label_en": esc(back_en),
+        }
+        destination = PUBLIC / route / "index.html"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(render(detail_template, page_values), encoding="utf-8")
+        date_value = parse_upcoming_date(item["date"]) if kind == "upcoming" else parse_date(item["date"])
+        detail_records.append({
+            "kind": "event" if is_event else "broadcast",
+            "route": route,
+            "url": detail_url,
+            "date": date_value.date().isoformat(),
+            "title": title_de,
+            "summary": str(item.get("summary_de") or item.get("summary") or ""),
+        })
+
+    for item in sorted(upcoming, key=lambda entry: parse_upcoming_date(entry["date"])):
+        write_detail("upcoming", item)
+    for item in archive:
+        write_detail("episode", item)
+
+    route_by_audio = {
+        str(item.get("audio_url") or "").rstrip("/"): canonical_url + detail_route("episode", item, site)
+        for item in archive
+    }
     archive_export = {
         "source": archive_playlist_url,
         "count": len(archive),
@@ -914,6 +1039,7 @@ def main() -> None:
                 "title": item["title_de"],
                 "summary": item.get("summary_de") or "",
                 "audio_url": item["audio_url"],
+                "url": route_by_audio[str(item["audio_url"]).rstrip("/")],
             }
             for item in archive
         ],
@@ -923,24 +1049,16 @@ def main() -> None:
     )
 
     feed_items = []
-    feed_records = [
-        {
-            "date": item["date"],
-            "title": item["title_de"],
-            "summary": item.get("summary_de") or "",
-            "url": item.get("audio_url") or canonical_url,
-        }
-        for item in archive
-    ]
-    for item in feed_records:
+    for item in archive:
         value = parse_date(item["date"])
+        local_url = route_by_audio[str(item["audio_url"]).rstrip("/")]
         feed_items.append(
             "<item>"
-            f"<title>{esc(item['title'])}</title>"
-            f"<description>{esc(item['summary'])}</description>"
-            f"<link>{esc(item['url'])}</link>"
+            f"<title>{esc(item['title_de'])}</title>"
+            f"<description>{esc(item.get('summary_de') or '')}</description>"
+            f"<link>{esc(local_url)}</link>"
             f"<pubDate>{format_datetime(value)}</pubDate>"
-            f"<guid isPermaLink=\"false\">sofea-{value.strftime('%Y%m%d')}-{hashlib.sha1(item['title'].encode('utf-8')).hexdigest()[:12]}</guid>"
+            f"<guid isPermaLink=\"true\">{esc(local_url)}</guid>"
             "</item>"
         )
     feed = (
@@ -951,12 +1069,18 @@ def main() -> None:
         + "</channel></rss>"
     )
     (PUBLIC / "feed.xml").write_text(feed, encoding="utf-8")
+
+    sitemap_records = [
+        canonical_url,
+        canonical_url + "impressum.html",
+        canonical_url + "datenschutz.html",
+    ] + [record["url"] for record in detail_records]
+    sitemap_rows = [f"<url><loc>{esc(url)}</loc></url>" for url in sitemap_records]
     sitemap = (
-        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        f'<url><loc>{esc(canonical_url)}</loc></url>'
-        f'<url><loc>{esc(canonical_url + "impressum.html")}</loc></url>'
-        f'<url><loc>{esc(canonical_url + "datenschutz.html")}</loc></url>'
-        '</urlset>'
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        + "".join(sitemap_rows)
+        + "</urlset>"
     )
     (PUBLIC / "sitemap.xml").write_text(sitemap, encoding="utf-8")
     (PUBLIC / "robots.txt").write_text(
@@ -965,7 +1089,10 @@ def main() -> None:
     (PUBLIC / ".nojekyll").write_text("", encoding="utf-8")
     not_found_template = (ROOT / "templates" / "404.html").read_text(encoding="utf-8")
     (PUBLIC / "404.html").write_text(render(not_found_template, values), encoding="utf-8")
-    print(f"Built {PUBLIC} for {pages_url} with {len(archive)} cached broadcasts")
+    print(
+        f"Built {PUBLIC} for {pages_url} with {len(archive)} cached broadcasts "
+        f"and {len(detail_records)} detail pages"
+    )
 
 
 if __name__ == "__main__":

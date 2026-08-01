@@ -112,10 +112,102 @@ def parse_document(path: Path) -> tuple[DocumentParser, str]:
     return parser, text
 
 
+def validate_source(root: Path) -> int:
+    errors: list[str] = []
+
+    required_files = [
+        root / "scripts" / "build.py",
+        root / "scripts" / "update_archive.py",
+        root / "scripts" / "validate_site.py",
+        root / "templates" / "index.html",
+        root / "templates" / "detail.html",
+        root / "templates" / "legal.html",
+        root / "templates" / "404.html",
+        root / "content" / "site.json",
+        root / "content" / "episodes.json",
+        root / "content" / "legal.json",
+        root / "content" / "archive-cache.json",
+    ]
+    for path in required_files:
+        if not path.is_file():
+            errors.append(f"missing required source file: {path.relative_to(root)}")
+
+    json_files = [
+        root / "content" / "site.json",
+        root / "content" / "episodes.json",
+        root / "content" / "legal.json",
+        root / "content" / "archive-cache.json",
+    ]
+    parsed_json: dict[str, object] = {}
+    for path in json_files:
+        if not path.is_file():
+            continue
+        try:
+            parsed_json[path.name] = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"invalid JSON in {path.relative_to(root)}: {exc}")
+
+    site = parsed_json.get("site.json")
+    if site is not None and not isinstance(site, dict):
+        errors.append("content/site.json must contain a JSON object")
+    elif isinstance(site, dict):
+        for key in ("name", "description_de", "description_en", "radio"):
+            if not site.get(key):
+                errors.append(f"content/site.json is missing required key: {key}")
+
+    episodes = parsed_json.get("episodes.json")
+    if episodes is not None and not isinstance(episodes, list):
+        errors.append("content/episodes.json must contain a JSON array")
+    elif isinstance(episodes, list):
+        for index, episode in enumerate(episodes):
+            if not isinstance(episode, dict):
+                errors.append(f"content/episodes.json entry {index + 1} must be an object")
+                continue
+            for key in ("date", "title_de", "status"):
+                if not episode.get(key):
+                    errors.append(
+                        f"content/episodes.json entry {index + 1} is missing required key: {key}"
+                    )
+
+    legal = parsed_json.get("legal.json")
+    if legal is not None and not isinstance(legal, dict):
+        errors.append("content/legal.json must contain a JSON object")
+
+    archive = parsed_json.get("archive-cache.json")
+    if archive is not None and not isinstance(archive, dict):
+        errors.append("content/archive-cache.json must contain a JSON object")
+    elif isinstance(archive, dict):
+        entries = archive.get("episodes")
+        if entries is None:
+            entries = archive.get("tracks")
+        if entries is not None and not isinstance(entries, list):
+            errors.append("content/archive-cache.json episodes/tracks must be a JSON array")
+
+    if errors:
+        print("Source validation failed:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+
+    print(f"Validated {len(json_files)} source JSON files and required project files.")
+    return 0
+
+
 def main() -> int:
-    argument_parser = argparse.ArgumentParser(description="Validate the generated static site")
+    argument_parser = argparse.ArgumentParser(
+        description="Validate project source files or the generated static site"
+    )
+    argument_parser.add_argument(
+        "--source",
+        action="store_true",
+        help="validate source JSON and required project files instead of generated output",
+    )
     argument_parser.add_argument("public", nargs="?", default="public", type=Path)
     args = argument_parser.parse_args()
+
+    if args.source:
+        return validate_source(Path.cwd().resolve())
+
     public = args.public.resolve()
     errors: list[str] = []
 

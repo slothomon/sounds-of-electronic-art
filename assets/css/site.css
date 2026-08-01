@@ -1479,3 +1479,26 @@ html[data-theme="light"] .detail-dialog {
   .soundcloud-load-copy strong { font-size: 0.86rem; }
   .soundcloud-load-copy span { font-size: 0.7rem; }
 }
+
+/* Calendar icon in detail pages and in-page detail dialogs */
+.calendar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+.calendar-button svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.calendar-button svg path {
+  fill: none;
+  stroke: currentColor;
+}

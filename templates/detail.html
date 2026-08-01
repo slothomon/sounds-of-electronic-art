@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#151210">
   <link rel="canonical" href="{{ canonical_url }}">
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
   <meta property="og:title" content="{{ page_title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical_url }}">
@@ -34,11 +34,8 @@
       <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
         <span class="brand-vector">{{ logo_svg }}</span>
       </a>
-      <nav class="nav" aria-label="Hauptnavigation">
-        <a href="{{ base_path }}/#upcoming" data-i18n="nav_next">Upcoming</a>
-        <a href="{{ base_path }}/#listen" data-i18n="nav_listen">Hören</a>
-        <a href="{{ base_path }}/#about" data-i18n="nav_about">Über uns</a>
-        <a href="{{ base_path }}/#archive" data-i18n="nav_archive">Archiv</a>
+      <nav class="nav detail-page-nav" aria-label="Hauptnavigation">
+        <a href="{{ base_path }}/#upcoming" data-bilingual data-de="← Zurück zu Upcoming" data-en="← Back to upcoming">← Zurück zu Upcoming</a>
         <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
       </nav>
       <div class="header-tools">
@@ -53,15 +50,16 @@
     </div>
   </header>
 
-  <main id="main" class="legal-main">
-    {{ legal_content }}
+  <main id="main" class="event-detail-page-main">
+    <div class="shell event-detail-page-shell">
+      <a class="event-detail-back" href="{{ base_path }}/#upcoming" data-bilingual data-de="← Zurück zur Übersicht" data-en="← Back to overview">← Zurück zur Übersicht</a>
+      {{ detail_content }}
+    </div>
   </main>
 
   <footer class="footer">
     <div class="shell footer-grid">
-      <div class="footer-logo">
-        <span class="brand-vector">{{ logo_svg }}</span>
-      </div>
+      <div class="footer-logo"><span class="brand-vector">{{ logo_svg }}</span></div>
       <div class="footer-links">
         {{ social_html }}
         <a href="{{ base_path }}/impressum.html" data-i18n="imprint_link">Impressum</a>
@@ -69,19 +67,13 @@
       </div>
       <a class="footer-partner" href="{{ radio_home_url }}" target="_blank" rel="noopener noreferrer" aria-label="Radio Blau in einem neuen Tab öffnen">
         <span class="footer-partner-label" data-bilingual data-de="Ausgestrahlt auf" data-en="Broadcast on">Ausgestrahlt auf</span>
-        <span class="footer-partner-logo">
-          <img src="{{ base_path }}/assets/images/radioblau-logo.png" alt="Radio Blau">
-        </span>
+        <span class="footer-partner-logo"><img src="{{ base_path }}/assets/images/radioblau-logo.png" alt="Radio Blau"></span>
         <span class="footer-partner-url">radioblau.de</span>
       </a>
-      <div class="footer-meta">
-        <span>© <span data-current-year>{{ build_year }}</span> sounds of electronic art</span>
-      </div>
+      <div class="footer-meta"><span>© <span data-current-year>{{ build_year }}</span> sounds of electronic art</span></div>
     </div>
   </footer>
-  <button class="back-to-top" type="button" data-back-to-top aria-hidden="true" tabindex="-1" aria-label="Nach oben">
-    <span aria-hidden="true">↑</span>
-  </button>
+  <button class="back-to-top" type="button" data-back-to-top aria-hidden="true" tabindex="-1" aria-label="Nach oben"><span aria-hidden="true">↑</span></button>
   <script src="{{ base_path }}/assets/js/site.js" defer></script>
 </body>
 </html>

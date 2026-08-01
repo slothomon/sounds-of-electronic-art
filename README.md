@@ -8,7 +8,7 @@ A dependency-light static website for the sounds of electronic art radio show.
 - German default interface with English language switch
 - Dark theme and a Solarized-Light-inspired light theme
 - Multiple upcoming broadcasts and events
-- Ten selectable SoundCloud recordings with an in-page player
+- Five selectable SoundCloud recordings with an in-page player
 - Statically generated and searchable broadcast archive
 - Automatic SoundCloud archive refresh during deployment and once per day
 - RSS feed, sitemap, robots.txt and custom 404 page
@@ -57,7 +57,7 @@ is rendered in the Upcoming section. Entries are automatically sorted by date, s
 }
 ```
 
-For broadcasts, the site automatically adds the **Live hören** and **Sendeplan** buttons. If `end` is omitted, a duration of three hours is assumed.
+For broadcasts, no extra livestream or schedule button is added; the permanent livestream remains in the main navigation. If `end` is omitted, a duration of three hours is assumed.
 
 ### Event example
 
@@ -96,13 +96,40 @@ Supported optional fields:
 - `location`, or separate `location_de` / `location_en`
 - `links`: any number of buttons with bilingual labels, URL and optional `primary: true`
 
-A calendar link is generated automatically for every upcoming item.
+A standard `.ics` calendar file is generated automatically for every upcoming item. It can be opened by Apple Calendar, Outlook, Thunderbird and most mobile calendar apps without depending on a Google account. Upcoming times are interpreted in the `Europe/Berlin` timezone; the displayed time uses whole hours only.
 
 Check the JSON syntax after editing:
 
 ```cmd
 python -m json.tool content\episodes.json > nul
 ```
+
+## In-page details and track lists
+
+The title of every upcoming item and archived broadcast opens a responsive in-page detail dialog. The URL hash changes while the dialog is open, so the current detail view can be copied and shared directly. On mobile devices the dialog is displayed as a full-width bottom sheet.
+
+Optional detail fields can be added to an upcoming item or a past broadcast in `content/episodes.json`:
+
+```json
+{
+  "details_de": "Längerer Beschreibungstext mit Hintergrundinformationen.",
+  "details_en": "Longer description with background information.",
+  "image": "assets/images/my-event.jpg",
+  "image_alt_de": "Flyer der Veranstaltung",
+  "image_alt_en": "Event flyer",
+  "lineup": [
+    {"name": "96kbps", "url": "https://soundcloud.com/skile"},
+    "easy.miner",
+    "fumé"
+  ],
+  "tracklist": [
+    {"time": "00:00", "artist": "Artist", "title": "Track"},
+    "Another Artist — Another Track"
+  ]
+}
+```
+
+For an archived SoundCloud broadcast, keep an object in `content/episodes.json` with the same `audio_url` as the cached entry. The build merges the local detail fields into the automatically refreshed archive cache, so track lists and editorial text are not overwritten by the daily SoundCloud update.
 
 ## Static broadcast archive
 

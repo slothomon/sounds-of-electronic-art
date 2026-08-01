@@ -12,7 +12,8 @@
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
       archive_heading: 'Sendungsarchiv', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
       open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', imprint_link: 'Impressum', privacy_link: 'Datenschutz',
-      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren',
+      pagination_prev: '← Zurück', pagination_next: 'Weiter →', pagination_label: 'Archivseiten', pagination_pages: 'Seiten', pagination_page: 'Seite',
+      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren', back_to_top: 'Nach oben', permalink: 'Direktlink zu dieser Sendung', detail_open: 'Details öffnen', detail_close: 'Details schließen',
     },
     en: {
       skip: 'Skip to content', nav_next: 'Upcoming', nav_listen: 'Listen', nav_about: 'About', nav_archive: 'Archive', nav_live: 'Live stream',
@@ -24,14 +25,21 @@
       about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
       archive_heading: 'Broadcast archive', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
       open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', imprint_link: 'Legal notice', privacy_link: 'Privacy',
-      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme',
+      pagination_prev: '← Previous', pagination_next: 'Next →', pagination_label: 'Archive pages', pagination_pages: 'Pages', pagination_page: 'Page',
+      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme', back_to_top: 'Back to top', permalink: 'Direct link to this broadcast', detail_open: 'Open details', detail_close: 'Close details',
     },
   };
 
   const playerColor = '#ef9a55';
+  const PAGE_SIZE = 10;
   const root = document.documentElement;
   const search = document.querySelector('[data-archive-search]');
   const archiveEmpty = document.querySelector('[data-archive-empty]');
+  const archiveSection = document.querySelector('#archive');
+  const pagination = document.querySelector('[data-archive-pagination]');
+  const pageNumbers = document.querySelector('[data-page-numbers]');
+  const previousPage = document.querySelector('[data-page-prev]');
+  const nextPage = document.querySelector('[data-page-next]');
   const episodes = [...document.querySelectorAll('[data-episode]')];
   const languageButtons = [...document.querySelectorAll('[data-language]')];
   const mixButtons = [...document.querySelectorAll('[data-mix-index]')];
@@ -42,12 +50,22 @@
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeIcon = document.querySelector('[data-theme-icon]');
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  const backToTop = document.querySelector('[data-back-to-top]');
+  const detailDialogs = [...document.querySelectorAll('[data-detail-dialog]')];
+  const detailLinks = [...document.querySelectorAll('[data-detail-link]')];
+  const detailCloseButtons = [...document.querySelectorAll('[data-detail-close]')];
+  const sectionLinks = [...document.querySelectorAll('[data-section-link]')];
+  const sectionTargets = sectionLinks
+    .map((link) => ({ link, target: document.querySelector(link.getAttribute('href')) }))
+    .filter((entry) => entry.target);
+  const mobileNavigation = window.matchMedia('(max-width: 900px)');
 
   const storageGet = (key) => { try { return localStorage.getItem(key); } catch (_) { return null; } };
   const storageSet = (key, value) => { try { localStorage.setItem(key, value); } catch (_) {} };
 
   let language = storageGet('sofea-language') || 'de';
   let activeMix = 0;
+  let currentPage = 1;
 
   const normalise = (value) => String(value || '')
     .toLocaleLowerCase(language === 'de' ? 'de' : 'en')
@@ -68,6 +86,58 @@
         }
       } catch (_) {}
     });
+  };
+
+
+  const openDialog = () => detailDialogs.find((dialog) => dialog.open) || null;
+
+  const revealEpisodeForDetail = (detailId) => {
+    const target = episodes.find((episode) => episode.dataset.detailId === detailId);
+    if (!target) return;
+    if (search) search.value = '';
+    const index = episodes.indexOf(target);
+    if (index >= 0) {
+      currentPage = Math.floor(index / PAGE_SIZE) + 1;
+      applyArchive();
+    }
+  };
+
+  const showDetail = (dialog, { updateHistory = true } = {}) => {
+    if (!dialog) return false;
+    const current = openDialog();
+    if (current && current !== dialog) current.close();
+    revealEpisodeForDetail(dialog.id);
+    if (!dialog.open) dialog.showModal();
+    document.body.classList.add('detail-open');
+    if (updateHistory && window.location.hash !== `#${dialog.id}`) {
+      window.history.pushState({ sofeaDetail: dialog.id }, '', `#${dialog.id}`);
+    }
+    return true;
+  };
+
+  const hideDetail = (dialog, { updateHistory = true } = {}) => {
+    if (!dialog) return;
+    if (updateHistory && window.location.hash === `#${dialog.id}`) {
+      if (window.history.state?.sofeaDetail === dialog.id) {
+        window.history.back();
+        return;
+      }
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+    }
+    if (dialog.open) dialog.close();
+    if (!openDialog()) document.body.classList.remove('detail-open');
+  };
+
+  const syncDetailFromLocation = () => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const dialog = id ? document.getElementById(id) : null;
+    if (dialog?.matches('[data-detail-dialog]')) {
+      showDetail(dialog, { updateHistory: false });
+      return true;
+    }
+    const current = openDialog();
+    if (current) hideDetail(current, { updateHistory: false });
+    return false;
   };
 
   const colorisedEmbed = (embed) => {
@@ -117,18 +187,146 @@
     if (themeColorMeta) themeColorMeta.content = light ? '#fdf6e3' : '#151210';
   };
 
-  const applySearch = () => {
-    if (!search) return;
-    const query = normalise(search.value.trim());
-    let visible = 0;
-    episodes.forEach((episode) => {
-      const haystack = normalise(episode.dataset.search || episode.textContent);
-      const matches = !query || haystack.includes(query);
-      episode.hidden = !matches;
-      if (matches) visible += 1;
-    });
-    if (archiveEmpty) archiveEmpty.hidden = visible !== 0;
+  const updateBackToTop = () => {
+    if (!backToTop) return;
+    const visible = window.scrollY > Math.max(650, window.innerHeight * 0.8);
+    backToTop.classList.toggle('is-visible', visible);
+    backToTop.setAttribute('aria-hidden', String(!visible));
+    backToTop.tabIndex = visible ? 0 : -1;
   };
+
+  let activeSectionId = '';
+  const updateActiveSection = () => {
+    if (!sectionTargets.length || !mobileNavigation.matches) {
+      sectionLinks.forEach((link) => link.removeAttribute('aria-current'));
+      activeSectionId = '';
+      return;
+    }
+
+    const headerOffset = (document.querySelector('.site-header')?.offsetHeight || 0) + 28;
+    let active = null;
+    sectionTargets.forEach((entry) => {
+      if (entry.target.getBoundingClientRect().top <= headerOffset) active = entry;
+    });
+    if (!active && sectionTargets[0].target.getBoundingClientRect().top < window.innerHeight * 0.72) {
+      active = sectionTargets[0];
+    }
+    const nextId = active?.target.id || '';
+    sectionTargets.forEach((entry) => {
+      if (entry.target.id === nextId) entry.link.setAttribute('aria-current', 'location');
+      else entry.link.removeAttribute('aria-current');
+    });
+    if (nextId && nextId !== activeSectionId) {
+      activeSectionId = nextId;
+      active?.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
+  let scrollTicking = false;
+  const updateScrollUi = () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(() => {
+      updateBackToTop();
+      updateActiveSection();
+      scrollTicking = false;
+    });
+  };
+
+  const paginationItems = (totalPages) => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+
+    const items = [1];
+    let start = Math.max(2, currentPage - 1);
+    let end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (currentPage <= 4) end = 5;
+    if (currentPage >= totalPages - 3) start = totalPages - 4;
+    if (start > 2) items.push('ellipsis');
+    for (let page = start; page <= end; page += 1) items.push(page);
+    if (end < totalPages - 1) items.push('ellipsis');
+    items.push(totalPages);
+    return items;
+  };
+
+  const renderPagination = (totalPages) => {
+    if (!pagination || !pageNumbers || !previousPage || !nextPage) return;
+    pagination.hidden = totalPages <= 1;
+    pagination.setAttribute('aria-label', translations[language].pagination_label);
+    pageNumbers.setAttribute('aria-label', translations[language].pagination_pages);
+    pageNumbers.replaceChildren();
+
+    if (totalPages <= 1) return;
+
+    paginationItems(totalPages).forEach((item) => {
+      if (item === 'ellipsis') {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'pagination-ellipsis';
+        ellipsis.textContent = '…';
+        ellipsis.setAttribute('aria-hidden', 'true');
+        pageNumbers.append(ellipsis);
+        return;
+      }
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'pagination-page';
+      button.textContent = String(item);
+      button.setAttribute('aria-label', `${translations[language].pagination_page} ${item}`);
+      if (item === currentPage) button.setAttribute('aria-current', 'page');
+      button.addEventListener('click', () => goToPage(item));
+      pageNumbers.append(button);
+    });
+
+    previousPage.disabled = currentPage === 1;
+    nextPage.disabled = currentPage === totalPages;
+  };
+
+  const filteredEpisodes = () => {
+    const query = normalise(search?.value.trim() || '');
+    return episodes.filter((episode) => {
+      const haystack = normalise(episode.dataset.search || episode.textContent);
+      return !query || haystack.includes(query);
+    });
+  };
+
+  const applyArchive = ({ resetPage = false } = {}) => {
+    if (resetPage) currentPage = 1;
+    const matches = filteredEpisodes();
+    const totalPages = Math.ceil(matches.length / PAGE_SIZE);
+    if (totalPages > 0) currentPage = Math.min(currentPage, totalPages);
+    else currentPage = 1;
+
+    const visibleEpisodes = new Set(
+      matches.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    );
+    episodes.forEach((episode) => { episode.hidden = !visibleEpisodes.has(episode); });
+    if (archiveEmpty) archiveEmpty.hidden = matches.length !== 0;
+    renderPagination(totalPages);
+  };
+
+  const revealEpisodeFromHash = ({ scroll = true } = {}) => {
+    if (!window.location.hash.startsWith('#episode-')) return false;
+    const target = document.getElementById(window.location.hash.slice(1));
+    if (!target || !target.matches('[data-episode]')) return false;
+    if (search) search.value = '';
+    const index = episodes.indexOf(target);
+    if (index < 0) return false;
+    currentPage = Math.floor(index / PAGE_SIZE) + 1;
+    applyArchive();
+    if (scroll) window.requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    target.classList.add('is-linked');
+    window.setTimeout(() => target.classList.remove('is-linked'), 1800);
+    return true;
+  };
+
+  function goToPage(page) {
+    const totalPages = Math.ceil(filteredEpisodes().length / PAGE_SIZE);
+    if (!Number.isInteger(page) || page < 1 || page > totalPages || page === currentPage) return;
+    currentPage = page;
+    applyArchive();
+    archiveSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   const applyLanguage = (nextLanguage) => {
     language = translations[nextLanguage] ? nextLanguage : 'de';
@@ -155,9 +353,28 @@
     });
     if (search) search.placeholder = search.dataset[language === 'de' ? 'placeholderDe' : 'placeholderEn'] || '';
     languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+    document.querySelectorAll('[data-episode-permalink]').forEach((link) => {
+      link.setAttribute('aria-label', translations[language].permalink);
+      link.title = translations[language].permalink;
+    });
+    detailLinks.forEach((link) => {
+      link.setAttribute('aria-label', `${translations[language].detail_open}: ${link.textContent.trim()}`);
+    });
+    detailCloseButtons.forEach((button) => {
+      const label = button.dataset[language === 'de' ? 'labelDe' : 'labelEn'] || translations[language].detail_close;
+      button.setAttribute('aria-label', label);
+      button.title = label;
+    });
+    document.querySelectorAll('[data-alt-de]').forEach((image) => {
+      image.alt = image.dataset[language === 'de' ? 'altDe' : 'altEn'] || image.dataset.altDe || '';
+    });
+    if (backToTop) {
+      backToTop.setAttribute('aria-label', translations[language].back_to_top);
+      backToTop.title = translations[language].back_to_top;
+    }
     updatePlayerText();
     updateThemeControls();
-    applySearch();
+    applyArchive();
   };
 
   const toggleTheme = () => {
@@ -168,8 +385,41 @@
 
   languageButtons.forEach((button) => button.addEventListener('click', () => applyLanguage(button.dataset.language)));
   mixButtons.forEach((button, index) => button.addEventListener('click', () => selectMix(index)));
+  detailLinks.forEach((link) => link.addEventListener('click', (event) => {
+    const id = decodeURIComponent((link.getAttribute('href') || '').replace(/^#/, ''));
+    const dialog = document.getElementById(id);
+    if (!dialog?.matches('[data-detail-dialog]')) return;
+    event.preventDefault();
+    showDetail(dialog);
+  }));
+  detailCloseButtons.forEach((button) => button.addEventListener('click', () => {
+    hideDetail(button.closest('[data-detail-dialog]'));
+  }));
+  detailDialogs.forEach((dialog) => {
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      hideDetail(dialog);
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) hideDetail(dialog);
+    });
+    dialog.addEventListener('close', () => {
+      if (!openDialog()) document.body.classList.remove('detail-open');
+    });
+  });
   themeToggle?.addEventListener('click', toggleTheme);
-  search?.addEventListener('input', applySearch);
+  search?.addEventListener('input', () => applyArchive({ resetPage: true }));
+  previousPage?.addEventListener('click', () => goToPage(currentPage - 1));
+  nextPage?.addEventListener('click', () => goToPage(currentPage + 1));
+  backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  window.addEventListener('scroll', updateScrollUi, { passive: true });
+  window.addEventListener('resize', updateScrollUi);
+  const syncLocationUi = () => {
+    if (syncDetailFromLocation()) return;
+    if (!revealEpisodeFromHash()) updateScrollUi();
+  };
+  window.addEventListener('hashchange', syncLocationUi);
+  window.addEventListener('popstate', syncLocationUi);
 
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = String(new Date().getFullYear());
@@ -177,4 +427,6 @@
   updateExternalLinks();
   applyLanguage(language);
   updateThemeControls();
+  if (!syncDetailFromLocation()) revealEpisodeFromHash({ scroll: false });
+  updateScrollUi();
 })();

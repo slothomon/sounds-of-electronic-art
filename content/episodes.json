@@ -1,8 +1,26 @@
 [
   {
     "date": "2026-08-29T21:00:00+02:00",
-    "title_de": "100. Sendung - tba",
-    "title_en": "100. show - tba",
+    "title_de": "sofea #100 - tba",
+    "title_en": "sofea #100 - tba",
+    "status": "upcoming",
+    "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau",
+    "summary_en": "Three hours of electronic music. Live on Radio Blau.",
+    "audio_url": null
+  },
+  {
+    "date": "2026-10-24T21:00:00+02:00",
+    "title_de": "sofea #101 - tba",
+    "title_en": "sofea #101 - tba",
+    "status": "upcoming",
+    "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+    "summary_en": "Three hours of electronic music. Live on Radio Blau.",
+    "audio_url": null
+  },
+  {
+    "date": "2026-12-19T21:00:00+02:00",
+    "title_de": "sofea #102 - tba",
+    "title_en": "sofea #102 - tba",
     "status": "upcoming",
     "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
     "summary_en": "Three hours of electronic music. Live on Radio Blau.",

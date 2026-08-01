@@ -197,18 +197,37 @@ def main() -> int:
     argument_parser = argparse.ArgumentParser(
         description="Validate project source files or the generated static site"
     )
-    argument_parser.add_argument(
+    mode = argument_parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--source",
         action="store_true",
-        help="validate source JSON and required project files instead of generated output",
+        help="validate source JSON and required project files",
     )
-    argument_parser.add_argument("public", nargs="?", default="public", type=Path)
+    mode.add_argument(
+        "--public",
+        nargs="?",
+        const=Path("public"),
+        type=Path,
+        metavar="DIR",
+        help="validate generated output (default directory: public)",
+    )
+    argument_parser.add_argument(
+        "public_dir",
+        nargs="?",
+        type=Path,
+        help="generated output directory; retained for compatibility with `validate_site.py public`",
+    )
     args = argument_parser.parse_args()
 
     if args.source:
+        if args.public_dir is not None:
+            argument_parser.error("a public directory cannot be combined with --source")
         return validate_source(Path.cwd().resolve())
 
-    public = args.public.resolve()
+    if args.public is not None and args.public_dir is not None:
+        argument_parser.error("specify the generated directory either with --public or positionally, not both")
+
+    public = (args.public or args.public_dir or Path("public")).resolve()
     errors: list[str] = []
 
     if not public.is_dir():

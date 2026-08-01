@@ -6,6 +6,7 @@
   <title>{{ page_title }}</title>
   <meta name="description" content="{{ description }}">
   <meta name="theme-color" content="#151210">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{{ canonical_url }}">
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
   <script>
@@ -17,13 +18,13 @@
     })();
   </script>
   <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
-  <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ base_path }}/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ home_href }}feed.xml">
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
   <meta property="og:title" content="{{ page_title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical_url }}">
   <meta property="og:site_name" content="sounds of electronic art">
-  <meta property="og:locale" content="de_DE">
   <meta property="og:image" content="{{ social_image_url }}">
   <meta property="og:image:secure_url" content="{{ social_image_url }}">
   <meta property="og:image:type" content="image/png">
@@ -34,19 +35,21 @@
   <meta name="twitter:title" content="{{ page_title }}">
   <meta name="twitter:description" content="{{ description }}">
   <meta name="twitter:image" content="{{ social_image_url }}">
+  <meta name="twitter:image:alt" content="sounds of electronic art — elektronische musik, radio und klubkultur">
+  {{ structured_data_html }}
 </head>
-<body data-home-path="{{ home_path }}">
+<body data-home-url="{{ home_href }}" data-home-title="{{ page_title }}">
   <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
+      <a class="brand" href="{{ home_href }}" aria-label="sounds of electronic art Startseite">
         <span class="brand-vector">{{ logo_svg }}</span>
       </a>
       <nav class="nav" aria-label="Hauptnavigation">
-        <a href="#upcoming" data-section-link data-i18n="nav_next">Upcoming</a>
-        <a href="#listen" data-section-link data-i18n="nav_listen">Hören</a>
-        <a href="#about" data-section-link data-i18n="nav_about">Über uns</a>
-        <a href="#archive" data-section-link data-i18n="nav_archive">Archiv</a>
+        <a href="{{ home_href }}#upcoming" data-section-link data-i18n="nav_next">Upcoming</a>
+        <a href="{{ home_href }}#listen" data-section-link data-i18n="nav_listen">Hören</a>
+        <a href="{{ home_href }}#about" data-section-link data-i18n="nav_about">Über uns</a>
+        <a href="{{ home_href }}#archive" data-section-link data-i18n="nav_archive">Archiv</a>
         <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
       </nav>
       <div class="header-tools">
@@ -101,8 +104,15 @@
                   <a class="text-link" data-player-link href="{{ first_mix_url }}" target="_blank" rel="noopener noreferrer" data-i18n="open_soundcloud">Auf SoundCloud öffnen ↗</a>
                 </div>
               </div>
-              <div class="player-frame">
-                <iframe data-soundcloud-player title="{{ first_mix_title }} auf SoundCloud" loading="lazy" allow="autoplay" src="{{ first_mix_embed }}"></iframe>
+              <div class="player-frame" data-player-frame data-embed="{{ first_mix_embed }}" data-player-name="{{ first_mix_title }}">
+                <div class="soundcloud-facade" data-soundcloud-facade>
+                  <button class="soundcloud-load" type="button" data-soundcloud-load>
+                    <span class="soundcloud-load-icon" aria-hidden="true">▶</span>
+                    <span class="soundcloud-load-copy">
+                      <strong data-i18n="load_soundcloud">SoundCloud-Player laden</strong>
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -155,7 +165,7 @@
       <div class="footer-logo">
         <span class="brand-vector">{{ logo_svg }}</span>
       </div>
-      <div class="footer-links">{{ social_html }}<a href="{{ base_path }}/impressum.html" data-i18n="imprint_link">Impressum</a><a href="{{ base_path }}/datenschutz.html" data-i18n="privacy_link">Datenschutz</a></div>
+      <div class="footer-links">{{ social_html }}<a href="{{ home_href }}impressum.html" data-i18n="imprint_link">Impressum</a><a href="{{ home_href }}datenschutz.html" data-i18n="privacy_link">Datenschutz</a></div>
       <a class="footer-partner" href="{{ radio_home_url }}" target="_blank" rel="noopener noreferrer" aria-label="Radio Blau in einem neuen Tab öffnen">
         <span class="footer-partner-label" data-bilingual data-de="Ausgestrahlt auf" data-en="Broadcast on">Ausgestrahlt auf</span>
         <span class="footer-partner-logo">

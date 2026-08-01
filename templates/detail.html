@@ -6,22 +6,27 @@
   <title>{{ page_title }}</title>
   <meta name="description" content="{{ description }}">
   <meta name="theme-color" content="#151210">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{{ canonical_url }}">
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
-  <meta property="og:type" content="article">
+  <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ home_href }}feed.xml">
+  <meta property="og:type" content="{{ og_type }}">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:site_name" content="sounds of electronic art">
   <meta property="og:title" content="{{ page_title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical_url }}">
   <meta property="og:image" content="{{ social_image_url }}">
-  <meta property="og:site_name" content="sounds of electronic art">
-  <meta property="og:locale" content="de_DE">
+  <meta property="og:image:secure_url" content="{{ social_image_url }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{{ page_title }}">
+  <meta property="og:image:alt" content="{{ social_image_alt }}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ page_title }}">
   <meta name="twitter:description" content="{{ description }}">
   <meta name="twitter:image" content="{{ social_image_url }}">
+  <meta name="twitter:image:alt" content="{{ social_image_alt }}">
+  {{ structured_data_html }}
   <script>
     (() => {
       try {
@@ -31,17 +36,16 @@
     })();
   </script>
   <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
-  <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ base_path }}/feed.xml">
 </head>
-<body data-home-path="{{ home_path }}">
+<body data-home-url="{{ home_href }}" data-home-title="{{ page_title }}">
   <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="{{ base_path }}/" aria-label="sounds of electronic art Startseite">
+      <a class="brand" href="{{ home_href }}" aria-label="sounds of electronic art Startseite">
         <span class="brand-vector">{{ logo_svg }}</span>
       </a>
       <nav class="nav detail-page-nav" aria-label="Hauptnavigation">
-        <a href="{{ back_href }}" data-bilingual data-de="{{ back_label_de }}" data-en="{{ back_label_en }}">{{ back_label_de }}</a>
+        <a href="{{ detail_back_href }}" data-bilingual data-de="{{ detail_back_de }}" data-en="{{ detail_back_en }}">{{ detail_back_de }}</a>
         <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
       </nav>
       <div class="header-tools">
@@ -58,8 +62,9 @@
 
   <main id="main" class="event-detail-page-main">
     <div class="shell event-detail-page-shell">
-      <a class="event-detail-back" href="{{ back_href }}" data-bilingual data-de="{{ back_label_de }}" data-en="{{ back_label_en }}">{{ back_label_de }}</a>
+      <a class="event-detail-back" href="{{ detail_back_href }}" data-bilingual data-de="{{ detail_back_de }}" data-en="{{ detail_back_en }}">{{ detail_back_de }}</a>
       {{ detail_content }}
+      {{ detail_navigation }}
     </div>
   </main>
 
@@ -68,8 +73,8 @@
       <div class="footer-logo"><span class="brand-vector">{{ logo_svg }}</span></div>
       <div class="footer-links">
         {{ social_html }}
-        <a href="{{ base_path }}/impressum.html" data-i18n="imprint_link">Impressum</a>
-        <a href="{{ base_path }}/datenschutz.html" data-i18n="privacy_link">Datenschutz</a>
+        <a href="{{ home_href }}impressum.html" data-i18n="imprint_link">Impressum</a>
+        <a href="{{ home_href }}datenschutz.html" data-i18n="privacy_link">Datenschutz</a>
       </div>
       <a class="footer-partner" href="{{ radio_home_url }}" target="_blank" rel="noopener noreferrer" aria-label="Radio Blau in einem neuen Tab öffnen">
         <span class="footer-partner-label" data-bilingual data-de="Ausgestrahlt auf" data-en="Broadcast on">Ausgestrahlt auf</span>

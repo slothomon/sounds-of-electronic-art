@@ -1,440 +1,437 @@
 (() => {
   'use strict';
 
-  const translations = {
+  const root = document.documentElement;
+  const body = document.body;
+
+  const copy = {
     de: {
-      skip: 'Zum Inhalt springen', nav_next: 'Upcoming', nav_listen: 'Hören', nav_about: 'Über uns', nav_archive: 'Archiv', nav_live: 'Livestream',
-      hero_eyebrow: 'Radio Blau · Leipzig · seit 2011', hero_subtitle: 'Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.',
-      next_heading: 'Upcoming', listen_heading: 'Hören',
-      selected_recording: 'Ausgewählte Aufnahme', open_soundcloud: 'Auf SoundCloud öffnen ↗',
-      about_heading: 'Über die Sendung', about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
+      skip: 'Zum Inhalt springen',
+      nav_next: 'Upcoming',
+      nav_listen: 'Hören',
+      nav_about: 'Über uns',
+      nav_archive: 'Archiv',
+      nav_live: 'Livestream',
+      hero_eyebrow: 'Radio Blau · Leipzig · seit 2011',
+      hero_subtitle: 'Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.',
+      next_heading: 'Upcoming',
+      listen_heading: 'Hören',
+      selected_recording: 'Ausgewählte Aufnahme',
+      open_soundcloud: 'Auf SoundCloud öffnen ↗',
+      load_soundcloud: 'SoundCloud-Player laden',
+      about_heading: 'Über die Sendung',
+      about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
-      archive_heading: 'Sendungsarchiv', search_label: 'Archiv durchsuchen', archive_empty: 'Keine passenden Sendungen gefunden.',
-      open_playlist: 'Playlist auf SoundCloud öffnen ↗', play_recording: 'Aufnahme abspielen ↗', imprint_link: 'Impressum', privacy_link: 'Datenschutz',
-      pagination_prev: '← Zurück', pagination_next: 'Weiter →', pagination_label: 'Archivseiten', pagination_pages: 'Seiten', pagination_page: 'Seite',
-      theme_to_light: 'Helles Thema aktivieren', theme_to_dark: 'Dunkles Thema aktivieren', back_to_top: 'Nach oben', detail_open: 'Details öffnen', detail_close: 'Details schließen',
+      archive_heading: 'Sendungsarchiv',
+      open_playlist: 'Playlist auf SoundCloud öffnen ↗',
+      search_label: 'Archiv durchsuchen',
+      archive_empty: 'Keine passenden Sendungen gefunden.',
+      pagination_prev: '← Zurück',
+      pagination_next: 'Weiter →',
+      play_recording: 'Aufnahme abspielen ↗',
+      imprint_link: 'Impressum',
+      privacy_link: 'Datenschutz'
     },
     en: {
-      skip: 'Skip to content', nav_next: 'Upcoming', nav_listen: 'Listen', nav_about: 'About', nav_archive: 'Archive', nav_live: 'Live stream',
-      hero_eyebrow: 'Radio Blau · Leipzig · since 2011', hero_subtitle: 'Electronic music, radio and club culture — broadcast every eight weeks from Leipzig.',
-      next_heading: 'Upcoming', listen_heading: 'Listen',
-      selected_recording: 'Selected recording', open_soundcloud: 'Open on SoundCloud ↗',
-      about_heading: 'About the show', about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
-      about_secondary: 'The programme was founded in 2011 and broadcasts from the Radio Blau studio in Leipzig.',
-      archive_heading: 'Broadcast archive', search_label: 'Search archive', archive_empty: 'No matching broadcasts found.',
-      open_playlist: 'Open playlist on SoundCloud ↗', play_recording: 'Play recording ↗', imprint_link: 'Legal notice', privacy_link: 'Privacy',
-      pagination_prev: '← Previous', pagination_next: 'Next →', pagination_label: 'Archive pages', pagination_pages: 'Pages', pagination_page: 'Page',
-      theme_to_light: 'Switch to light theme', theme_to_dark: 'Switch to dark theme', back_to_top: 'Back to top', detail_open: 'Open details', detail_close: 'Close details',
+      skip: 'Skip to content',
+      nav_next: 'Upcoming',
+      nav_listen: 'Listen',
+      nav_about: 'About',
+      nav_archive: 'Archive',
+      nav_live: 'Live stream',
+      hero_eyebrow: 'Radio Blau · Leipzig · since 2011',
+      hero_subtitle: 'Electronic music, radio and club culture — broadcast every eight weeks from Leipzig.',
+      next_heading: 'Upcoming',
+      listen_heading: 'Listen',
+      selected_recording: 'Selected recording',
+      open_soundcloud: 'Open on SoundCloud ↗',
+      load_soundcloud: 'Load SoundCloud player',
+      about_heading: 'About the show',
+      about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
+      about_secondary: 'The show was founded in 2011 and is broadcast from the Radio Blau studio in Leipzig.',
+      archive_heading: 'Broadcast archive',
+      open_playlist: 'Open playlist on SoundCloud ↗',
+      search_label: 'Search the archive',
+      archive_empty: 'No matching broadcasts found.',
+      pagination_prev: '← Previous',
+      pagination_next: 'Next →',
+      play_recording: 'Play recording ↗',
+      imprint_link: 'Legal notice',
+      privacy_link: 'Privacy'
+    }
+  };
+
+  const safeStorage = {
+    get(key) {
+      try { return localStorage.getItem(key); } catch (_) { return null; }
     },
-  };
-
-  const playerColor = '#ef9a55';
-  const PAGE_SIZE = 10;
-  const root = document.documentElement;
-  const search = document.querySelector('[data-archive-search]');
-  const archiveEmpty = document.querySelector('[data-archive-empty]');
-  const archiveSection = document.querySelector('#archive');
-  const pagination = document.querySelector('[data-archive-pagination]');
-  const pageNumbers = document.querySelector('[data-page-numbers]');
-  const previousPage = document.querySelector('[data-page-prev]');
-  const nextPage = document.querySelector('[data-page-next]');
-  const episodes = [...document.querySelectorAll('[data-episode]')];
-  const languageButtons = [...document.querySelectorAll('[data-language]')];
-  const mixButtons = [...document.querySelectorAll('[data-mix-index]')];
-  const player = document.querySelector('[data-soundcloud-player]');
-  const playerTitle = document.querySelector('[data-player-title]');
-  const playerSubtitle = document.querySelector('[data-player-subtitle]');
-  const playerLink = document.querySelector('[data-player-link]');
-  const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeIcon = document.querySelector('[data-theme-icon]');
-  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-  const backToTop = document.querySelector('[data-back-to-top]');
-  const detailDialogs = [...document.querySelectorAll('[data-detail-dialog]')];
-  const detailLinks = [...document.querySelectorAll('[data-detail-link]')];
-  const detailCloseButtons = [...document.querySelectorAll('[data-detail-close]')];
-  const sectionLinks = [...document.querySelectorAll('[data-section-link]')];
-  const sectionTargets = sectionLinks
-    .map((link) => ({ link, target: document.querySelector(link.getAttribute('href')) }))
-    .filter((entry) => entry.target);
-  const mobileNavigation = window.matchMedia('(max-width: 900px)');
-  const homePath = document.body.dataset.homePath || '/';
-
-  const storageGet = (key) => { try { return localStorage.getItem(key); } catch (_) { return null; } };
-  const storageSet = (key, value) => { try { localStorage.setItem(key, value); } catch (_) {} };
-
-  let language = storageGet('sofea-language') || 'de';
-  let activeMix = 0;
-  let currentPage = 1;
-
-  const normalise = (value) => String(value || '')
-    .toLocaleLowerCase(language === 'de' ? 'de' : 'en')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  const currentTheme = () => root.dataset.theme || 'dark';
-
-  const updateExternalLinks = () => {
-    document.querySelectorAll('a[href]').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
-      try {
-        const url = new URL(href, window.location.href);
-        if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== window.location.origin) {
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-        }
-      } catch (_) {}
-    });
-  };
-
-
-  const openDialog = () => detailDialogs.find((dialog) => dialog.open) || null;
-  const normalisePath = (value) => {
-    const path = String(value || '/').replace(/\/{2,}/g, '/');
-    return path.endsWith('/') ? path : `${path}/`;
-  };
-
-  const revealEpisodeForDetail = (detailId) => {
-    const target = episodes.find((episode) => episode.dataset.detailId === detailId);
-    if (!target) return;
-    if (search) search.value = '';
-    const index = episodes.indexOf(target);
-    if (index >= 0) {
-      currentPage = Math.floor(index / PAGE_SIZE) + 1;
-      applyArchive();
+    set(key, value) {
+      try { localStorage.setItem(key, value); } catch (_) {}
     }
   };
 
-  const detailPath = (dialog) => {
-    try {
-      return normalisePath(new URL(dialog?.dataset.detailUrl || homePath, window.location.origin).pathname);
-    } catch (_) {
-      return normalisePath(homePath);
-    }
-  };
+  let language = safeStorage.get('sofea-language') === 'en' ? 'en' : 'de';
 
-  const dialogFromLocation = () => {
-    const pathname = normalisePath(window.location.pathname);
-    const byPath = detailDialogs.find((dialog) => detailPath(dialog) === pathname);
-    if (byPath) return byPath;
-    const legacyId = decodeURIComponent(window.location.hash.slice(1));
-    const byHash = legacyId ? document.getElementById(legacyId) : null;
-    if (byHash?.matches('[data-detail-dialog]')) return byHash;
-    if (byHash?.matches('[data-episode]')) {
-      return document.getElementById(byHash.dataset.detailId || '');
-    }
-    return null;
-  };
-
-  const showDetail = (dialog, { updateHistory = true } = {}) => {
-    if (!dialog) return false;
-    const current = openDialog();
-    if (current && current !== dialog) current.close();
-    revealEpisodeForDetail(dialog.id);
-    if (!dialog.open) dialog.showModal();
-    document.body.classList.add('detail-open');
-    if (updateHistory) {
-      const target = dialog.dataset.detailUrl || `#${dialog.id}`;
-      const currentTarget = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      if (currentTarget !== target) {
-        window.history.pushState({ sofeaDetail: dialog.id }, '', target);
-      }
-    }
-    return true;
-  };
-
-  const hideDetail = (dialog, { updateHistory = true } = {}) => {
-    if (!dialog) return;
-    if (updateHistory) {
-      if (window.history.state?.sofeaDetail === dialog.id) {
-        window.history.back();
-        return;
-      }
-      window.history.replaceState(null, '', homePath);
-    }
-    if (dialog.open) dialog.close();
-    if (!openDialog()) document.body.classList.remove('detail-open');
-  };
-
-  const syncDetailFromLocation = () => {
-    const dialog = dialogFromLocation();
-    if (dialog) {
-      showDetail(dialog, { updateHistory: false });
-      return true;
-    }
-    const current = openDialog();
-    if (current) hideDetail(current, { updateHistory: false });
-    return false;
-  };
-
-  const colorisedEmbed = (embed) => {
-    try {
-      const url = new URL(embed);
-      url.searchParams.set('color', playerColor);
-      url.searchParams.set('show_comments', 'true');
-      url.searchParams.set('show_reposts', 'true');
-      url.searchParams.set('show_playcount', 'true');
-      return url.toString();
-    } catch (_) {
-      return embed;
-    }
-  };
-
-  const updatePlayerText = () => {
-    const button = mixButtons[activeMix];
-    if (!button) return;
-    const title = button.dataset.title || '';
-    if (playerTitle) playerTitle.textContent = title;
-    if (playerSubtitle) playerSubtitle.textContent = button.dataset[language === 'de' ? 'subtitleDe' : 'subtitleEn'] || '';
-    if (player) player.title = language === 'de' ? `${title} auf SoundCloud` : `${title} on SoundCloud`;
-  };
-
-  const selectMix = (index, scroll = true) => {
-    const button = mixButtons[index];
-    if (!button) return;
-    activeMix = index;
-    mixButtons.forEach((item, itemIndex) => item.setAttribute('aria-pressed', String(itemIndex === index)));
-    const embed = colorisedEmbed(button.dataset.embed || '');
-    if (player && player.src !== embed) player.src = embed;
-    if (playerLink) playerLink.href = button.dataset.url || '#';
-    updatePlayerText();
-    updateExternalLinks();
-    if (scroll) document.querySelector('.player-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  };
-
-  const updateThemeControls = () => {
-    const light = currentTheme() === 'light';
-    const label = translations[language][light ? 'theme_to_dark' : 'theme_to_light'];
-    if (themeToggle) {
-      themeToggle.setAttribute('aria-label', label);
-      themeToggle.title = label;
-      themeToggle.setAttribute('aria-pressed', String(light));
-    }
-    if (themeIcon) themeIcon.textContent = light ? '☾' : '☀';
-    if (themeColorMeta) themeColorMeta.content = light ? '#fdf6e3' : '#151210';
-  };
-
-  const updateBackToTop = () => {
-    if (!backToTop) return;
-    const visible = window.scrollY > Math.max(650, window.innerHeight * 0.8);
-    backToTop.classList.toggle('is-visible', visible);
-    backToTop.setAttribute('aria-hidden', String(!visible));
-    backToTop.tabIndex = visible ? 0 : -1;
-  };
-
-  let activeSectionId = '';
-  const updateActiveSection = () => {
-    if (!sectionTargets.length || !mobileNavigation.matches) {
-      sectionLinks.forEach((link) => link.removeAttribute('aria-current'));
-      activeSectionId = '';
-      return;
-    }
-
-    const headerOffset = (document.querySelector('.site-header')?.offsetHeight || 0) + 28;
-    let active = null;
-    sectionTargets.forEach((entry) => {
-      if (entry.target.getBoundingClientRect().top <= headerOffset) active = entry;
-    });
-    if (!active && sectionTargets[0].target.getBoundingClientRect().top < window.innerHeight * 0.72) {
-      active = sectionTargets[0];
-    }
-    const nextId = active?.target.id || '';
-    sectionTargets.forEach((entry) => {
-      if (entry.target.id === nextId) entry.link.setAttribute('aria-current', 'location');
-      else entry.link.removeAttribute('aria-current');
-    });
-    if (nextId && nextId !== activeSectionId) {
-      activeSectionId = nextId;
-      active?.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-  };
-
-  let scrollTicking = false;
-  const updateScrollUi = () => {
-    if (scrollTicking) return;
-    scrollTicking = true;
-    window.requestAnimationFrame(() => {
-      updateBackToTop();
-      updateActiveSection();
-      scrollTicking = false;
-    });
-  };
-
-  const paginationItems = (totalPages) => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-    const items = [1];
-    let start = Math.max(2, currentPage - 1);
-    let end = Math.min(totalPages - 1, currentPage + 1);
-
-    if (currentPage <= 4) end = 5;
-    if (currentPage >= totalPages - 3) start = totalPages - 4;
-    if (start > 2) items.push('ellipsis');
-    for (let page = start; page <= end; page += 1) items.push(page);
-    if (end < totalPages - 1) items.push('ellipsis');
-    items.push(totalPages);
-    return items;
-  };
-
-  const renderPagination = (totalPages) => {
-    if (!pagination || !pageNumbers || !previousPage || !nextPage) return;
-    pagination.hidden = totalPages <= 1;
-    pagination.setAttribute('aria-label', translations[language].pagination_label);
-    pageNumbers.setAttribute('aria-label', translations[language].pagination_pages);
-    pageNumbers.replaceChildren();
-
-    if (totalPages <= 1) return;
-
-    paginationItems(totalPages).forEach((item) => {
-      if (item === 'ellipsis') {
-        const ellipsis = document.createElement('span');
-        ellipsis.className = 'pagination-ellipsis';
-        ellipsis.textContent = '…';
-        ellipsis.setAttribute('aria-hidden', 'true');
-        pageNumbers.append(ellipsis);
-        return;
-      }
-
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'pagination-page';
-      button.textContent = String(item);
-      button.setAttribute('aria-label', `${translations[language].pagination_page} ${item}`);
-      if (item === currentPage) button.setAttribute('aria-current', 'page');
-      button.addEventListener('click', () => goToPage(item));
-      pageNumbers.append(button);
-    });
-
-    previousPage.disabled = currentPage === 1;
-    nextPage.disabled = currentPage === totalPages;
-  };
-
-  const filteredEpisodes = () => {
-    const query = normalise(search?.value.trim() || '');
-    return episodes.filter((episode) => {
-      const haystack = normalise(episode.dataset.search || episode.textContent);
-      return !query || haystack.includes(query);
-    });
-  };
-
-  const applyArchive = ({ resetPage = false } = {}) => {
-    if (resetPage) currentPage = 1;
-    const matches = filteredEpisodes();
-    const totalPages = Math.ceil(matches.length / PAGE_SIZE);
-    if (totalPages > 0) currentPage = Math.min(currentPage, totalPages);
-    else currentPage = 1;
-
-    const visibleEpisodes = new Set(
-      matches.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
-    );
-    episodes.forEach((episode) => { episode.hidden = !visibleEpisodes.has(episode); });
-    if (archiveEmpty) archiveEmpty.hidden = matches.length !== 0;
-    renderPagination(totalPages);
-  };
-
-
-  function goToPage(page) {
-    const totalPages = Math.ceil(filteredEpisodes().length / PAGE_SIZE);
-    if (!Number.isInteger(page) || page < 1 || page > totalPages || page === currentPage) return;
-    currentPage = page;
-    applyArchive();
-    archiveSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  const applyLanguage = (nextLanguage) => {
-    language = translations[nextLanguage] ? nextLanguage : 'de';
+  function applyLanguage(nextLanguage, persist = true) {
+    language = nextLanguage === 'en' ? 'en' : 'de';
     root.lang = language;
-    storageSet('sofea-language', language);
 
     document.querySelectorAll('[data-i18n]').forEach((element) => {
-      const value = translations[language][element.dataset.i18n];
-      if (value) element.textContent = value;
+      const value = copy[language][element.dataset.i18n];
+      if (value !== undefined) element.textContent = value;
     });
     document.querySelectorAll('[data-i18n-html]').forEach((element) => {
-      const value = translations[language][element.dataset.i18nHtml];
-      if (value) element.innerHTML = value;
+      const value = copy[language][element.dataset.i18nHtml];
+      if (value !== undefined) element.innerHTML = value;
     });
     document.querySelectorAll('[data-bilingual]').forEach((element) => {
-      element.textContent = element.dataset[language] || element.dataset.de || '';
+      const value = element.dataset[language];
+      if (value !== undefined) element.textContent = value;
     });
     document.querySelectorAll('[data-language-panel]').forEach((element) => {
       element.hidden = element.dataset.languagePanel !== language;
     });
-    document.querySelectorAll('[data-mix-subtitle]').forEach((element) => {
-      const button = element.closest('[data-mix-index]');
-      element.textContent = button?.dataset[language === 'de' ? 'subtitleDe' : 'subtitleEn'] || '';
+    document.querySelectorAll('[data-alt-de][data-alt-en]').forEach((image) => {
+      image.alt = language === 'en' ? image.dataset.altEn : image.dataset.altDe;
     });
-    if (search) search.placeholder = search.dataset[language === 'de' ? 'placeholderDe' : 'placeholderEn'] || '';
-    languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
-    detailLinks.forEach((link) => {
-      link.setAttribute('aria-label', `${translations[language].detail_open}: ${link.textContent.trim()}`);
+    document.querySelectorAll('[data-placeholder-de][data-placeholder-en]').forEach((input) => {
+      input.placeholder = language === 'en' ? input.dataset.placeholderEn : input.dataset.placeholderDe;
     });
-    detailCloseButtons.forEach((button) => {
-      const label = button.dataset[language === 'de' ? 'labelDe' : 'labelEn'] || translations[language].detail_close;
-      button.setAttribute('aria-label', label);
-      button.title = label;
+    document.querySelectorAll('[data-language]').forEach((button) => {
+      const active = button.dataset.language === language;
+      button.setAttribute('aria-pressed', String(active));
     });
-    document.querySelectorAll('[data-alt-de]').forEach((image) => {
-      image.alt = image.dataset[language === 'de' ? 'altDe' : 'altEn'] || image.dataset.altDe || '';
+    document.querySelectorAll('[data-detail-close]').forEach((button) => {
+      button.setAttribute('aria-label', language === 'en' ? button.dataset.labelEn : button.dataset.labelDe);
     });
-    if (backToTop) {
-      backToTop.setAttribute('aria-label', translations[language].back_to_top);
-      backToTop.title = translations[language].back_to_top;
+    const selectedMix = document.querySelector('.mix-item[aria-pressed="true"]');
+    const playerSubtitle = document.querySelector('[data-player-subtitle]');
+    if (selectedMix && playerSubtitle) {
+      playerSubtitle.textContent = language === 'en' ? selectedMix.dataset.subtitleEn : selectedMix.dataset.subtitleDe;
     }
-    updatePlayerText();
-    updateThemeControls();
-    applyArchive();
-  };
 
-  const toggleTheme = () => {
-    root.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
-    storageSet('sofea-theme', root.dataset.theme);
-    updateThemeControls();
-  };
+    if (persist) safeStorage.set('sofea-language', language);
+    document.dispatchEvent(new CustomEvent('sofea:language', { detail: { language } }));
+  }
 
-  languageButtons.forEach((button) => button.addEventListener('click', () => applyLanguage(button.dataset.language)));
-  mixButtons.forEach((button, index) => button.addEventListener('click', () => selectMix(index)));
-  detailLinks.forEach((link) => link.addEventListener('click', (event) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const dialog = document.getElementById(link.dataset.detailId || '');
-    if (!dialog?.matches('[data-detail-dialog]')) return;
-    event.preventDefault();
-    showDetail(dialog);
-  }));
-  detailCloseButtons.forEach((button) => button.addEventListener('click', () => {
-    hideDetail(button.closest('[data-detail-dialog]'));
-  }));
-  detailDialogs.forEach((dialog) => {
-    dialog.addEventListener('cancel', (event) => {
-      event.preventDefault();
-      hideDetail(dialog);
+  document.querySelectorAll('[data-language]').forEach((button) => {
+    button.addEventListener('click', () => applyLanguage(button.dataset.language));
+  });
+  applyLanguage(language, false);
+
+  const themeToggle = document.querySelector('[data-theme-toggle]');
+  const themeIcon = document.querySelector('[data-theme-icon]');
+
+  function applyTheme(nextTheme, persist = true) {
+    const theme = nextTheme === 'light' ? 'light' : 'dark';
+    root.dataset.theme = theme;
+    if (themeIcon) themeIcon.textContent = theme === 'dark' ? '☀' : '☾';
+    if (themeToggle) {
+      const label = theme === 'dark'
+        ? (language === 'en' ? 'Enable light theme' : 'Helles Thema aktivieren')
+        : (language === 'en' ? 'Enable dark theme' : 'Dunkles Thema aktivieren');
+      themeToggle.setAttribute('aria-label', label);
+      themeToggle.title = label;
+    }
+    if (persist) safeStorage.set('sofea-theme', theme);
+  }
+
+  applyTheme(root.dataset.theme || safeStorage.get('sofea-theme') || 'dark', false);
+  themeToggle?.addEventListener('click', () => {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+  document.addEventListener('sofea:language', () => applyTheme(root.dataset.theme, false));
+
+  document.querySelectorAll('a[href^="http://"], a[href^="https://"]').forEach((link) => {
+    let url;
+    try { url = new URL(link.href, location.href); } catch (_) { return; }
+    if (url.origin !== location.origin) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+  });
+
+  const mixButtons = [...document.querySelectorAll('.mix-item')];
+  const playerTitle = document.querySelector('[data-player-title]');
+  const playerSubtitle = document.querySelector('[data-player-subtitle]');
+  const playerLink = document.querySelector('[data-player-link]');
+  const playerFrame = document.querySelector('[data-player-frame]');
+  const soundcloudLoadButton = document.querySelector('[data-soundcloud-load]');
+  let soundcloudAllowed = false;
+
+  function selectedMix() {
+    return mixButtons.find((button) => button.getAttribute('aria-pressed') === 'true') || mixButtons[0] || null;
+  }
+
+  function updateSoundCloudButtonLabel(button = selectedMix()) {
+    if (!soundcloudLoadButton || !button) return;
+    const title = button.dataset.title || 'SoundCloud';
+    const prefix = language === 'en' ? 'Load SoundCloud player for' : 'SoundCloud-Player laden für';
+    soundcloudLoadButton.setAttribute('aria-label', `${prefix} ${title}`);
+  }
+
+  function mountSoundCloudPlayer(button = selectedMix()) {
+    if (!playerFrame || !button?.dataset.embed) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = button.dataset.embed;
+    iframe.title = language === 'en'
+      ? `${button.dataset.title || 'Recording'} on SoundCloud`
+      : `${button.dataset.title || 'Aufnahme'} auf SoundCloud`;
+    iframe.allow = 'autoplay';
+    iframe.loading = 'eager';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.dataset.soundcloudPlayer = '';
+    playerFrame.replaceChildren(iframe);
+    playerFrame.classList.add('is-loaded');
+  }
+
+  function selectMix(button) {
+    mixButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+    if (playerTitle) playerTitle.textContent = button.dataset.title || '';
+    if (playerSubtitle) {
+      playerSubtitle.textContent = language === 'en' ? button.dataset.subtitleEn : button.dataset.subtitleDe;
+    }
+    if (playerLink) playerLink.href = button.dataset.url || '#';
+    if (playerFrame) {
+      playerFrame.dataset.embed = button.dataset.embed || '';
+      playerFrame.dataset.playerName = button.dataset.title || '';
+    }
+    updateSoundCloudButtonLabel(button);
+    if (soundcloudAllowed) mountSoundCloudPlayer(button);
+  }
+
+  soundcloudLoadButton?.addEventListener('click', () => {
+    soundcloudAllowed = true;
+    mountSoundCloudPlayer();
+  });
+  mixButtons.forEach((button) => button.addEventListener('click', () => selectMix(button)));
+  updateSoundCloudButtonLabel();
+
+  document.addEventListener('sofea:language', () => {
+    updateSoundCloudButtonLabel();
+    const iframe = playerFrame?.querySelector('[data-soundcloud-player]');
+    const button = selectedMix();
+    if (iframe && button) {
+      iframe.title = language === 'en'
+        ? `${button.dataset.title || 'Recording'} on SoundCloud`
+        : `${button.dataset.title || 'Aufnahme'} auf SoundCloud`;
+    }
+  });
+
+  const episodeList = document.querySelector('[data-episode-list]');
+  const allEpisodes = episodeList ? [...episodeList.querySelectorAll('[data-episode]')] : [];
+  const searchInput = document.querySelector('[data-archive-search]');
+  const emptyState = document.querySelector('[data-archive-empty]');
+  const pagination = document.querySelector('[data-archive-pagination]');
+  const pageNumbers = document.querySelector('[data-page-numbers]');
+  const previousPage = document.querySelector('[data-page-prev]');
+  const nextPage = document.querySelector('[data-page-next]');
+  const pageSize = 10;
+  let currentPage = 1;
+  let filteredEpisodes = allEpisodes;
+
+  const normalize = (value) => value
+    .toLocaleLowerCase('de-DE')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  function renderArchive() {
+    if (!episodeList) return;
+    const pageCount = Math.max(1, Math.ceil(filteredEpisodes.length / pageSize));
+    currentPage = Math.min(Math.max(currentPage, 1), pageCount);
+    const start = (currentPage - 1) * pageSize;
+    const visible = new Set(filteredEpisodes.slice(start, start + pageSize));
+
+    allEpisodes.forEach((episode) => { episode.hidden = !visible.has(episode); });
+    if (emptyState) emptyState.hidden = filteredEpisodes.length !== 0;
+    if (pagination) pagination.hidden = filteredEpisodes.length <= pageSize;
+    if (previousPage) previousPage.disabled = currentPage === 1;
+    if (nextPage) nextPage.disabled = currentPage === pageCount;
+
+    if (pageNumbers) {
+      pageNumbers.replaceChildren();
+      for (let page = 1; page <= pageCount; page += 1) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'pagination-number';
+        button.textContent = String(page);
+        button.setAttribute('aria-label', language === 'en' ? `Page ${page}` : `Seite ${page}`);
+        if (page === currentPage) button.setAttribute('aria-current', 'page');
+        button.addEventListener('click', () => {
+          currentPage = page;
+          renderArchive();
+          episodeList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        pageNumbers.append(button);
+      }
+    }
+  }
+
+  function applyArchiveSearch() {
+    const query = normalize(searchInput?.value.trim() || '');
+    filteredEpisodes = allEpisodes.filter((episode) => normalize(episode.dataset.search || '').includes(query));
+    currentPage = 1;
+    renderArchive();
+  }
+
+  searchInput?.addEventListener('input', applyArchiveSearch);
+  previousPage?.addEventListener('click', () => {
+    if (currentPage > 1) { currentPage -= 1; renderArchive(); }
+  });
+  nextPage?.addEventListener('click', () => {
+    if (currentPage < Math.ceil(filteredEpisodes.length / pageSize)) { currentPage += 1; renderArchive(); }
+  });
+  document.addEventListener('sofea:language', renderArchive);
+  renderArchive();
+
+  function revealEpisode(detailId) {
+    const row = allEpisodes.find((episode) => episode.dataset.detailId === detailId);
+    if (!row) return;
+    if (!filteredEpisodes.includes(row)) {
+      if (searchInput) searchInput.value = '';
+      filteredEpisodes = allEpisodes;
+    }
+    currentPage = Math.floor(filteredEpisodes.indexOf(row) / pageSize) + 1;
+    renderArchive();
+  }
+
+  const dialogs = [...document.querySelectorAll('[data-detail-dialog]')];
+  let lastDetailTrigger = null;
+  const homeUrl = body?.dataset.homeUrl || '/';
+  const homeTitle = body?.dataset.homeTitle || document.title;
+
+  function dialogForId(id) {
+    return id ? document.getElementById(id) : null;
+  }
+
+  function hideDialog(dialog, restoreFocus = false) {
+    if (!dialog?.open) return;
+    dialog.close();
+    body.classList.remove('detail-open');
+    document.title = homeTitle;
+    if (restoreFocus && lastDetailTrigger instanceof HTMLElement) lastDetailTrigger.focus();
+  }
+
+  function hideAllDialogs(restoreFocus = false) {
+    dialogs.forEach((dialog) => hideDialog(dialog, restoreFocus));
+  }
+
+  function showDialog(dialog, trigger = null) {
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    dialogs.forEach((candidate) => {
+      if (candidate !== dialog && candidate.open) candidate.close();
     });
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) hideDetail(dialog);
-    });
-    dialog.addEventListener('close', () => {
-      if (!openDialog()) document.body.classList.remove('detail-open');
+    if (trigger instanceof HTMLElement) lastDetailTrigger = trigger;
+    revealEpisode(dialog.id);
+    if (!dialog.open) dialog.showModal();
+    body.classList.add('detail-open');
+    document.title = dialog.dataset.pageTitle || homeTitle;
+  }
+
+  function openDetailFromLink(link) {
+    const id = link.dataset.detailId;
+    const dialog = dialogForId(id);
+    if (!(dialog instanceof HTMLDialogElement)) return false;
+    showDialog(dialog, link);
+    history.pushState({ sofeaDetail: id }, '', link.href);
+    return true;
+  }
+
+  document.querySelectorAll('[data-detail-link]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (openDetailFromLink(link)) event.preventDefault();
     });
   });
-  themeToggle?.addEventListener('click', toggleTheme);
-  search?.addEventListener('input', () => applyArchive({ resetPage: true }));
-  previousPage?.addEventListener('click', () => goToPage(currentPage - 1));
-  nextPage?.addEventListener('click', () => goToPage(currentPage + 1));
-  backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  window.addEventListener('scroll', updateScrollUi, { passive: true });
-  window.addEventListener('resize', updateScrollUi);
-  const syncLocationUi = () => {
-    if (!syncDetailFromLocation()) updateScrollUi();
-  };
-  window.addEventListener('hashchange', syncLocationUi);
-  window.addEventListener('popstate', syncLocationUi);
 
-  const year = document.querySelector('[data-current-year]');
-  if (year) year.textContent = String(new Date().getFullYear());
+  function requestDialogClose(dialog) {
+    if (history.state?.sofeaDetail === dialog.id) {
+      history.back();
+    } else {
+      hideDialog(dialog, true);
+      history.replaceState(null, '', homeUrl);
+    }
+  }
 
-  updateExternalLinks();
-  applyLanguage(language);
-  updateThemeControls();
-  syncDetailFromLocation();
-  updateScrollUi();
+  dialogs.forEach((dialog) => {
+    dialog.querySelector('[data-detail-close]')?.addEventListener('click', () => requestDialogClose(dialog));
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      requestDialogClose(dialog);
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) requestDialogClose(dialog);
+    });
+  });
+
+  addEventListener('popstate', (event) => {
+    const id = event.state?.sofeaDetail;
+    const dialog = dialogForId(id);
+    if (dialog instanceof HTMLDialogElement) {
+      showDialog(dialog);
+    } else {
+      hideAllDialogs(true);
+      document.title = homeTitle;
+    }
+  });
+
+  const sectionLinks = [...document.querySelectorAll('[data-section-link]')];
+  const observedSections = sectionLinks
+    .map((link) => {
+      try { return document.querySelector(new URL(link.href, location.href).hash); } catch (_) { return null; }
+    })
+    .filter(Boolean);
+
+  const mobileSectionNavigation = window.matchMedia('(max-width: 900px)');
+
+  function clearActiveSections() {
+    sectionLinks.forEach((link) => {
+      link.classList.remove('is-active');
+      link.removeAttribute('aria-current');
+    });
+  }
+
+  function setActiveSection(id) {
+    if (!mobileSectionNavigation.matches) {
+      clearActiveSections();
+      return;
+    }
+    sectionLinks.forEach((link) => {
+      let active = false;
+      try { active = new URL(link.href, location.href).hash === `#${id}`; } catch (_) {}
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  mobileSectionNavigation.addEventListener?.('change', (event) => {
+    if (!event.matches) clearActiveSections();
+  });
+
+  if ('IntersectionObserver' in window && observedSections.length) {
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target.id) setActiveSection(visible.target.id);
+    }, { rootMargin: '-25% 0px -60% 0px', threshold: [0.01, 0.2, 0.5] });
+    observedSections.forEach((section) => observer.observe(section));
+  }
+
+  const backToTop = document.querySelector('[data-back-to-top]');
+  function updateBackToTop() {
+    if (!backToTop) return;
+    const visible = scrollY > Math.max(500, innerHeight * 0.8);
+    backToTop.classList.toggle('is-visible', visible);
+    backToTop.setAttribute('aria-hidden', String(!visible));
+    backToTop.tabIndex = visible ? 0 : -1;
+  }
+  backToTop?.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+  addEventListener('scroll', updateBackToTop, { passive: true });
+  updateBackToTop();
+
+  document.querySelectorAll('[data-current-year]').forEach((element) => {
+    element.textContent = String(new Date().getFullYear());
+  });
 })();

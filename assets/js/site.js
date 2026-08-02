@@ -19,7 +19,6 @@
       selected_recording: 'Ausgewählte Aufnahme',
       open_soundcloud: 'Auf SoundCloud öffnen ↗',
       load_soundcloud: 'SoundCloud-Player laden',
-      close_player: 'Player schließen',
       about_heading: 'Über die Sendung',
       about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
@@ -47,7 +46,6 @@
       selected_recording: 'Selected recording',
       open_soundcloud: 'Open on SoundCloud ↗',
       load_soundcloud: 'Load SoundCloud player',
-      close_player: 'Close player',
       about_heading: 'About the show',
       about_primary: '<strong>sounds of electronic art</strong> explores electronic music in all its forms. Guests regularly discuss club culture, music scenes and the spaces in which they emerge.',
       about_secondary: 'The show was founded in 2011 and is broadcast from the Radio Blau studio in Leipzig.',
@@ -106,11 +104,6 @@
     document.querySelectorAll('[data-detail-close]').forEach((button) => {
       button.setAttribute('aria-label', language === 'en' ? button.dataset.labelEn : button.dataset.labelDe);
     });
-    document.querySelectorAll('[data-mobile-player-close]').forEach((button) => {
-      const label = language === 'en' ? button.dataset.labelEn : button.dataset.labelDe;
-      button.setAttribute('aria-label', label || copy[language].close_player);
-      button.title = label || copy[language].close_player;
-    });
     const selectedMix = document.querySelector('.mix-item[aria-pressed="true"]');
     const playerSubtitle = document.querySelector('[data-player-subtitle]');
     if (selectedMix && playerSubtitle) {
@@ -164,15 +157,10 @@
   const playerSubtitle = document.querySelector('[data-player-subtitle]');
   const playerLink = document.querySelector('[data-player-link]');
   const playerFrame = document.querySelector('[data-player-frame]');
-  const mobilePlayerDialog = document.querySelector('[data-mobile-player-dialog]');
-  const mobilePlayerSlot = document.querySelector('[data-mobile-player-slot]');
-  const mobilePlayerClose = document.querySelector('[data-mobile-player-close]');
   const mobilePlayerMedia = window.matchMedia('(max-width: 720px)');
   const playerHomeMarker = playerPanel ? document.createComment('sofea-player-home') : null;
   const soundcloudFacadeTemplate = playerFrame?.querySelector('[data-soundcloud-facade]')?.cloneNode(true) || null;
-  const mobilePlayerHash = '#listen-player';
   let soundcloudAllowed = false;
-  let resetPlayerOnDialogClose = true;
 
   if (playerPanel && playerHomeMarker) {
     playerPanel.parentNode?.insertBefore(playerHomeMarker, playerPanel);
@@ -234,47 +222,20 @@
     if (soundcloudAllowed) mountSoundCloudPlayer(button);
   }
 
-  function movePlayerPanelForViewport() {
-    if (!playerPanel || !playerHomeMarker) return;
-    if (mobilePlayerMedia.matches && mobilePlayerSlot) {
-      if (playerPanel.parentNode !== mobilePlayerSlot) mobilePlayerSlot.append(playerPanel);
-      return;
-    }
-    if (playerHomeMarker.parentNode && playerPanel.previousSibling !== playerHomeMarker) {
-      playerHomeMarker.parentNode.insertBefore(playerPanel, playerHomeMarker.nextSibling);
-    }
+  function restorePlayerHome() {
+    if (!playerPanel || !playerHomeMarker?.parentNode) return;
+    playerHomeMarker.parentNode.insertBefore(playerPanel, playerHomeMarker.nextSibling);
+    playerPanel.classList.remove('is-mobile-inline');
+    mixButtons.forEach((button) => button.setAttribute('aria-expanded', 'false'));
   }
 
-  function openMobilePlayer({ updateHistory = true } = {}) {
-    if (!mobilePlayerMedia.matches || !mobilePlayerDialog || !playerPanel) return;
-    movePlayerPanelForViewport();
-    if (!mobilePlayerDialog.open) mobilePlayerDialog.showModal();
-    body.classList.add('mobile-player-open');
-    if (updateHistory && location.hash !== mobilePlayerHash) {
-      history.pushState({ sofeaMobilePlayer: true }, '', mobilePlayerHash);
-    }
-    requestAnimationFrame(() => mobilePlayerClose?.focus({ preventScroll: true }));
-  }
-
-  function closeMobilePlayer({ updateHistory = true, resetPlayer = true } = {}) {
-    if (!mobilePlayerDialog?.open) return;
-    if (updateHistory && location.hash === mobilePlayerHash) {
-      if (history.state?.sofeaMobilePlayer) {
-        history.back();
-        return;
-      }
-      history.replaceState(null, '', `${location.pathname}${location.search}#listen`);
-    }
-    resetPlayerOnDialogClose = resetPlayer;
-    mobilePlayerDialog.close();
-  }
-
-  function syncMobilePlayerFromLocation() {
-    if (location.hash === mobilePlayerHash && mobilePlayerMedia.matches) {
-      openMobilePlayer({ updateHistory: false });
-      return;
-    }
-    if (mobilePlayerDialog?.open) closeMobilePlayer({ updateHistory: false });
+  function placePlayerBelow(button) {
+    if (!mobilePlayerMedia.matches || !playerPanel) return;
+    button.insertAdjacentElement('afterend', playerPanel);
+    playerPanel.classList.add('is-mobile-inline');
+    mixButtons.forEach((candidate) => {
+      candidate.setAttribute('aria-expanded', String(candidate === button));
+    });
   }
 
   playerFrame?.addEventListener('click', (event) => {
@@ -285,39 +246,15 @@
 
   mixButtons.forEach((button) => button.addEventListener('click', () => {
     selectMix(button);
-    if (mobilePlayerMedia.matches) openMobilePlayer();
+    if (mobilePlayerMedia.matches) placePlayerBelow(button);
   }));
 
-  mobilePlayerClose?.addEventListener('click', () => closeMobilePlayer());
-  mobilePlayerDialog?.addEventListener('cancel', (event) => {
-    event.preventDefault();
-    closeMobilePlayer();
-  });
-  mobilePlayerDialog?.addEventListener('click', (event) => {
-    if (event.target === mobilePlayerDialog) closeMobilePlayer();
-  });
-  mobilePlayerDialog?.addEventListener('close', () => {
-    body.classList.remove('mobile-player-open');
-    if (resetPlayerOnDialogClose) restoreSoundCloudFacade();
-    resetPlayerOnDialogClose = true;
-    selectedMix()?.focus({ preventScroll: true });
-  });
-
-  const handleMobilePlayerViewportChange = () => {
-    if (!mobilePlayerMedia.matches && mobilePlayerDialog?.open) {
-      if (location.hash === mobilePlayerHash) {
-        history.replaceState(null, '', `${location.pathname}${location.search}#listen`);
-      }
-      closeMobilePlayer({ updateHistory: false, resetPlayer: false });
-    }
-    movePlayerPanelForViewport();
+  const handlePlayerViewportChange = () => {
+    restorePlayerHome();
   };
-  mobilePlayerMedia.addEventListener?.('change', handleMobilePlayerViewportChange);
-  window.addEventListener('hashchange', syncMobilePlayerFromLocation);
-  window.addEventListener('popstate', syncMobilePlayerFromLocation);
+  mobilePlayerMedia.addEventListener?.('change', handlePlayerViewportChange);
 
-  movePlayerPanelForViewport();
-  syncMobilePlayerFromLocation();
+  restorePlayerHome();
   updateSoundCloudButtonLabel();
 
   document.addEventListener('sofea:language', () => {

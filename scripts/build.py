@@ -88,9 +88,14 @@ def date_long(value: datetime, language: str) -> str:
     return f"{WEEKDAYS_EN[value.weekday()]}, {value.day} {MONTHS_EN[value.month - 1]} {value.year}"
 
 
-def hour_range_clock(start: datetime, end: datetime) -> str:
-    """Return a clock-style whole-hour range such as ``21:00–00:00``."""
-    return f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')}"
+def hour_range_clock(start: datetime, end: datetime, language: str = "de") -> str:
+    """Return a DIN-style time range using an en dash and a protected unit space.
+
+    German output uses ``21:00–00:00 Uhr``. The non-breaking space keeps
+    the unit attached to the time range. English output omits the German unit.
+    """
+    value = f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')}"
+    return f"{value} Uhr" if language == "de" else value
 
 
 def calendar_filename(item: dict, site: dict) -> str:
@@ -696,11 +701,12 @@ def upcoming_detail_inner(
     location_en = str(item.get("location_en") or item.get("location") or location_de)
     date_de = date_long(start, "de")
     date_en = date_long(start, "en")
-    time_value = hour_range_clock(start, end)
+    time_de = hour_range_clock(start, end, "de")
+    time_en = hour_range_clock(start, end, "en")
 
     meta = [
         f'<time datetime="{esc(start.isoformat())}" data-bilingual data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>',
-        f'<span>{esc(time_value)}</span>',
+        f'<span data-bilingual data-de="{esc(time_de)}" data-en="{esc(time_en)}">{esc(time_de)}</span>',
     ]
     if location_de or location_en:
         meta.append(
@@ -881,10 +887,11 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
 
         footer_date_de = date_long(start, "de")
         footer_date_en = date_long(start, "en")
-        footer_time = hour_range_clock(start, end)
+        footer_time_de = hour_range_clock(start, end, "de")
+        footer_time_en = hour_range_clock(start, end, "en")
         footer_parts = [
             (footer_date_de, footer_date_en),
-            (footer_time, footer_time),
+            (footer_time_de, footer_time_en),
         ]
         if location_de or location_en:
             footer_parts.append((location_de, location_en))
@@ -1217,7 +1224,8 @@ def main() -> None:
             f'<button class="mix-item" type="button" role="listitem" data-mix-index="{index}" '
             f'data-title="{esc(mix["title"])}" data-subtitle-de="{esc(mix["subtitle_de"])}" '
             f'data-subtitle-en="{esc(mix["subtitle_en"])}" data-url="{esc(mix["url"])}" '
-            f'data-embed="{esc(soundcloud_embed(mix["url"]))}" aria-pressed="{"true" if index == 0 else "false"}">'
+            f'data-embed="{esc(soundcloud_embed(mix["url"]))}" aria-pressed="{"true" if index == 0 else "false"}" '
+            'aria-expanded="false" aria-controls="recording-player-panel">'
             f'<span class="mix-copy"><strong>{esc(mix["title"])}</strong>'
             f'<span data-mix-subtitle>{esc(mix["subtitle_de"])}</span></span>{duration}</button>'
         )

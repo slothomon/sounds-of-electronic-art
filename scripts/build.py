@@ -586,13 +586,8 @@ def write_social_card(kind: str, item: dict, site: dict, target: Path) -> None:
     peach = "#f2b27e"
     ink = "#f7f0e9"
     muted = "#c6b5a8"
-    rose = "#cf7f88"
-    lavender = "#aa91c4"
-
     draw.rounded_rectangle((32, 32, 1168, 598), radius=34, fill="#211b18", outline="#54463e", width=2)
     draw.rectangle((32, 32, 58, 598), fill=orange)
-    draw.ellipse((858, 58, 1190, 390), outline=rose, width=46)
-    draw.ellipse((780, 300, 1020, 540), outline=lavender, width=36)
 
     brand_font = social_font(54, bold=True)
     small_font = social_font(24, bold=True)

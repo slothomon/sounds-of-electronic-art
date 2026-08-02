@@ -1256,7 +1256,7 @@ def main() -> None:
         "build_year": str(datetime.now().year),
     }
     values = common_values | {
-        "page_title": esc(site["name"] + " — Radio Blau Leipzig"),
+        "page_title": esc("sounds of electronic art – elektronische musik & klubkultur"),
         "description": esc(site["description_de"]),
         "canonical_url": esc(canonical_url),
         "structured_data_html": homepage_structured_data(site, canonical_url),

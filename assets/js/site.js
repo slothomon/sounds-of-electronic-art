@@ -7,14 +7,14 @@
   const copy = {
     de: {
       skip: 'Zum Inhalt springen',
-      nav_next: 'Upcoming',
+      nav_next: 'Demnächst',
       nav_listen: 'Hören',
       nav_about: 'Über uns',
       nav_archive: 'Archiv',
       nav_live: 'Livestream',
       hero_eyebrow: 'Radio Blau · Leipzig · seit 2011',
       hero_subtitle: 'Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.',
-      next_heading: 'Upcoming',
+      next_heading: 'Demnächst',
       listen_heading: 'Hören',
       selected_recording: 'Ausgewählte Aufnahme',
       open_soundcloud: 'Auf SoundCloud öffnen ↗',
@@ -222,11 +222,12 @@
     if (soundcloudAllowed) mountSoundCloudPlayer(button);
   }
 
-  function restorePlayerHome() {
+  function restorePlayerHome({ resetPlayer = false } = {}) {
     if (!playerPanel || !playerHomeMarker?.parentNode) return;
     playerHomeMarker.parentNode.insertBefore(playerPanel, playerHomeMarker.nextSibling);
     playerPanel.classList.remove('is-mobile-inline');
     mixButtons.forEach((button) => button.setAttribute('aria-expanded', 'false'));
+    if (resetPlayer && soundcloudAllowed) restoreSoundCloudFacade();
   }
 
   function placePlayerBelow(button) {
@@ -245,12 +246,21 @@
   });
 
   mixButtons.forEach((button) => button.addEventListener('click', () => {
+    const isOpenMobileItem = mobilePlayerMedia.matches
+      && button.getAttribute('aria-expanded') === 'true';
+
+    if (isOpenMobileItem) {
+      restorePlayerHome({ resetPlayer: true });
+      button.focus({ preventScroll: true });
+      return;
+    }
+
     selectMix(button);
     if (mobilePlayerMedia.matches) placePlayerBelow(button);
   }));
 
   const handlePlayerViewportChange = () => {
-    restorePlayerHome();
+    restorePlayerHome({ resetPlayer: mobilePlayerMedia.matches });
   };
   mobilePlayerMedia.addEventListener?.('change', handlePlayerViewportChange);
 

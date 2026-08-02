@@ -89,13 +89,12 @@ def date_long(value: datetime, language: str) -> str:
 
 
 def hour_range_clock(start: datetime, end: datetime, language: str = "de") -> str:
-    """Return a DIN-style time range using an en dash and a protected unit space.
+    """Return a clock range with protected spaces around the en dash.
 
-    German output uses ``21:00–00:00 Uhr``. The non-breaking space keeps
-    the unit attached to the time range. English output omits the German unit.
+    The visible form is ``21:00 – 00:00``. Non-breaking spaces prevent an
+    awkward line break directly before or after the range separator.
     """
-    value = f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')}"
-    return f"{value} Uhr" if language == "de" else value
+    return f"{start.strftime('%H:%M')} – {end.strftime('%H:%M')}"
 
 
 def calendar_filename(item: dict, site: dict) -> str:
@@ -1227,7 +1226,10 @@ def main() -> None:
             f'data-embed="{esc(soundcloud_embed(mix["url"]))}" aria-pressed="{"true" if index == 0 else "false"}" '
             'aria-expanded="false" aria-controls="recording-player-panel">'
             f'<span class="mix-copy"><strong>{esc(mix["title"])}</strong>'
-            f'<span data-mix-subtitle>{esc(mix["subtitle_de"])}</span></span>{duration}</button>'
+            f'<span data-mix-subtitle>{esc(mix["subtitle_de"])}</span></span>'
+            f'<span class="mix-item-meta">{duration}'
+            '<svg class="mix-chevron" viewBox="0 0 20 20" aria-hidden="true" focusable="false">'
+            '<path d="m6 8 4 4 4-4"/></svg></span></button>'
         )
 
     first_mix = featured_mixes[0]
@@ -1320,7 +1322,7 @@ def main() -> None:
         calendar_href = site_href(base_path, f"calendar/{calendar_filename(item, site)}")
         canonical_detail_url = absolute_site_url(canonical_url, relative_path)
         item_type = str(item.get("type") or "broadcast").lower()
-        back_de = "← Zurück zu Upcoming"
+        back_de = "← Zurück zu Demnächst"
         back_en = "← Back to upcoming"
         detail_values = common_values | {
             "page_title": esc(detail_page_title("upcoming", item, site)),

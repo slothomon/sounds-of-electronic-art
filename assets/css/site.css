@@ -411,6 +411,24 @@ html[data-theme="light"] a:hover { color: var(--accent-strong); }
   font-weight: 800;
   white-space: nowrap;
 }
+.mix-item-meta {
+  display: flex;
+  align-self: start;
+  align-items: center;
+  gap: 0.55rem;
+}
+.mix-chevron {
+  display: none;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 160ms ease;
+}
 .player-panel {
   position: sticky;
   top: 96px;
@@ -1553,3 +1571,37 @@ html[data-theme="light"] .detail-dialog {
 @media (prefers-reduced-motion: reduce) {
   .overview-listen .mix-browser > .player-panel.is-mobile-inline { animation: none; }
 }
+
+/* Mobile recording accordion refinements */
+@media (max-width: 720px) {
+  .overview-listen .mix-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .overview-listen .mix-item-meta {
+    align-self: center;
+  }
+  .overview-listen .mix-chevron {
+    display: block;
+    color: var(--muted);
+  }
+  .overview-listen .mix-item[aria-expanded="true"] .mix-chevron {
+    color: var(--accent-soft);
+    transform: rotate(180deg);
+  }
+  .overview-listen .mix-item[aria-expanded="true"] {
+    border-bottom-color: var(--accent);
+    box-shadow: inset 4px 0 0 var(--accent), 0 5px 0 -4px var(--accent);
+  }
+  .overview-listen .mix-browser > .player-panel.is-mobile-inline {
+    margin-top: -0.3rem;
+    border-top-color: var(--accent);
+    box-shadow: inset 4px 0 0 var(--accent);
+  }
+  .overview-listen .mix-browser > .player-panel.is-mobile-inline .player-heading .eyebrow {
+    display: none;
+  }
+  .overview-listen .mix-browser > .player-panel.is-mobile-inline .player-heading h3 {
+    margin-top: 0;
+  }
+}
+

@@ -1480,6 +1480,7 @@ html[data-theme="light"] .detail-dialog {
   .soundcloud-load-copy span { font-size: 0.7rem; }
 }
 
+
 /* Calendar icon in detail pages and in-page detail dialogs */
 .calendar-button {
   display: inline-flex;
@@ -1501,4 +1502,108 @@ html[data-theme="light"] .detail-dialog {
 .calendar-button svg path {
   fill: none;
   stroke: currentColor;
+}
+
+
+/* Mobile recording drawer: selection and player stay in the same viewport. */
+body.mobile-player-open {
+  overflow: hidden;
+}
+.mobile-player-dialog {
+  width: 100%;
+  max-width: none;
+  max-height: 92dvh;
+  margin: auto 0 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 -24px 80px rgb(0 0 0 / 0.42);
+}
+.mobile-player-dialog::backdrop {
+  background: rgb(10 8 7 / 0.7);
+  backdrop-filter: blur(5px);
+}
+.mobile-player-dialog-shell {
+  position: relative;
+  max-height: 92dvh;
+  padding: 0.75rem 0 calc(1rem + env(safe-area-inset-bottom));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.mobile-player-close {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  margin: 0.15rem 0.85rem 0.15rem auto;
+  place-items: center;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+}
+.mobile-player-close:hover,
+.mobile-player-close:focus-visible {
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.mobile-player-slot .player-panel {
+  position: static;
+  gap: 0.9rem;
+  padding: 0.25rem 1rem 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.mobile-player-slot .player-frame {
+  min-height: 225px;
+}
+.mobile-player-slot .player-frame iframe,
+.mobile-player-slot .soundcloud-facade {
+  min-height: 223px;
+  height: 223px;
+}
+
+@media (min-width: 721px) {
+  .mobile-player-dialog { display: none; }
+}
+
+@media (max-width: 720px) {
+  .mobile-player-dialog[open] {
+    animation: sofea-player-drawer-in 180ms ease-out;
+  }
+  .mobile-player-slot .player-heading {
+    display: block;
+    padding-right: 2.8rem;
+  }
+  .mobile-player-slot .player-actions {
+    align-items: flex-start;
+    margin-top: 0.65rem;
+  }
+  .mobile-player-slot .text-link {
+    margin-top: 0;
+  }
+}
+
+@keyframes sofea-player-drawer-in {
+  from { transform: translateY(24px); opacity: 0.7; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-player-dialog[open] { animation: none; }
 }

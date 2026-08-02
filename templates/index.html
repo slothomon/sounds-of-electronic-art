@@ -93,11 +93,11 @@
           </div>
           <div class="listen-layout">
             <div class="mix-browser" role="list" aria-label="Aufnahmen auswählen">{{ mixes_html }}</div>
-            <div class="player-panel">
+            <div class="player-panel" data-player-panel>
               <div class="player-heading">
                 <div>
                   <p class="eyebrow" data-i18n="selected_recording">Ausgewählte Aufnahme</p>
-                  <h3 data-player-title>{{ first_mix_title }}</h3>
+                  <h3 id="mobile-player-title" data-player-title>{{ first_mix_title }}</h3>
                   <p data-player-subtitle>{{ first_mix_subtitle_de }}</p>
                 </div>
                 <div class="player-actions">
@@ -119,6 +119,17 @@
         </section>
       </div>
     </section>
+
+    <dialog class="mobile-player-dialog" data-mobile-player-dialog aria-labelledby="mobile-player-title">
+      <div class="mobile-player-dialog-shell">
+        <button class="mobile-player-close" type="button" data-mobile-player-close
+                data-label-de="Player schließen" data-label-en="Close player"
+                aria-label="Player schließen" autofocus>
+          <span aria-hidden="true">×</span>
+        </button>
+        <div class="mobile-player-slot" data-mobile-player-slot></div>
+      </div>
+    </dialog>
 
     <section class="section" id="about">
       <div class="shell">

@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+from PIL import Image, ImageDraw, ImageFont
 from urllib.parse import quote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -131,7 +133,7 @@ def fold_ical_line(line: str, limit: int = 73) -> list[str]:
     return lines
 
 
-def calendar_event_content(item: dict, site: dict, event_url: str) -> str:
+def calendar_event_lines(item: dict, site: dict, event_url: str, dtstamp: str) -> list[str]:
     start = parse_upcoming_date(item["date"])
     end = upcoming_end(item)
     item_type = str(item.get("type") or "broadcast").lower()
@@ -142,17 +144,10 @@ def calendar_event_content(item: dict, site: dict, event_url: str) -> str:
 
     uid_source = f"{start.isoformat()}|{title}"
     uid = hashlib.sha1(uid_source.encode("utf-8")).hexdigest()[:24] + "@sofea.radio"
-    now = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-
     raw_lines = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "PRODID:-//sounds of electronic art//sofea.radio//DE",
-        "CALSCALE:GREGORIAN",
-        "METHOD:PUBLISH",
         "BEGIN:VEVENT",
         f"UID:{uid}",
-        f"DTSTAMP:{now}",
+        f"DTSTAMP:{dtstamp}",
         f"DTSTART:{start.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
         f"DTEND:{end.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
         f"SUMMARY:{ical_escape(title)}",
@@ -169,9 +164,43 @@ def calendar_event_content(item: dict, site: dict, event_url: str) -> str:
         "STATUS:CONFIRMED",
         "TRANSP:OPAQUE",
         "END:VEVENT",
-        "END:VCALENDAR",
     ])
+    return raw_lines
 
+
+def calendar_event_content(item: dict, site: dict, event_url: str) -> str:
+    dtstamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    raw_lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//sounds of electronic art//sofea.radio//DE",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        *calendar_event_lines(item, site, event_url, dtstamp),
+        "END:VCALENDAR",
+    ]
+    folded = [part for line in raw_lines for part in fold_ical_line(line)]
+    return "\r\n".join(folded) + "\r\n"
+
+
+def calendar_feed_content(items: list[dict], site: dict, canonical_url: str) -> str:
+    dtstamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    raw_lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//sounds of electronic art//sofea.radio//DE",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        "X-WR-CALNAME:sounds of electronic art",
+        "X-WR-TIMEZONE:Europe/Berlin",
+        "X-APPLE-CALENDAR-COLOR:#EF9A55",
+        "REFRESH-INTERVAL;VALUE=DURATION:PT12H",
+        "X-PUBLISHED-TTL:PT12H",
+    ]
+    for item in sorted(items, key=lambda entry: parse_upcoming_date(str(entry["date"]))):
+        detail_url = absolute_site_url(canonical_url, detail_relative_path("upcoming", item, site))
+        raw_lines.extend(calendar_event_lines(item, site, detail_url, dtstamp))
+    raw_lines.append("END:VCALENDAR")
     folded = [part for line in raw_lines for part in fold_ical_line(line)]
     return "\r\n".join(folded) + "\r\n"
 
@@ -374,7 +403,7 @@ def upcoming_structured_data(item: dict, site: dict, canonical_url: str, detail_
     item_type = str(item.get("type") or "broadcast").lower()
     title = str(item.get("title_de") or site["name"] or "")
     description = detail_description(item, site)
-    image = detail_social_image(item, canonical_url)
+    image = detail_social_image(item, site, canonical_url, "upcoming")
     if item_type == "event":
         location_name = str(item.get("venue_name") or item.get("location_de") or item.get("location") or "").strip()
         event: dict = {
@@ -415,8 +444,7 @@ def upcoming_structured_data(item: dict, site: dict, canonical_url: str, detail_
         performers = lineup_schema(item.get("lineup_de") or item.get("lineup"))
         if performers:
             event["performer"] = performers
-        if item.get("image") or item.get("image_url"):
-            event["image"] = [image]
+        event["image"] = [image]
         external_urls = [
             str(link["url"])
             for link in item.get("links", [])
@@ -469,7 +497,7 @@ def archive_structured_data(item: dict, site: dict, canonical_url: str, detail_u
         "datePublished": value.date().isoformat(),
         "inLanguage": "de",
         "partOfSeries": {"@id": series_id(canonical_url)},
-        "image": detail_social_image(item, canonical_url),
+        "image": detail_social_image(item, site, canonical_url, "episode"),
     }
     audio_url = str(item.get("audio_url") or "").strip()
     if audio_url:
@@ -491,14 +519,131 @@ def archive_structured_data(item: dict, site: dict, canonical_url: str, detail_u
     return json_ld_script(data)
 
 
-def detail_social_image(item: dict, canonical_url: str) -> str:
-    raw = str(item.get("image") or item.get("image_url") or "").strip()
-    if not raw:
-        return absolute_site_url(canonical_url, "assets/images/sofea-social-card-v3.png")
-    if raw.startswith(("https://", "http://")):
-        return raw
-    return absolute_site_url(canonical_url, raw)
+SOCIAL_CARD_SIZE = (1200, 630)
 
+
+def social_card_relative_path(kind: str, item: dict, site: dict) -> str:
+    detail_path = detail_relative_path(kind, item, site).strip("/").replace("/", "-")
+    return f"assets/images/social/{detail_path}.png"
+
+
+def _font_candidates(bold: bool) -> list[Path]:
+    if os.name == "nt":
+        windows = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
+        names = ["segoeuib.ttf", "arialbd.ttf"] if bold else ["segoeui.ttf", "arial.ttf"]
+        return [windows / name for name in names]
+    return [
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/dejavu/DejaVuSans.ttf"),
+        Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf"),
+    ]
+
+
+def social_font(size: int, bold: bool = False):
+    for candidate in _font_candidates(bold):
+        if candidate.is_file():
+            return ImageFont.truetype(str(candidate), size=size)
+    return ImageFont.load_default(size=size)
+
+
+def wrap_social_text(draw: ImageDraw.ImageDraw, value: str, font, max_width: int, max_lines: int) -> list[str]:
+    words = " ".join(value.split()).split()
+    if not words:
+        return []
+    lines: list[str] = []
+    current = ""
+    for word in words:
+        candidate = word if not current else f"{current} {word}"
+        if draw.textbbox((0, 0), candidate, font=font)[2] <= max_width:
+            current = candidate
+            continue
+        if current:
+            lines.append(current)
+        current = word
+        if len(lines) == max_lines:
+            break
+    if current and len(lines) < max_lines:
+        lines.append(current)
+    consumed = " ".join(lines)
+    normalized = " ".join(value.split())
+    if consumed != normalized and lines:
+        last = lines[-1]
+        while last and draw.textbbox((0, 0), last + "…", font=font)[2] > max_width:
+            last = last[:-1].rstrip()
+        lines[-1] = (last or "") + "…"
+    return lines
+
+
+def social_card_date(kind: str, item: dict) -> str:
+    value = parse_upcoming_date(str(item["date"])) if kind == "upcoming" else parse_date(str(item["date"])).astimezone(BERLIN_TZ)
+    return f"{value.day}. {MONTHS_DE[value.month - 1]} {value.year}"
+
+
+def write_social_card(kind: str, item: dict, site: dict, target: Path) -> None:
+    image = Image.new("RGB", SOCIAL_CARD_SIZE, "#171412")
+    draw = ImageDraw.Draw(image)
+    orange = "#ef9a55"
+    peach = "#f2b27e"
+    ink = "#f7f0e9"
+    muted = "#c6b5a8"
+    rose = "#cf7f88"
+    lavender = "#aa91c4"
+
+    draw.rounded_rectangle((32, 32, 1168, 598), radius=34, fill="#211b18", outline="#54463e", width=2)
+    draw.rectangle((32, 32, 58, 598), fill=orange)
+    draw.ellipse((858, 58, 1190, 390), outline=rose, width=46)
+    draw.ellipse((780, 300, 1020, 540), outline=lavender, width=36)
+
+    brand_font = social_font(54, bold=True)
+    small_font = social_font(24, bold=True)
+    meta_font = social_font(30)
+    url_font = social_font(24, bold=True)
+
+    draw.text((96, 78), "sofea", font=brand_font, fill=peach)
+    draw.text((98, 142), "sounds of electronic art", font=small_font, fill=orange)
+
+    item_type = str(item.get("type") or "broadcast").lower() if kind == "upcoming" else "broadcast"
+    label = "VERANSTALTUNG" if item_type == "event" else "SENDUNG"
+    if kind == "upcoming":
+        label += " · DEMNÄCHST"
+    draw.text((96, 215), label, font=small_font, fill=orange)
+
+    title = str(item.get("title_de") or item.get("title") or site["name"])
+    title_size = 72 if len(title) <= 30 else 60 if len(title) <= 55 else 50
+    title_font = social_font(title_size, bold=True)
+    title_lines = wrap_social_text(draw, title, title_font, 760, 3)
+    y = 260
+    line_height = int(title_size * 1.12)
+    for line in title_lines:
+        draw.text((96, y), line, font=title_font, fill=ink)
+        y += line_height
+
+    date_text = social_card_date(kind, item)
+    location = str(item.get("location_de") or item.get("location") or ("Radio Blau, Leipzig" if item_type == "broadcast" else "")).strip()
+    meta = date_text + (f" · {location}" if location else "")
+    draw.text((96, 518), meta, font=meta_font, fill=muted)
+    draw.text((900, 550), "www.sofea.radio", font=url_font, fill=peach)
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    image.save(target, format="PNG", optimize=True)
+
+
+def write_social_cards(upcoming: list[dict], archive: list[dict], site: dict) -> None:
+    for kind, items in (("upcoming", upcoming), ("episode", archive)):
+        for item in items:
+            if item.get("social_image") or item.get("social_image_url"):
+                continue
+            target = PUBLIC / social_card_relative_path(kind, item, site)
+            write_social_card(kind, item, site, target)
+
+
+def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -> str:
+    raw = str(item.get("social_image") or item.get("social_image_url") or "").strip()
+    if raw:
+        if raw.startswith(("https://", "http://")):
+            return raw
+        return absolute_site_url(canonical_url, raw)
+    return absolute_site_url(canonical_url, social_card_relative_path(kind, item, site))
 
 def detail_description(item: dict, site: dict) -> str:
     value = (
@@ -629,6 +774,58 @@ def tracklist_items(values: list) -> str:
     return "".join(rows)
 
 
+def music_presentation_items(values: list, language: str) -> str:
+    rows: list[str] = []
+    for value in values:
+        if isinstance(value, dict):
+            artist = str(value.get("artist") or value.get("name") or "").strip()
+            title = str(value.get("title") or value.get("release") or "").strip()
+            label = str(value.get("label") or "").strip()
+            year = str(value.get("year") or "").strip()
+            url = str(value.get("url") or "").strip()
+            note = str(
+                value.get(f"note_{language}")
+                or value.get(f"description_{language}")
+                or value.get("note")
+                or value.get("description")
+                or ""
+            ).strip()
+            main = " — ".join(part for part in [artist, title] if part) or label
+            meta = " · ".join(part for part in [label, year] if part)
+        else:
+            main = str(value).strip()
+            meta = ""
+            note = ""
+            url = ""
+        if not main:
+            continue
+        title_html = esc(main)
+        if url:
+            title_html = f'<a href="{esc(url)}" target="_blank" rel="noopener noreferrer">{title_html} ↗</a>'
+        meta_html = f'<span class="detail-presentation-meta">{esc(meta)}</span>' if meta else ""
+        note_html = f'<p>{esc(note)}</p>' if note else ""
+        rows.append(
+            '<li><div class="detail-presentation-heading">'
+            f'<strong>{title_html}</strong>{meta_html}</div>{note_html}</li>'
+        )
+    return "".join(rows)
+
+
+def music_presentations_section(item: dict) -> str:
+    de_values, en_values = localized_collection(item, "music_presentations")
+    de_rows = music_presentation_items(de_values, "de")
+    en_rows = music_presentation_items(en_values, "en")
+    if not de_rows and not en_rows:
+        return ""
+    return (
+        '<section class="detail-section">'
+        '<h3 data-bilingual data-de="Musikvorstellungen" data-en="Featured music">Musikvorstellungen</h3>'
+        f'<ul class="detail-presentations" data-language-panel="de">{de_rows}</ul>'
+        f'<ul class="detail-presentations" data-language-panel="en" hidden>{en_rows}</ul>'
+        '</section>'
+    )
+
+
 def detail_collection_section(item: dict, field: str, heading_de: str, heading_en: str, ordered: bool = False) -> str:
     de_values, en_values = localized_collection(item, field)
     renderer = tracklist_items if ordered else lineup_items
@@ -738,6 +935,7 @@ def upcoming_detail_inner(
         f'{detail_image(item, base_path, title_de, title_en)}'
         f'{summary_html}'
         f'{localized_prose(item, "details")}'
+        f'{music_presentations_section(item)}'
         f'{detail_collection_section(item, "lineup", "Line-up", "Line-up")}'
         f'{detail_collection_section(item, "tracklist", "Tracklist", "Track list", ordered=True)}'
         f'<div class="detail-actions">{"".join(actions)}</div>'
@@ -813,6 +1011,7 @@ def archive_detail_inner(
         f'{detail_image(item, base_path, title_de, title_en)}'
         f'{summary_html}'
         f'{localized_prose(item, "details")}'
+        f'{music_presentations_section(item)}'
         f'{detail_collection_section(item, "lineup", "Mitwirkende", "Contributors")}'
         f'{detail_collection_section(item, "tracklist", "Tracklist", "Track list", ordered=True)}'
         f'<div class="detail-actions">{"".join(actions)}</div>'
@@ -1027,6 +1226,9 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
             + flatten_search_values(item.get("details_de"))
             + flatten_search_values(item.get("details_en"))
             + flatten_search_values(item.get("lineup"))
+            + flatten_search_values(item.get("music_presentations"))
+            + flatten_search_values(item.get("music_presentations_de"))
+            + flatten_search_values(item.get("music_presentations_en"))
             + flatten_search_values(item.get("tracklist"))
         )
         summary_html = ""
@@ -1254,6 +1456,8 @@ def main() -> None:
         "social_image_url": esc(default_social_image),
         "structured_data_html": "",
         "build_year": str(datetime.now().year),
+        "calendar_feed_href": esc(site_href(base_path, "calendar.ics")),
+        "calendar_webcal_url": esc(re.sub(r"^https?://", "webcal://", canonical_url) + "calendar.ics"),
     }
     values = common_values | {
         "page_title": esc("sounds of electronic art – elektronische musik & klubkultur"),
@@ -1276,6 +1480,12 @@ def main() -> None:
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir(parents=True)
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
+    write_social_cards(upcoming, archive, site)
+    (PUBLIC / "calendar.ics").write_text(
+        calendar_feed_content(upcoming, site, canonical_url),
+        encoding="utf-8",
+        newline="",
+    )
 
     calendar_dir = PUBLIC / "calendar"
     calendar_dir.mkdir(parents=True, exist_ok=True)
@@ -1328,7 +1538,7 @@ def main() -> None:
             "page_title": esc(detail_page_title("upcoming", item, site)),
             "description": esc(detail_description(item, site)),
             "canonical_url": esc(canonical_detail_url),
-            "social_image_url": esc(detail_social_image(item, canonical_url)),
+            "social_image_url": esc(detail_social_image(item, site, canonical_url, "upcoming")),
             "social_image_alt": esc(str(item.get("image_alt_de") or item.get("title_de") or site["name"])),
             "og_type": "article" if item_type == "broadcast" else "website",
             "structured_data_html": upcoming_structured_data(
@@ -1351,7 +1561,7 @@ def main() -> None:
             "page_title": esc(detail_page_title("episode", item, site)),
             "description": esc(detail_description(item, site)),
             "canonical_url": esc(canonical_detail_url),
-            "social_image_url": esc(detail_social_image(item, canonical_url)),
+            "social_image_url": esc(detail_social_image(item, site, canonical_url, "episode")),
             "social_image_alt": esc(str(item.get("image_alt_de") or item.get("title_de") or site["name"])),
             "og_type": "article",
             "structured_data_html": archive_structured_data(
@@ -1375,6 +1585,8 @@ def main() -> None:
                 "summary": item.get("summary_de") or "",
                 "url": absolute_site_url(canonical_url, detail_relative_path("episode", item, site)),
                 "audio_url": item["audio_url"],
+                "music_presentations": item.get("music_presentations") or item.get("music_presentations_de") or [],
+                "tracklist": item.get("tracklist") or item.get("tracklist_de") or [],
             }
             for item in archive
         ],

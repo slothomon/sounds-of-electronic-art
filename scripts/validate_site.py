@@ -302,6 +302,7 @@ def main() -> int:
         public / "sitemap.xml",
         public / "robots.txt",
         public / "archive.json",
+        public / "calendar.ics",
     ]
     for path in required_files:
         if not path.exists():

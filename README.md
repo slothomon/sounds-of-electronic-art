@@ -14,8 +14,9 @@ show, published at <https://sofea.radio/>.
 - crawlable detail pages for broadcasts and upcoming events;
 - progressive enhancement: detail links open in a dialog on the homepage but
   remain normal URLs for new tabs, no-JavaScript use and search engines;
-- RSS feed, sitemap, `robots.txt` and a custom 404 page;
+- RSS feed, sitemap, subscribable calendar, `robots.txt` and a custom 404 page;
 - separate GitHub Actions workflows for deployment and archive refresh;
+- automatically generated social cards for every broadcast and event;
 - no first-party analytics, advertising tracking or external web fonts.
 
 The SoundCloud iframe is not created until a visitor explicitly loads the player.
@@ -128,8 +129,13 @@ Supported optional fields include:
   `schema_type` (for example `Person`, `MusicGroup` or `PerformingGroup`);
 - optional structured venue fields: `venue_name`, `street_address`,
   `postal_code`, `address_locality`, `address_region` and `address_country`;
+- `music_presentations`: records or tracks introduced during the editorial part
+  of the programme; strings or objects with `artist`, `title`, optional `label`,
+  `year`, `url` and localized `note_de` / `note_en`;
 - `tracklist`: strings or objects with `artist`, `title`, optional `time`,
   `label` and `url`;
+- `social_image`: optional custom Open Graph image; otherwise the build creates
+  an individual branded 1200 × 630 pixel card automatically;
 - `links`: additional buttons with labels, URL and optional `primary: true`;
 - `updated_at`: optional `YYYY-MM-DD` date for the sitemap.
 
@@ -138,10 +144,19 @@ The build generates:
 ```text
 /termine/YYYY-MM-DD-slug/
 /calendar/YYYY-MM-DD-slug.ics
+/calendar.ics
 ```
 
-The `.ics` file works with common desktop and mobile calendar applications.
-Broadcast entries include the Radio Blau stream URL as a calendar comment.
+`/calendar.ics` contains all future entries and is linked through the
+**Kalender abonnieren** control. Its stable subscription address is:
+
+```text
+webcal://sofea.radio/calendar.ics
+```
+
+The HTTPS fallback is `https://sofea.radio/calendar.ics`. Individual `.ics`
+files remain available for one-off imports. Broadcast entries include the
+Radio Blau stream URL as a calendar comment.
 
 ## Enrich an archived broadcast
 
@@ -160,15 +175,31 @@ to add longer text, an image, lineup or tracklist without modifying the cache:
   "details_de": "Weitere Informationen zur Sendung.",
   "details_en": "Additional information about the broadcast.",
   "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
+  "music_presentations": [
+    {
+      "artist": "Artist A",
+      "title": "Album or track title",
+      "label": "Example Records",
+      "year": 2026,
+      "url": "https://example.org/release",
+      "note_de": "Kurzer redaktioneller Hinweis.",
+      "note_en": "Short editorial note."
+    }
+  ],
   "tracklist": [
-    {"time": "00:00", "artist": "Artist A", "title": "Track One"}
+    {"time": "00:00", "artist": "Artist B", "title": "Track One"}
   ]
 }
 ```
 
 Each archive entry receives a page below `/sendungen/`. Homepage titles open
 these pages in the existing modal/dialog interface; opening a title in a new
-tab uses the standalone page.
+tab uses the standalone page. `music_presentations` appears as a separate
+**Musikvorstellungen** section before the line-up and tracklist.
+
+Every detail page receives an individual branded social card under
+`public/assets/images/social/`. Set `social_image` to a local path or absolute
+URL only when a hand-designed card should override the generated one.
 
 ## Static SoundCloud archive
 
@@ -190,7 +221,7 @@ the independent **Deploy GitHub Pages** workflow.
 
 ### Windows
 
-Install the small time-zone fallback once:
+Install the build dependencies once (Pillow for social cards and the Windows time-zone fallback):
 
 ```cmd
 cd /d M:\dev\sofea-github-pages
@@ -217,7 +248,8 @@ python3 -m http.server 8000 --directory public
 ```
 
 The Windows-only `tzdata` dependency is skipped automatically on systems that
-provide the IANA time-zone database themselves.
+provide the IANA time-zone database themselves. Pillow generates the per-page
+social cards during every build.
 
 ### Refresh the archive locally (optional)
 

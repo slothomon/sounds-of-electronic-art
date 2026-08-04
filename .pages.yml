@@ -1,0 +1,261 @@
+media:
+  - name: episode-images
+    label: Sendungs- und Veranstaltungsbilder
+    input: assets/images/uploads
+    output: /assets/images/uploads
+    rename: safe
+    extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: episodes
+    label: Sendungen & Termine
+    type: file
+    path: content/episodes.json
+    format: json
+    list: true
+    fields:
+      - name: date
+        label: Beginn
+        type: date
+        required: true
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+          step: 3600
+      - name: end
+        label: Ende (optional)
+        type: date
+        default: ""
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+          step: 3600
+      - name: type
+        label: Typ
+        type: select
+        default: broadcast
+        options:
+          values:
+            - name: broadcast
+              label: Radiosendung
+            - name: event
+              label: Veranstaltung
+      - name: status
+        label: Status
+        type: select
+        required: true
+        default: upcoming
+        options:
+          values:
+            - name: upcoming
+              label: Demnächst
+            - name: past
+              label: Archiv
+      - name: title_de
+        label: Titel (Deutsch)
+        type: string
+        required: true
+      - name: title_en
+        label: Titel (Englisch)
+        type: string
+        description: Kann mit dem deutschen Titel identisch sein.
+      - name: summary_de
+        label: Kurztext (Deutsch)
+        type: text
+        options:
+          maxlength: 500
+      - name: summary_en
+        label: Kurztext (Englisch)
+        type: text
+        options:
+          maxlength: 500
+      - name: details_de
+        label: Detailtext (Deutsch)
+        type: text
+      - name: details_en
+        label: Detailtext (Englisch)
+        type: text
+      - name: location_de
+        label: Ort (Deutsch)
+        type: string
+      - name: location_en
+        label: Ort (Englisch)
+        type: string
+      - name: duration_hours
+        label: Dauer in Stunden (wenn kein Ende gesetzt ist)
+        type: number
+        options:
+          min: 0.5
+          max: 24
+      - name: audio_url
+        label: SoundCloud-URL
+        type: string
+        description: Für Archiveinträge exakt die öffentliche SoundCloud-Track-URL verwenden.
+      - name: updated_at
+        label: Inhalt zuletzt wesentlich geändert
+        type: date
+        default: ""
+        options:
+          format: yyyy-MM-dd
+      - name: slug
+        label: Eigener URL-Slug (optional)
+        type: string
+        pattern: "^[a-z0-9-]*$"
+        description: Leer lassen, damit der Build den Slug automatisch erzeugt.
+      - name: label_de
+        label: Kategorie (Deutsch, optional)
+        type: string
+      - name: label_en
+        label: Kategorie (Englisch, optional)
+        type: string
+      - name: image
+        label: Bild / Artwork
+        type: image
+        options:
+          media: episode-images
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: image_alt_de
+        label: Bildbeschreibung (Deutsch)
+        type: string
+      - name: image_alt_en
+        label: Bildbeschreibung (Englisch)
+        type: string
+      - name: social_image
+        label: Eigenes Social-Media-Bild (optional)
+        type: image
+        options:
+          media: episode-images
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: music_presentations
+        label: Musikvorstellungen
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{artist} — {title}"
+        fields:
+          - name: artist
+            label: Künstler:in
+            type: string
+          - name: title
+            label: Veröffentlichung / Titel
+            type: string
+            required: true
+          - name: label
+            label: Label
+            type: string
+          - name: year
+            label: Jahr
+            type: number
+            options:
+              min: 1900
+              max: 2100
+          - name: url
+            label: Discogs-, Bandcamp- oder Label-Link
+            type: string
+          - name: note_de
+            label: Notiz (Deutsch)
+            type: text
+          - name: note_en
+            label: Notiz (Englisch)
+            type: text
+      - name: tracklist
+        label: Tracklist
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{time} {artist} — {title}"
+        fields:
+          - name: time
+            label: Zeitmarke
+            type: string
+            description: Optional, z. B. 00:00 oder 01:23:45.
+          - name: artist
+            label: Künstler:in
+            type: string
+          - name: title
+            label: Track
+            type: string
+            required: true
+          - name: label
+            label: Label
+            type: string
+          - name: url
+            label: Link
+            type: string
+      - name: lineup
+        label: Line-up / Mitwirkende
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: name
+            label: Name
+            type: string
+            required: true
+          - name: url
+            label: Link
+            type: string
+          - name: schema_type
+            label: Schema.org-Typ
+            type: select
+            default: Person
+            options:
+              values: [Person, MusicGroup, PerformingGroup]
+      - name: links
+        label: Weitere Links
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{label_de}"
+        fields:
+          - name: label_de
+            label: Beschriftung (Deutsch)
+            type: string
+            required: true
+          - name: label_en
+            label: Beschriftung (Englisch)
+            type: string
+          - name: url
+            label: URL
+            type: string
+            required: true
+          - name: primary
+            label: Hervorgehoben
+            type: boolean
+            default: false
+      - name: venue_name
+        label: Veranstaltungsort – Name
+        type: string
+      - name: street_address
+        label: Veranstaltungsort – Straße
+        type: string
+      - name: postal_code
+        label: Veranstaltungsort – PLZ
+        type: string
+      - name: address_locality
+        label: Veranstaltungsort – Ort
+        type: string
+      - name: address_region
+        label: Veranstaltungsort – Region
+        type: string
+      - name: address_country
+        label: Veranstaltungsort – Land (ISO-Code)
+        type: string
+        default: DE
+
+settings:
+  content:
+    merge: true
+  commit:
+    identity: user
+    templates:
+      create: "content: add {filename}"
+      update: "content: update {filename}"
+      delete: "content: remove {filename}"

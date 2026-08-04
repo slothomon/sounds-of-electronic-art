@@ -31,15 +31,38 @@ content/site.json           General website, team and recording data
 content/episodes.json       Upcoming entries and local archive enrichment
 content/archive-cache.json  Cached SoundCloud playlist metadata
 content/legal.json          Operator details for legal pages
-docs/                       Search Console and structured-data notes
+docs/                       Search Console, Pages CMS and structured-data notes
 scripts/build.py             Static-site generator
-scripts/update_archive.py    SoundCloud archive updater
+scripts/update_archive.py    SoundCloud archive and artwork updater
+scripts/normalize_episode_lists.py  One-time Pages CMS data normalizer
+.pages.yml                    Pages CMS editor schema
 scripts/validate_site.py     Generated-site validation
 templates/                  HTML templates
 ```
 
 Do not edit `public/` directly. It is deleted and rebuilt by
 `scripts/build.py` and is ignored by Git.
+
+## Edit content with Pages CMS
+
+The repository includes a ready-to-use `.pages.yml` configuration for editing
+`content/episodes.json` through Pages CMS. It covers upcoming dates, archive
+enrichment, music presentations, tracklists, artwork, line-ups and links.
+
+Each editor should use an individual GitHub account; do not share one account.
+The complete one-time setup and editorial workflow are documented in:
+
+```text
+docs/pages-cms.md
+```
+
+Before opening a file that still contains string-only music presentations or
+tracklist rows, run the included normalizer once:
+
+```cmd
+py scripts\normalize_episode_lists.py
+py scripts\normalize_episode_lists.py --write
+```
 
 ## Edit general content
 
@@ -213,13 +236,24 @@ URL only when a hand-designed card should override the generated one.
 https://soundcloud.com/sounds-of-electronic-art/sets/sendungen
 ```
 
-It writes cleaned metadata to `content/archive-cache.json`. The public website
-uses that committed cache and does not have to query the playlist in a
-visitor's browser.
+It writes cleaned metadata to `content/archive-cache.json` and caches the
+corresponding SoundCloud artwork under:
+
+```text
+assets/images/episodes/YYYY-MM-DD-title.jpg
+```
+
+The public website therefore uses committed metadata and local images instead
+of requesting artwork from SoundCloud in a visitor's browser. A manually
+provided `.jpg`, `.jpeg`, `.png` or `.webp` with the same date/title filename
+is retained and takes precedence. An explicit `image` value in
+`content/episodes.json` takes precedence over both.
 
 The **Refresh SoundCloud archive** workflow runs daily and can also be started
-manually. It commits the cache only when it changes. That commit then triggers
-the independent **Deploy GitHub Pages** workflow.
+manually. It commits the cache and newly discovered artwork only when something
+changes. That commit then triggers the independent **Deploy GitHub Pages**
+workflow. Existing custom artwork is not overwritten by the normal scheduled
+run.
 
 ## Build and preview locally
 
@@ -263,13 +297,23 @@ py scripts\update_archive.py --strict
 py scripts\build.py
 ```
 
+Useful artwork options:
+
+```cmd
+py scripts\update_archive.py --no-artwork
+py scripts\update_archive.py --refresh-artwork
+```
+
+`--refresh-artwork` deliberately replaces matching automatic files. Keep it
+off when the same filename contains a hand-selected image.
+
 ## GitHub Actions
 
 - `.github/workflows/deploy-pages.yml` validates, builds and deploys the site
   on pushes to `main`. Pull requests run the build and validation but do not
   deploy.
 - `.github/workflows/refresh-archive.yml` is the only workflow with repository
-  write access and only updates `content/archive-cache.json`.
+  write access and only updates `content/archive-cache.json` and local SoundCloud artwork.
 - `.github/dependabot.yml` checks the Python and GitHub Actions dependencies
   monthly.
 

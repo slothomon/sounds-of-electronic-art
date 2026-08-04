@@ -6,6 +6,9 @@ import json
 import re
 import sys
 import unicodedata
+from io import BytesIO
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,6 +16,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "content" / "archive-cache.json"
 DEFAULT_PLAYLIST = "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen"
+DEFAULT_ARTWORK_DIR = ROOT / "assets" / "images" / "episodes"
+ARTWORK_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 MONTHS = {
     "januar": 1, "january": 1,
     "februar": 2, "february": 2,
@@ -146,9 +151,125 @@ def sound_description(sound: dict[str, Any]) -> str:
     return ""
 
 
-def normalise_sounds(sounds: list[dict[str, Any]], playlist_url: str) -> dict[str, Any]:
+
+
+def slugify(value: str) -> str:
+    value = normalise_text(value)
+    replacements = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}
+    for source, target in replacements.items():
+        value = value.replace(source, target)
+    value = "".join(char if char.isalnum() else "-" for char in value)
+    return "-".join(part for part in value.split("-") if part)[:80] or "sendung"
+
+
+def sound_artwork_url(sound: dict[str, Any]) -> str:
+    thumbnails = sound.get("thumbnails") if isinstance(sound.get("thumbnails"), list) else []
+    candidates: list[tuple[int, str]] = []
+    for thumbnail in thumbnails:
+        if not isinstance(thumbnail, dict):
+            continue
+        url = clean_text(thumbnail.get("url"))
+        if not url.startswith(("https://", "http://")):
+            continue
+        width = thumbnail.get("width") or 0
+        height = thumbnail.get("height") or 0
+        try:
+            area = int(width) * int(height)
+        except (TypeError, ValueError):
+            area = 0
+        candidates.append((area, url))
+    if candidates:
+        return max(candidates, key=lambda candidate: candidate[0])[1]
+    direct = clean_text(sound.get("thumbnail") or sound.get("artwork_url"))
+    return direct if direct.startswith(("https://", "http://")) else ""
+
+
+def artwork_stem(episode_date: date, title: str) -> str:
+    return f"{episode_date.isoformat()}-{slugify(title)}"
+
+
+def existing_artwork(artwork_dir: Path, stem: str) -> Path | None:
+    for extension in ARTWORK_EXTENSIONS:
+        candidate = artwork_dir / f"{stem}{extension}"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def save_artwork(
+    artwork_url: str,
+    artwork_dir: Path,
+    stem: str,
+    timeout_ms: int,
+    refresh: bool = False,
+) -> Path | None:
+    existing = existing_artwork(artwork_dir, stem)
+    if existing and not refresh:
+        return existing
+    if not artwork_url:
+        return existing
+
+    try:
+        from PIL import Image, UnidentifiedImageError
+    except ImportError as error:
+        raise RuntimeError("Pillow is required for artwork caching") from error
+
+    request = Request(
+        artwork_url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; sofea.radio archive updater/1.0)",
+            "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        },
+    )
+    try:
+        with urlopen(request, timeout=max(15, timeout_ms // 1000)) as response:
+            payload = response.read(20 * 1024 * 1024 + 1)
+        if len(payload) > 20 * 1024 * 1024:
+            raise RuntimeError("artwork exceeds 20 MB")
+        image = Image.open(BytesIO(payload))
+        image.load()
+        if image.mode not in ("RGB", "L"):
+            background = Image.new("RGB", image.size, "#171412")
+            if "A" in image.getbands():
+                background.paste(image, mask=image.getchannel("A"))
+            else:
+                background.paste(image.convert("RGB"))
+            image = background
+        else:
+            image = image.convert("RGB")
+        image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+        artwork_dir.mkdir(parents=True, exist_ok=True)
+        target = artwork_dir / f"{stem}.jpg"
+        temporary = target.with_suffix(".tmp.jpg")
+        image.save(temporary, format="JPEG", quality=91, optimize=True, progressive=True)
+        temporary.replace(target)
+        if refresh and existing and existing != target:
+            existing.unlink(missing_ok=True)
+        try:
+            display_target = target.relative_to(ROOT)
+        except ValueError:
+            display_target = target
+        print(f"Artwork cached: {display_target}")
+        return target
+    except (HTTPError, URLError, TimeoutError, OSError, UnidentifiedImageError, RuntimeError) as error:
+        print(f"WARNING: Could not cache artwork for {stem}: {error}", file=sys.stderr)
+        return existing
+
+
+def normalise_sounds(
+    sounds: list[dict[str, Any]],
+    playlist_url: str,
+    artwork_dir: Path = DEFAULT_ARTWORK_DIR,
+    timeout_ms: int = 45000,
+    cache_artwork: bool = True,
+    refresh_artwork: bool = False,
+    artwork_title_overrides: dict[str, str] | None = None,
+    artwork_path_overrides: dict[str, str] | None = None,
+) -> dict[str, Any]:
     episodes: list[dict[str, Any]] = []
     seen: set[str] = set()
+    artwork_title_overrides = artwork_title_overrides or {}
+    artwork_path_overrides = artwork_path_overrides or {}
 
     for sound in sounds:
         if not isinstance(sound, dict):
@@ -170,16 +291,39 @@ def normalise_sounds(sounds: list[dict[str, Any]], playlist_url: str) -> dict[st
         except (TypeError, ValueError):
             duration_ms = None
 
-        episodes.append(
-            {
-                "date": episode_date.isoformat(),
-                "title": title,
-                "summary": sound_description(sound),
-                "audio_url": url,
-                "soundcloud_id": clean_text(sound.get("id") or sound.get("urn")),
-                "duration_ms": duration_ms,
-            }
-        )
+        artwork_url = sound_artwork_url(sound)
+        image_path = artwork_path_overrides.get(url.rstrip("/"), "")
+        if cache_artwork and not image_path:
+            target = save_artwork(
+                artwork_url,
+                artwork_dir,
+                artwork_stem(episode_date, artwork_title_overrides.get(url.rstrip("/"), title)),
+                timeout_ms,
+                refresh=refresh_artwork,
+            )
+            if target:
+                try:
+                    image_path = target.relative_to(ROOT).as_posix()
+                except ValueError:
+                    print(
+                        f"WARNING: Artwork directory is outside the repository; "
+                        f"not writing image path for {title}.",
+                        file=sys.stderr,
+                    )
+
+        episode = {
+            "date": episode_date.isoformat(),
+            "title": title,
+            "summary": sound_description(sound),
+            "audio_url": url,
+            "soundcloud_id": clean_text(sound.get("id") or sound.get("urn")),
+            "duration_ms": duration_ms,
+        }
+        if artwork_url:
+            episode["artwork_url"] = artwork_url
+        if image_path:
+            episode["image"] = image_path
+        episodes.append(episode)
 
     episodes.sort(key=lambda item: (item["date"], item["title"].casefold()), reverse=True)
     return {
@@ -216,6 +360,8 @@ def _entry_to_sound(entry: dict[str, Any]) -> dict[str, Any]:
         "display_date": entry.get("display_date"),
         "published_at": entry.get("published_at"),
         "created_at": entry.get("created_at"),
+        "thumbnail": entry.get("thumbnail"),
+        "thumbnails": entry.get("thumbnails") if isinstance(entry.get("thumbnails"), list) else [],
         "user": entry.get("user") if isinstance(entry.get("user"), dict) else {},
     }
 
@@ -264,12 +410,54 @@ def read_existing_cache(path: Path) -> dict[str, Any]:
         return {}
 
 
+def read_local_title_overrides(path: Path = ROOT / "content" / "episodes.json") -> dict[str, str]:
+    try:
+        entries = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(entries, list):
+        return {}
+    overrides: dict[str, str] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        url = clean_text(entry.get("audio_url")).rstrip("/")
+        title = clean_text(entry.get("title_de") or entry.get("title"))
+        if url and title:
+            overrides[url] = title
+    return overrides
+
+
+def read_local_artwork_overrides(path: Path = ROOT / "content" / "episodes.json") -> dict[str, str]:
+    try:
+        entries = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(entries, list):
+        return {}
+    overrides: dict[str, str] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        url = clean_text(entry.get("audio_url")).rstrip("/")
+        image = clean_text(entry.get("image"))
+        if not url or not image or image.startswith(("https://", "http://")):
+            continue
+        relative = image.lstrip("/")
+        if (ROOT / relative).is_file():
+            overrides[url] = relative
+    return overrides
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build a static archive cache from a SoundCloud playlist.")
     parser.add_argument("--playlist-url", default=DEFAULT_PLAYLIST)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--input-json", type=Path, help="Use saved raw Widget API data instead of opening SoundCloud.")
-    parser.add_argument("--timeout", type=int, default=45000, help="Browser timeout in milliseconds.")
+    parser.add_argument("--timeout", type=int, default=45000, help="Network timeout in milliseconds.")
+    parser.add_argument("--artwork-dir", type=Path, default=DEFAULT_ARTWORK_DIR)
+    parser.add_argument("--no-artwork", action="store_true", help="Do not download or update local artwork files.")
+    parser.add_argument("--refresh-artwork", action="store_true", help="Replace existing automatic artwork files.")
     parser.add_argument("--strict", action="store_true", help="Fail even when an existing cache can be retained.")
     args = parser.parse_args()
 
@@ -285,7 +473,16 @@ def main() -> int:
         if not isinstance(sounds, list):
             raise RuntimeError("SoundCloud result is not a list")
 
-        cache = normalise_sounds(sounds, args.playlist_url)
+        cache = normalise_sounds(
+            sounds,
+            args.playlist_url,
+            artwork_dir=args.artwork_dir,
+            timeout_ms=args.timeout,
+            cache_artwork=not args.no_artwork,
+            refresh_artwork=args.refresh_artwork,
+            artwork_title_overrides=read_local_title_overrides(),
+            artwork_path_overrides=read_local_artwork_overrides(),
+        )
         new_count = cache["count"]
         minimum_acceptable = max(5, int(old_count * 0.8)) if old_count else 5
         if new_count < minimum_acceptable:

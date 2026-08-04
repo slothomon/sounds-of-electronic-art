@@ -17,6 +17,8 @@ from urllib.parse import quote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "public"
+EPISODE_ARTWORK_DIR = ROOT / "assets" / "images" / "episodes"
+ARTWORK_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 MONTHS_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
 MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 WEEKDAYS_DE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
@@ -844,15 +846,45 @@ def detail_collection_section(item: dict, field: str, heading_de: str, heading_e
     )
 
 
+def episode_artwork_stem(item: dict) -> str:
+    date_part = str(item.get("date") or "")[:10] or "undated"
+    title = str(item.get("title_de") or item.get("title") or "sendung")
+    return f"{date_part}-{slugify(title)}"
+
+
+def local_episode_artwork(item: dict) -> str:
+    for extension in ARTWORK_EXTENSIONS:
+        candidate = EPISODE_ARTWORK_DIR / f"{episode_artwork_stem(item)}{extension}"
+        if candidate.is_file():
+            return candidate.relative_to(ROOT).as_posix()
+    return ""
+
+
+def detail_image_source(item: dict) -> str:
+    explicit = str(item.get("image") or item.get("image_url") or "").strip()
+    return explicit or local_episode_artwork(item)
+
+
+def detail_intro(header_html: str, image_html: str, summary_html: str) -> str:
+    if not image_html:
+        return header_html + summary_html
+    return (
+        '<div class="detail-intro detail-intro-with-artwork">'
+        f'{image_html}'
+        f'<div class="detail-intro-copy">{header_html}{summary_html}</div>'
+        '</div>'
+    )
+
+
 def detail_image(item: dict, base_path: str, title_de: str, title_en: str) -> str:
-    src = asset_href(item.get("image") or item.get("image_url"), base_path)
+    src = asset_href(detail_image_source(item), base_path)
     if not src:
         return ""
     alt_de = str(item.get("image_alt_de") or item.get("image_alt") or title_de)
     alt_en = str(item.get("image_alt_en") or item.get("image_alt") or title_en)
     return (
-        '<figure class="detail-image">'
-        f'<img src="{esc(src)}" alt="{esc(alt_de)}" loading="lazy" '
+        '<figure class="detail-image detail-artwork">'
+        f'<img src="{esc(src)}" alt="{esc(alt_de)}" loading="lazy" decoding="async" '
         f'data-alt-de="{esc(alt_de)}" data-alt-en="{esc(alt_en)}">'
         '</figure>'
     )
@@ -925,15 +957,17 @@ def upcoming_detail_inner(
         '<span data-bilingual data-de="Termin speichern" data-en="Save event">Termin speichern</span></a>'
     )
 
-    return (
+    header_html = (
         '<header class="detail-header">'
         f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">{esc(label_de)}</p>'
         f'<{heading_tag} id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" '
         f'data-en="{esc(title_en)}">{esc(title_de)}</{heading_tag}>'
         f'<div class="detail-meta">{"".join(meta)}</div>'
         '</header>'
-        f'{detail_image(item, base_path, title_de, title_en)}'
-        f'{summary_html}'
+    )
+    image_html = detail_image(item, base_path, title_de, title_en)
+    return (
+        f'{detail_intro(header_html, image_html, summary_html)}'
         f'{localized_prose(item, "details")}'
         f'{music_presentations_section(item)}'
         f'{detail_collection_section(item, "lineup", "Line-up", "Line-up")}'
@@ -999,7 +1033,7 @@ def archive_detail_inner(
         'rel="noopener noreferrer" data-bilingual data-de="Auf SoundCloud anhören ↗" '
         'data-en="Listen on SoundCloud ↗">Auf SoundCloud anhören ↗</a>',
     )
-    return (
+    header_html = (
         '<header class="detail-header">'
         '<p class="eyebrow" data-bilingual data-de="Sendung" data-en="Broadcast">Sendung</p>'
         f'<{heading_tag} id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" '
@@ -1008,8 +1042,10 @@ def archive_detail_inner(
         f'<time datetime="{esc(item["date"])}" data-bilingual data-de="{esc(date_de)}" '
         f'data-en="{esc(date_en)}">{esc(date_de)}</time>'
         '</div></header>'
-        f'{detail_image(item, base_path, title_de, title_en)}'
-        f'{summary_html}'
+    )
+    image_html = detail_image(item, base_path, title_de, title_en)
+    return (
+        f'{detail_intro(header_html, image_html, summary_html)}'
         f'{localized_prose(item, "details")}'
         f'{music_presentations_section(item)}'
         f'{detail_collection_section(item, "lineup", "Mitwirkende", "Contributors")}'
@@ -1173,6 +1209,8 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                     "summary_en": str(item.get("summary") or ""),
                     "audio_url": str(item["audio_url"]),
                     "duration_ms": item.get("duration_ms"),
+                    "image": str(item.get("image") or ""),
+                    "artwork_url": str(item.get("artwork_url") or ""),
                 }
                 normalised_url = base["audio_url"].rstrip("/")
                 override = local_by_url.get(normalised_url) or local_by_key.get(archive_match_key(base))
@@ -1181,6 +1219,8 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                         if key in {"status", "date", "audio_url"}:
                             continue
                         base[key] = value
+                if not base.get("image"):
+                    base["image"] = local_episode_artwork(base)
                 result.append(base)
                 seen_urls.add(normalised_url)
     except (OSError, json.JSONDecodeError, AttributeError, TypeError, ValueError):
@@ -1190,7 +1230,10 @@ def load_archive(episodes: list[dict]) -> list[dict]:
         normalised_url = str(item["audio_url"]).rstrip("/")
         if normalised_url in seen_urls:
             continue
-        result.append(dict(item))
+        local_item = dict(item)
+        if not local_item.get("image"):
+            local_item["image"] = local_episode_artwork(local_item)
+        result.append(local_item)
         seen_urls.add(normalised_url)
 
     return sorted(result, key=lambda item: parse_date(str(item["date"])), reverse=True)

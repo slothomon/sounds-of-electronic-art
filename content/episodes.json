@@ -55,18 +55,34 @@
   },
   {
     "date": "2025-11-22T21:00:00+01:00",
-	"updated_at": "2026-08-02",
+    "updated_at": "2026-08-02",
     "title_de": "Werner Benzo",
     "title_en": "Werner Benzo",
     "status": "past",
     "summary_de": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
     "summary_en": "Complete show featuring an interview and music by Werner Benzo.",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
-	"music_presentations": [
-	  "Headache – Nineteen Sixty Five",
-      "Sound Synthesis – Octagon",
-	  "Martinou – Sky High",
-	  "Habersham – Expansions"
+    "music_presentations": [
+      {
+        "artist": "Headache",
+        "title": "Nineteen Sixty Five",
+        "url": "https://www.discogs.com/master/4013752-Headache-Thank-You-For-Almost-Everything"
+      },
+      {
+        "artist": "Sound Synthesis",
+        "title": "Octagon",
+        "url": "https://www.discogs.com/master/1634327-Sound-Synthesis-IC-4406-EP"
+      },
+      {
+        "artist": "Martinou",
+        "title": "Sky High",
+        "url": "https://www.discogs.com/release/35282479-Various-Horizon-Begins-1"
+      },
+      {
+        "artist": "Habersham",
+        "title": "Expansions",
+        "url": "https://www.discogs.com/master/416415-Habersham-Inconstant"
+      }
     ]
   },
   {
@@ -125,7 +141,7 @@
   },
   {
     "date": "2021-02-20T21:00:00+01:00",
-	"updated_at": "2026-08-02",
+    "updated_at": "2026-08-02",
     "title_de": "Translucid",
     "title_en": "Translucid",
     "status": "past",
@@ -133,30 +149,102 @@
     "summary_en": "Broadcast featuring Translucid from 20 February 2021.",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/translucid-2021-02-20",
     "tracklist": [
-      "Queniv – Old Friend",
-      "Steven Halpern – Seventh Chakra Keynote B (Violet)",
-      "OCA – Coming Home After Long Day",
-      "Inoyama Land – Fairy Tale",
-      "Good Morning Tapes – Allez",
-      "Oliver Coates feat. Malibu – Them (Prologue)",
-      "Gilroy Mere – Adelstrop",
-      "The Entourage Music & Theatre Ensemble – Euphoric Bells (Alt Take)",
-      "LOG – LOG 6",
-      "Brannten Schnüre – Balkone Voll Leuchtender Geranienkästen",
-      "Ben Bondy – Eeon",
-      "The Blessed Kitty – Boyfriend",
-      "Sunrise Society – Astral Travel",
-      "Maury111 – Setsun (unreleased)",
-      "B-Zet – They Look In, We Look Out",
-      "Route 8 feat. Quails – Tomorrow Comes Today",
-      "Adrian Diraque – Worlds Crashin (unreleased)",
-      "RDS – Onvoorwaardelijk",
-      "Tour-Maubourg – Saint The A La Menthe",
-      "AEM Rhythm-Cascade – Partial Presence",
-      "RED & Priori – RED 2",
-      "Reptant – Gecko Force",
-      "Premis – JUNGLE PAD SpEACH (unreleased)",
-      "Konx-om-Pax – Rez (Skee Mask Remix)"
+      {
+        "artist": "Queniv",
+        "title": "Old Friend"
+      },
+      {
+        "artist": "Steven Halpern",
+        "title": "Seventh Chakra Keynote B (Violet)"
+      },
+      {
+        "artist": "OCA",
+        "title": "Coming Home After Long Day"
+      },
+      {
+        "artist": "Inoyama Land",
+        "title": "Fairy Tale"
+      },
+      {
+        "artist": "Good Morning Tapes",
+        "title": "Allez"
+      },
+      {
+        "artist": "Oliver Coates feat. Malibu",
+        "title": "Them (Prologue)"
+      },
+      {
+        "artist": "Gilroy Mere",
+        "title": "Adelstrop"
+      },
+      {
+        "artist": "The Entourage Music & Theatre Ensemble",
+        "title": "Euphoric Bells (Alt Take)"
+      },
+      {
+        "artist": "LOG",
+        "title": "LOG 6"
+      },
+      {
+        "artist": "Brannten Schnüre",
+        "title": "Balkone Voll Leuchtender Geranienkästen"
+      },
+      {
+        "artist": "Ben Bondy",
+        "title": "Eeon"
+      },
+      {
+        "artist": "The Blessed Kitty",
+        "title": "Boyfriend"
+      },
+      {
+        "artist": "Sunrise Society",
+        "title": "Astral Travel"
+      },
+      {
+        "artist": "Maury111",
+        "title": "Setsun (unreleased)"
+      },
+      {
+        "artist": "B-Zet",
+        "title": "They Look In, We Look Out"
+      },
+      {
+        "artist": "Route 8 feat. Quails",
+        "title": "Tomorrow Comes Today"
+      },
+      {
+        "artist": "Adrian Diraque",
+        "title": "Worlds Crashin (unreleased)"
+      },
+      {
+        "artist": "RDS",
+        "title": "Onvoorwaardelijk"
+      },
+      {
+        "artist": "Tour-Maubourg",
+        "title": "Saint The A La Menthe"
+      },
+      {
+        "artist": "AEM Rhythm-Cascade",
+        "title": "Partial Presence"
+      },
+      {
+        "artist": "RED & Priori",
+        "title": "RED 2"
+      },
+      {
+        "artist": "Reptant",
+        "title": "Gecko Force"
+      },
+      {
+        "artist": "Premis",
+        "title": "JUNGLE PAD SpEACH (unreleased)"
+      },
+      {
+        "artist": "Konx-om-Pax",
+        "title": "Rez (Skee Mask Remix)"
+      }
     ]
   }
 ]

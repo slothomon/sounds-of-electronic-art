@@ -51,7 +51,10 @@
         <a href="{{ home_href }}#listen" data-section-link data-i18n="nav_listen">Hören</a>
         <a href="{{ home_href }}#about" data-section-link data-i18n="nav_about">Über uns</a>
         <a href="{{ home_href }}#archive" data-section-link data-i18n="nav_archive">Archiv</a>
-        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
+        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" aria-label="Livestream von Radio Blau">
+          <span class="stream-link-label" data-language-panel="de"><span>Livestream</span><small>Radio Blau</small></span>
+          <span class="stream-link-label" data-language-panel="en" hidden><span>Live stream</span><small>Radio Blau</small></span>
+        </a>
       </nav>
       <div class="header-tools">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">

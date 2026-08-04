@@ -152,13 +152,18 @@ def calendar_event_lines(item: dict, site: dict, event_url: str, dtstamp: str) -
         f"DTEND:{end.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
         f"SUMMARY:{ical_escape(title)}",
     ]
-    if summary:
-        raw_lines.append(f"DESCRIPTION:{ical_escape(summary)}")
+    stream_url = str(site.get("radio", {}).get("stream_url") or "https://www.radioblau.de/stream/")
+    calendar_footer = (
+        "-----\n\n"
+        "Radio Blau erreicht ihr auf DAB+, sowie\n"
+        "UKW 99,2 MHz, 94,4 MHz & 89,2 MHz\n\n"
+        "LiveStream:\n"
+        f"{stream_url}"
+    )
+    description = f"{summary}\n\n{calendar_footer}" if summary else calendar_footer
+    raw_lines.append(f"DESCRIPTION:{ical_escape(description)}")
     if location:
         raw_lines.append(f"LOCATION:{ical_escape(location)}")
-    stream_url = str(site.get("radio", {}).get("stream_url") or "")
-    if item_type == "broadcast" and stream_url:
-        raw_lines.append(f"COMMENT:{ical_escape('Livestream: ' + stream_url)}")
     raw_lines.extend([
         f"URL:{ical_escape(event_url)}",
         "STATUS:CONFIRMED",
@@ -1296,7 +1301,7 @@ def legal_pages_content(legal: dict[str, str]) -> dict[str, str]:
   <div class="shell legal-shell">
     <div data-language-panel="de">
       <p class="eyebrow">Rechtliche Hinweise</p>
-      <h1 class="legal-title">Datenschutzerklärung</h1>
+      <h1 class="legal-title">Datenschutz&shy;erklärung</h1>
 
       <div class="legal-card legal-prose">
         <h2>1. Verantwortlicher</h2>

@@ -155,8 +155,8 @@ webcal://sofea.radio/calendar.ics
 ```
 
 The HTTPS fallback is `https://sofea.radio/calendar.ics`. Individual `.ics`
-files remain available for one-off imports. Broadcast entries include the
-Radio Blau stream URL as a calendar comment.
+files remain available for one-off imports. Calendar notes contain the
+Radio Blau DAB+/FM frequencies and the stream URL in a consistent footer.
 
 ## Enrich an archived broadcast
 
@@ -176,12 +176,13 @@ to add longer text, an image, lineup or tracklist without modifying the cache:
   "details_en": "Additional information about the broadcast.",
   "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
   "music_presentations": [
+    "Artist A — Release without a link",
     {
-      "artist": "Artist A",
+      "artist": "Artist B",
       "title": "Album or track title",
       "label": "Example Records",
       "year": 2026,
-      "url": "https://example.org/release",
+      "url": "https://www.discogs.com/master/example",
       "note_de": "Kurzer redaktioneller Hinweis.",
       "note_en": "Short editorial note."
     }
@@ -195,7 +196,10 @@ to add longer text, an image, lineup or tracklist without modifying the cache:
 Each archive entry receives a page below `/sendungen/`. Homepage titles open
 these pages in the existing modal/dialog interface; opening a title in a new
 tab uses the standalone page. `music_presentations` appears as a separate
-**Musikvorstellungen** section before the line-up and tracklist.
+**Musikvorstellungen** section before the line-up and tracklist. Use simple
+strings when no external source is needed, or objects with `artist`, `title`
+and `url` for Discogs, Bandcamp or label links. The exact `audio_url` is the
+stable key used to merge these local additions with the SoundCloud cache.
 
 Every detail page receives an individual branded social card under
 `public/assets/images/social/`. Set `social_image` to a local path or absolute

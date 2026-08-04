@@ -48,7 +48,10 @@
       </a>
       <nav class="nav detail-page-nav" aria-label="Hauptnavigation">
         <a href="{{ detail_back_href }}" data-bilingual data-de="{{ detail_back_de }}" data-en="{{ detail_back_en }}">{{ detail_back_de }}</a>
-        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" data-i18n="nav_live">Livestream</a>
+        <a class="listen-link" href="{{ radio_stream_url }}" target="_blank" rel="noopener noreferrer" aria-label="Livestream von Radio Blau">
+          <span class="stream-link-label" data-language-panel="de"><span>Livestream</span><small>Radio Blau</small></span>
+          <span class="stream-link-label" data-language-panel="en" hidden><span>Live stream</span><small>Radio Blau</small></span>
+        </a>
       </nav>
       <div class="header-tools">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Helles Thema aktivieren" title="Helles Thema aktivieren">

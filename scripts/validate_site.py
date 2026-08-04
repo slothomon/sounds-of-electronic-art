@@ -113,6 +113,20 @@ def artwork_stem(item: dict) -> str:
     return f"{str(item.get('date') or '')[:10]}-{slugify(item.get('title_de') or item.get('title') or 'sendung')}"
 
 
+def episode_artwork_reference(value: object) -> str:
+    """Return a normalized repository path for local episode artwork.
+
+    Archive-cache entries can keep an older filename even after title-cleanup
+    rules change. Those files are still in active use through the explicit
+    ``image`` field and must not be reported as orphaned merely because their
+    filename no longer matches the newly inferred stem.
+    """
+    raw = str(value or "").strip().replace("\\", "/").lstrip("/")
+    if raw.startswith("assets/images/episodes/"):
+        return raw
+    return ""
+
+
 def http_url(value: object) -> bool:
     parsed = urlparse(str(value or "").strip())
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
@@ -272,6 +286,7 @@ def validate_source(root: Path) -> int:
     archive_urls: Counter[str] = Counter()
     detail_paths: Counter[str] = Counter()
     expected_artwork: set[str] = set()
+    referenced_artwork: set[str] = set()
     for index, episode in enumerate(archive_entries, start=1):
         context = f"content/episodes.json entry {index}"
         if not isinstance(episode, dict):
@@ -288,6 +303,9 @@ def validate_source(root: Path) -> int:
         if url:
             archive_urls[url] += 1
         expected_artwork.add(artwork_stem(episode))
+        referenced = episode_artwork_reference(episode.get("image"))
+        if referenced:
+            referenced_artwork.add(referenced)
     for url, count in archive_urls.items():
         if count > 1:
             errors.append(f"content/episodes.json contains duplicate audio_url: {url}")
@@ -339,6 +357,9 @@ def validate_source(root: Path) -> int:
             detail_paths[detail_path("upcoming", entry)] += 1
             calendar_names[calendar_filename(entry)] += 1
             expected_artwork.add(artwork_stem(entry))
+            referenced = episode_artwork_reference(entry.get("image"))
+            if referenced:
+                referenced_artwork.add(referenced)
 
     for identity, count in upcoming_identity.items():
         if count > 1:
@@ -362,6 +383,9 @@ def validate_source(root: Path) -> int:
                     "date": item.get("date"),
                     "title": clean_archive_title(item.get("title")),
                 }))
+                referenced = episode_artwork_reference(item.get("image"))
+                if referenced:
+                    referenced_artwork.add(referenced)
     # Recreate the final archive identities closely enough to catch detail-URL
     # collisions after cache metadata and local editorial overrides are merged.
     local_by_url = {
@@ -411,7 +435,8 @@ def validate_source(root: Path) -> int:
     if artwork_dir.is_dir():
         for image in artwork_dir.iterdir():
             if image.is_file() and image.suffix.lower() in ARTWORK_EXTENSIONS:
-                if image.stem not in expected_artwork:
+                relative = image.relative_to(root).as_posix()
+                if relative not in referenced_artwork and image.stem not in expected_artwork:
                     warnings.append(f"orphaned episode artwork (review manually): {image.relative_to(root)}")
 
     if warnings:

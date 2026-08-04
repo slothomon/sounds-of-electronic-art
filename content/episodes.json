@@ -5,7 +5,8 @@
     "title_en": "Neele",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
     "details_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
-    "details_en": "Recording of Neele's set from the 98th show in March 2026."
+    "details_en": "Recording of Neele's set from the 98th show in March 2026.",
+    "episode_id": "2026-03-14-neele"
   },
   {
     "date": "2026-01-17",
@@ -13,7 +14,8 @@
     "title_en": "sofea & friends",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17",
     "details_de": "Extended Geburtstagsmix mit Neele, Thomas Heinrich, HAL und John Minus Plus.",
-    "details_en": "Extended birthday mix with Neele, Thomas Heinrich, HAL and John Minus Plus."
+    "details_en": "Extended birthday mix with Neele, Thomas Heinrich, HAL and John Minus Plus.",
+    "episode_id": "2026-01-17-sofea-friends"
   },
   {
     "date": "2025-11-22",
@@ -44,7 +46,8 @@
         "title": "Expansions",
         "url": "https://www.discogs.com/master/416415-Habersham-Inconstant"
       }
-    ]
+    ],
+    "episode_id": "2025-11-22-werner-benzo"
   },
   {
     "date": "2025-06-07",
@@ -52,7 +55,8 @@
     "title_en": "R22",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07",
     "details_de": "Gastset aus der Sendung vom 7. Juni 2025.",
-    "details_en": "Guest set from the show on 7 June 2025."
+    "details_en": "Guest set from the show on 7 June 2025.",
+    "episode_id": "2025-06-07-r22"
   },
   {
     "date": "2024-10-26",
@@ -60,7 +64,8 @@
     "title_en": "Moritz Kaiser",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26",
     "details_de": "Zwei Stunden Musikvorstellungen und Gespräche, gefolgt von einem einstündigen Gastset.",
-    "details_en": "Two hours of selections and conversation followed by a one-hour guest set."
+    "details_en": "Two hours of selections and conversation followed by a one-hour guest set.",
+    "episode_id": "2024-10-26-moritz-kaiser"
   },
   {
     "date": "2024-07-06",
@@ -68,7 +73,8 @@
     "title_en": "M.ono",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea",
     "details_de": "House-Set aus der Sendung vom 6. Juli 2024.",
-    "details_en": "House set from the show on 6 July 2024."
+    "details_en": "House set from the show on 6 July 2024.",
+    "episode_id": "2024-07-06-m-ono"
   },
   {
     "date": "2024-03-16",
@@ -76,7 +82,8 @@
     "title_en": "Dahmar",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16",
     "details_de": "Gastset aus der Sendung vom 16. März 2024.",
-    "details_en": "Guest set from the show on 16 March 2024."
+    "details_en": "Guest set from the show on 16 March 2024.",
+    "episode_id": "2024-03-16-dahmar"
   },
   {
     "date": "2023-11-25",
@@ -84,7 +91,8 @@
     "title_en": "Kontinum",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25",
     "details_de": "Techno-Set aus der Sendung vom 25. November 2023.",
-    "details_en": "Techno set from the show on 25 November 2023."
+    "details_en": "Techno set from the show on 25 November 2023.",
+    "episode_id": "2023-11-25-kontinum"
   },
   {
     "date": "2021-02-20",
@@ -191,6 +199,7 @@
         "artist": "Konx-om-Pax",
         "title": "Rez (Skee Mask Remix)"
       }
-    ]
+    ],
+    "episode_id": "2021-02-20-translucid"
   }
 ]

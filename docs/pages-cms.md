@@ -1,118 +1,52 @@
 # Pages CMS editorial workflow
 
-Pages CMS edits the JSON files in this GitHub repository directly. It does not
-introduce a second database or a shared password.
+Pages CMS reads `.pages.yml` and edits the repository files directly. Open
+`https://app.pagescms.org`, sign in with your own GitHub account, install the
+Pages CMS GitHub App for this repository only, and select branch `main`.
 
-## Accounts and access
+The Content menu contains four focused editors:
 
-Each editor should use an individual GitHub account. Add the two or three
-editors as collaborators under:
+1. **Demnächst – Sendungen** → `content/upcoming-broadcasts.json`
+2. **Demnächst – Veranstaltungen** → `content/upcoming-events.json`
+3. **Hören – Auswahl** → `content/listen.json`
+4. **Sendungsarchiv** → `content/episodes.json`
 
-```text
-Repository → Settings → Collaborators → Add people
-```
+## Hören – Auswahl
 
-Use two-factor authentication or passkeys. Do not create a shared editorial
-GitHub account: individual accounts preserve attribution and can be revoked
-separately.
+The list order is the order shown on the homepage. Keep one to five entries.
+Each row contains:
 
-## One-time setup
+- `label`: only a readable CMS label;
+- `episode_id`: the stable internal ID of an archive entry.
 
-1. Open `app.pagescms.org`.
-2. Sign in with your own GitHub account.
-3. Install the Pages CMS GitHub App.
-4. Choose **Only select repositories**.
-5. Select `slothomon/sounds-of-electronic-art`.
-6. Open the repository and branch `main`.
+The visible title, text, duration and audio link are taken from the archive.
+The CMS label is deliberately ignored by the site build, so it cannot create
+conflicting public metadata.
 
-Pages CMS automatically reads `.pages.yml` from the repository root.
+The corresponding ID is shown in the **Sendungsarchiv** editor. Existing entries
+without an explicit ID use the deterministic fallback `YYYY-MM-DD-title`. Once
+an ID is used by the Hören selection, do not change it.
 
-## Content areas
+## Editorial rules
 
-The CMS intentionally exposes three focused editors:
+- Enter upcoming times as Leipzig local time. Pages CMS stores them without a
+  UTC offset, for example `2026-08-29T21:00:00`.
+- Use `details_de` and `details_en` as the single full text. The homepage and
+  archive list automatically create excerpts.
+- Use one `location` field for events. Broadcasts automatically use
+  `Radio Blau, Leipzig`.
+- `episode_number` is optional but recommended where it is known.
+- `episode_id` is the internal archive identity. `audio_url` is the playback
+  source and no longer the primary key used by the website.
+- Music presentations and tracklist rows are objects and require `title`.
+- Uploaded content images may be JPG, PNG or WebP.
+- An advanced manually entered `social_image` must be PNG; it is intentionally
+  not exposed in the compact CMS forms.
 
-- **Demnächst – Sendungen** → `content/upcoming-broadcasts.json`
-- **Demnächst – Veranstaltungen** → `content/upcoming-events.json`
-- **Sendungsarchiv** → `content/episodes.json`
-
-### Upcoming broadcasts
-
-Available fields:
-
-- local start date/time;
-- optional episode number;
-- German and English title;
-- German and English full text;
-- optional artwork;
-- optional external buttons/links.
-
-The website creates the shorter homepage excerpt automatically. Broadcasts
-default to three hours and `Radio Blau, Leipzig`.
-
-### Upcoming events
-
-Available fields:
-
-- local start and optional end date/time;
-- German and English title;
-- German and English full text;
-- one visible location field;
-- optional flyer/artwork;
-- optional external buttons/links.
-
-### Archive enrichment
-
-The SoundCloud cache supplies the basic metadata and locally cached artwork.
-The archive editor adds only the editorial fields that the site owns:
-
-- date and optional episode number;
-- German and English title;
-- exact SoundCloud URL used as the merge key;
-- optional full editorial text;
-- optional artwork override;
-- music presentations;
-- tracklist;
-- optional `updated_at` for meaningful content changes.
-
-Music presentations and tracklist rows are object lists. Use the URL field for
-Discogs, Bandcamp, label or artist links.
-
-## Dates and time zones
-
-Upcoming times are saved as Leipzig wall-clock time without a UTC suffix:
-
-```text
-2026-08-29T21:00:00
-```
-
-The build applies `Europe/Berlin`, including summer and winter time. Archive
-dates use `YYYY-MM-DD`.
-
-## Images
-
-Uploaded images are stored in:
-
-```text
-assets/images/uploads/
-```
-
-Cached SoundCloud artwork is stored in:
-
-```text
-assets/images/episodes/
-```
-
-An explicit CMS artwork wins over automatically cached SoundCloud artwork.
-Custom `social_image` values are an advanced manual option and must be PNG.
-
-## Publishing and validation
-
-Saving in Pages CMS creates a normal Git commit. GitHub Actions then runs the
-same command used locally:
+Before publishing a larger edit, run locally:
 
 ```cmd
 py scripts\check.py
 ```
 
-If validation fails, inspect the Actions log before making further edits. The
-source JSON remains versioned and can be restored from Git history.
+Every saved change remains attributable to the editor's own GitHub account.

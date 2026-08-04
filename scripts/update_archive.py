@@ -161,12 +161,20 @@ def sound_description(sound: dict[str, Any]) -> str:
 
 
 def slugify(value: str) -> str:
-    value = normalise_text(value)
-    replacements = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}
-    for source, target in replacements.items():
-        value = value.replace(source, target)
-    value = "".join(char if char.isalnum() else "-" for char in value)
-    return "-".join(part for part in value.split("-") if part)[:80] or "sendung"
+    text = str(value or "").lower()
+    for source, target in {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}.items():
+        text = text.replace(source, target)
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")[:80] or "sendung"
+
+
+EPISODE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,95}$")
+
+
+def episode_identifier(episode_date: date, title: str) -> str:
+    """Create a stable local identity that does not contain a source URL."""
+    return f"{episode_date.isoformat()}-{slugify(clean_title(title))}"
 
 
 def sound_artwork_url(sound: dict[str, Any]) -> str:
@@ -272,11 +280,13 @@ def normalise_sounds(
     refresh_artwork: bool = False,
     artwork_title_overrides: dict[str, str] | None = None,
     artwork_path_overrides: dict[str, str] | None = None,
+    existing_episode_ids: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     episodes: list[dict[str, Any]] = []
     seen: set[str] = set()
     artwork_title_overrides = artwork_title_overrides or {}
     artwork_path_overrides = artwork_path_overrides or {}
+    existing_episode_ids = existing_episode_ids or {}
 
     for sound in sounds:
         if not isinstance(sound, dict):
@@ -287,7 +297,8 @@ def normalise_sounds(
         if not title or not url or not episode_date:
             continue
 
-        key = clean_text(sound.get("id") or sound.get("urn") or url)
+        source_id = clean_text(sound.get("id") or sound.get("urn"))
+        key = source_id or url
         if key in seen:
             continue
         seen.add(key)
@@ -298,13 +309,32 @@ def normalise_sounds(
         except (TypeError, ValueError):
             duration_ms = None
 
+        normalised_url = url.rstrip("/")
+        preserved_id = (
+            existing_episode_ids.get(f"source:{source_id}")
+            or existing_episode_ids.get(f"url:{normalised_url}")
+            or ""
+        )
+        local_title = (
+            artwork_title_overrides.get(f"id:{preserved_id}", "")
+            or artwork_title_overrides.get(f"url:{normalised_url}", "")
+        )
+        identity_title = local_title or title
+        generated_id = episode_identifier(episode_date, identity_title)
+        episode_id = preserved_id or generated_id
+        if not EPISODE_ID_RE.fullmatch(episode_id):
+            episode_id = generated_id
+
         artwork_url = sound_artwork_url(sound)
-        image_path = artwork_path_overrides.get(url.rstrip("/"), "")
+        image_path = (
+            artwork_path_overrides.get(f"id:{episode_id}", "")
+            or artwork_path_overrides.get(f"url:{normalised_url}", "")
+        )
         if cache_artwork and not image_path:
             target = save_artwork(
                 artwork_url,
                 artwork_dir,
-                artwork_stem(episode_date, artwork_title_overrides.get(url.rstrip("/"), title)),
+                artwork_stem(episode_date, identity_title),
                 timeout_ms,
                 refresh=refresh_artwork,
             )
@@ -319,11 +349,12 @@ def normalise_sounds(
                     )
 
         episode = {
+            "episode_id": episode_id,
             "date": episode_date.isoformat(),
             "title": title,
             "summary": sound_description(sound),
             "audio_url": url,
-            "soundcloud_id": clean_text(sound.get("id") or sound.get("urn")),
+            "soundcloud_id": source_id,
             "duration_ms": duration_ms,
         }
         if artwork_url:
@@ -334,13 +365,12 @@ def normalise_sounds(
 
     episodes.sort(key=lambda item: (item["date"], item["title"].casefold()), reverse=True)
     return {
-        "version": 1,
+        "version": 2,
         "source": playlist_url,
         "updated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "count": len(episodes),
         "episodes": episodes,
     }
-
 
 def _public_track_url(entry: dict[str, Any]) -> str:
     for field in ("webpage_url", "original_url", "url"):
@@ -417,6 +447,19 @@ def read_existing_cache(path: Path) -> dict[str, Any]:
         return {}
 
 
+def local_episode_id(entry: dict[str, Any]) -> str:
+    explicit = clean_text(entry.get("episode_id")).lower()
+    if EPISODE_ID_RE.fullmatch(explicit):
+        return explicit
+    date_value = clean_text(entry.get("date"))[:10]
+    title = clean_text(entry.get("title_de") or entry.get("title"))
+    try:
+        parsed = date.fromisoformat(date_value)
+    except ValueError:
+        return ""
+    return episode_identifier(parsed, title) if title else ""
+
+
 def read_local_title_overrides(path: Path = ROOT / "content" / "episodes.json") -> dict[str, str]:
     try:
         entries = json.loads(path.read_text(encoding="utf-8"))
@@ -430,8 +473,11 @@ def read_local_title_overrides(path: Path = ROOT / "content" / "episodes.json") 
             continue
         url = clean_text(entry.get("audio_url")).rstrip("/")
         title = clean_text(entry.get("title_de") or entry.get("title"))
+        identity = local_episode_id(entry)
         if url and title:
-            overrides[url] = title
+            overrides[f"url:{url}"] = title
+        if identity and title:
+            overrides[f"id:{identity}"] = title
     return overrides
 
 
@@ -447,14 +493,39 @@ def read_local_artwork_overrides(path: Path = ROOT / "content" / "episodes.json"
         if not isinstance(entry, dict):
             continue
         url = clean_text(entry.get("audio_url")).rstrip("/")
+        identity = local_episode_id(entry)
         image = clean_text(entry.get("image"))
-        if not url or not image or image.startswith(("https://", "http://")):
+        if not image or image.startswith(("https://", "http://")):
             continue
         relative = image.lstrip("/")
-        if (ROOT / relative).is_file():
-            overrides[url] = relative
+        if not (ROOT / relative).is_file():
+            continue
+        if url:
+            overrides[f"url:{url}"] = relative
+        if identity:
+            overrides[f"id:{identity}"] = relative
     return overrides
 
+
+def read_existing_episode_ids(cache: dict[str, Any]) -> dict[str, str]:
+    """Preserve local IDs across title and permalink changes."""
+    mappings: dict[str, str] = {}
+    episodes = cache.get("episodes", []) if isinstance(cache, dict) else []
+    if not isinstance(episodes, list):
+        return mappings
+    for entry in episodes:
+        if not isinstance(entry, dict):
+            continue
+        identity = clean_text(entry.get("episode_id")).lower()
+        if not EPISODE_ID_RE.fullmatch(identity):
+            continue
+        source_id = clean_text(entry.get("soundcloud_id"))
+        url = clean_text(entry.get("audio_url")).rstrip("/")
+        if source_id:
+            mappings[f"source:{source_id}"] = identity
+        if url:
+            mappings[f"url:{url}"] = identity
+    return mappings
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build a static archive cache from a SoundCloud playlist.")
@@ -489,6 +560,7 @@ def main() -> int:
             refresh_artwork=args.refresh_artwork,
             artwork_title_overrides=read_local_title_overrides(),
             artwork_path_overrides=read_local_artwork_overrides(),
+            existing_episode_ids=read_existing_episode_ids(old_cache),
         )
         new_count = cache["count"]
         minimum_acceptable = max(5, int(old_count * 0.8)) if old_count else 5

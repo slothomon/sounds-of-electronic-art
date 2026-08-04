@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import unicodedata
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -15,6 +16,7 @@ from urllib.parse import unquote, urlparse
 SITE_HOSTS = {"sofea.radio", "www.sofea.radio"}
 PLACEHOLDER_RE = re.compile(r"\{\{\s*[A-Za-z0-9_]+\s*\}\}")
 ARTWORK_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+EPISODE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,95}$")
 FORBIDDEN_LEGACY_FIELDS = {
     "status", "type", "summary_de", "summary_en", "location_de", "location_en",
     "venue_name", "street_address", "postal_code", "address_locality", "address_region",
@@ -87,8 +89,9 @@ def slugify(value: object) -> str:
     text = str(value or "").lower()
     for source, target in {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}.items():
         text = text.replace(source, target)
-    text = "".join(char if char.isalnum() else "-" for char in text)
-    return "-".join(part for part in text.split("-") if part)[:80] or "sendung"
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")[:80] or "sendung"
 
 
 def clean_archive_title(value: object) -> str:
@@ -98,12 +101,29 @@ def clean_archive_title(value: object) -> str:
     return title.strip()
 
 
+def derived_episode_id(item: dict) -> str:
+    date_value = str(item.get("date") or "")[:10] or "undated"
+    title = clean_archive_title(item.get("title_de") or item.get("title") or "sendung")
+    return f"{date_value}-{slugify(title)}"
+
+
+def episode_id_value(item: dict) -> str:
+    explicit = str(item.get("episode_id") or "").strip().lower()
+    return explicit if EPISODE_ID_RE.fullmatch(explicit) else derived_episode_id(item)
+
+
+def validate_episode_id(errors: list[str], context: str, item: dict) -> None:
+    explicit = str(item.get("episode_id") or "").strip()
+    if explicit and not EPISODE_ID_RE.fullmatch(explicit):
+        errors.append(f"{context}.episode_id must use lowercase letters, digits and hyphens only")
+
+
 def detail_path(kind: str, item: dict) -> str:
+    if kind == "episode":
+        return f"sendungen/{episode_id_value(item)}/"
     title = clean_archive_title(item.get("title_de") or item.get("title") or "sendung")
     date_value = str(item.get("date") or "")[:10]
-    folder = "termine" if kind == "upcoming" else "sendungen"
-    return f"{folder}/{date_value}-{slugify(title)}/"
-
+    return f"termine/{date_value}-{slugify(title)}/"
 
 def calendar_filename(item: dict) -> str:
     return f"{str(item.get('date') or '')[:10]}-{slugify(item.get('title_de') or 'termin')}.ics"
@@ -200,6 +220,7 @@ def validate_social_image(errors: list[str], root: Path, context: str, item: dic
 
 
 def validate_common_entry(errors: list[str], root: Path, context: str, item: dict) -> None:
+    validate_episode_id(errors, context, item)
     validate_episode_number(errors, context, item)
     validate_local_asset(errors, root, f"{context}.image", item.get("image"))
     validate_social_image(errors, root, context, item)
@@ -224,6 +245,7 @@ def validate_source(root: Path) -> int:
         root / "templates" / "404.html",
         root / "docs" / "structured-data.md",
         root / "content" / "site.json",
+        root / "content" / "listen.json",
         root / "content" / "episodes.json",
         root / "content" / "upcoming-broadcasts.json",
         root / "content" / "upcoming-events.json",
@@ -236,6 +258,7 @@ def validate_source(root: Path) -> int:
 
     json_paths = [
         root / "content" / "site.json",
+        root / "content" / "listen.json",
         root / "content" / "episodes.json",
         root / "content" / "upcoming-broadcasts.json",
         root / "content" / "upcoming-events.json",
@@ -256,19 +279,14 @@ def validate_source(root: Path) -> int:
         errors.append("content/site.json must contain a JSON object")
         site = {}
     else:
-        for key in ("name", "description_de", "description_en", "radio", "featured_audio_urls"):
+        for key in ("name", "description_de", "description_en", "radio"):
             if not site.get(key):
                 errors.append(f"content/site.json is missing required key: {key}")
-        if "locale" in site or "mixes" in site:
-            errors.append("content/site.json still contains removed locale/mixes configuration")
-        featured = site.get("featured_audio_urls")
-        if not isinstance(featured, list) or not 1 <= len(featured) <= 5:
-            errors.append("content/site.json featured_audio_urls must contain 1 to 5 URLs")
-        elif len(set(map(str, featured))) != len(featured):
-            errors.append("content/site.json featured_audio_urls contains duplicates")
-        else:
-            for index, value in enumerate(featured, start=1):
-                validate_url(errors, f"content/site.json featured_audio_urls[{index}]", value)
+        removed_site_keys = sorted({"locale", "mixes", "featured_audio_urls"}.intersection(site))
+        if removed_site_keys:
+            errors.append(
+                "content/site.json still contains removed configuration: " + ", ".join(removed_site_keys)
+            )
         radio = site.get("radio") if isinstance(site.get("radio"), dict) else {}
         validate_url(errors, "content/site.json radio.url", radio.get("url"))
         validate_url(errors, "content/site.json radio.stream_url", radio.get("stream_url"))
@@ -284,6 +302,7 @@ def validate_source(root: Path) -> int:
         errors.append("content/episodes.json must contain a JSON array")
         archive_entries = []
     archive_urls: Counter[str] = Counter()
+    archive_ids: Counter[str] = Counter()
     detail_paths: Counter[str] = Counter()
     expected_artwork: set[str] = set()
     referenced_artwork: set[str] = set()
@@ -299,6 +318,8 @@ def validate_source(root: Path) -> int:
         validate_url(errors, f"{context}.audio_url", episode.get("audio_url"))
         validate_editorial_list(errors, f"{context}.music_presentations", episode.get("music_presentations"))
         validate_editorial_list(errors, f"{context}.tracklist", episode.get("tracklist"))
+        identity = episode_id_value(episode)
+        archive_ids[identity] += 1
         url = str(episode.get("audio_url") or "").rstrip("/")
         if url:
             archive_urls[url] += 1
@@ -306,6 +327,9 @@ def validate_source(root: Path) -> int:
         referenced = episode_artwork_reference(episode.get("image"))
         if referenced:
             referenced_artwork.add(referenced)
+    for identity, count in archive_ids.items():
+        if count > 1:
+            errors.append(f"content/episodes.json contains duplicate episode_id: {identity}")
     for url, count in archive_urls.items():
         if count > 1:
             errors.append(f"content/episodes.json contains duplicate audio_url: {url}")
@@ -378,7 +402,10 @@ def validate_source(root: Path) -> int:
             errors.append("content/archive-cache.json episodes/tracks must be a JSON array")
         else:
             cache_entries = [item for item in raw_entries if isinstance(item, dict)]
+            cache_ids: Counter[str] = Counter()
             for item in cache_entries:
+                validate_episode_id(errors, "content/archive-cache.json episode", item)
+                cache_ids[episode_id_value(item)] += 1
                 expected_artwork.add(artwork_stem({
                     "date": item.get("date"),
                     "title": clean_archive_title(item.get("title")),
@@ -386,46 +413,88 @@ def validate_source(root: Path) -> int:
                 referenced = episode_artwork_reference(item.get("image"))
                 if referenced:
                     referenced_artwork.add(referenced)
+            for identity, count in cache_ids.items():
+                if count > 1:
+                    errors.append(f"content/archive-cache.json contains duplicate episode_id: {identity}")
     # Recreate the final archive identities closely enough to catch detail-URL
     # collisions after cache metadata and local editorial overrides are merged.
+    local_by_id = {
+        episode_id_value(item): item
+        for item in archive_entries
+        if isinstance(item, dict) and item.get("audio_url")
+    }
+    local_by_source_id = {
+        str(item.get("soundcloud_id") or "").strip(): item
+        for item in archive_entries
+        if isinstance(item, dict) and item.get("soundcloud_id")
+    }
     local_by_url = {
         str(item.get("audio_url") or "").rstrip("/"): item
         for item in archive_entries
         if isinstance(item, dict) and item.get("audio_url")
     }
     final_archive: list[dict] = []
-    seen_final_urls: set[str] = set()
+    seen_final_ids: set[str] = set()
     for cached in cache_entries:
         url = str(cached.get("audio_url") or "").rstrip("/")
         if not url or not cached.get("date") or not cached.get("title"):
             continue
         merged = {
+            "episode_id": str(cached.get("episode_id") or "").strip(),
             "date": str(cached["date"]),
             "title_de": clean_archive_title(cached["title"]),
+            "audio_url": url,
+            "soundcloud_id": str(cached.get("soundcloud_id") or "").strip(),
         }
-        if url in local_by_url:
-            merged.update(local_by_url[url])
+        cached_identity = episode_id_value(merged)
+        override = (
+            local_by_id.get(cached_identity)
+            or local_by_source_id.get(merged["soundcloud_id"])
+            or local_by_url.get(url)
+        )
+        if override:
+            merged.update(override)
+        merged["episode_id"] = episode_id_value(merged)
         final_archive.append(merged)
-        seen_final_urls.add(url)
+        seen_final_ids.add(merged["episode_id"])
     for local in archive_entries:
         if not isinstance(local, dict):
             continue
-        url = str(local.get("audio_url") or "").rstrip("/")
-        if url and url not in seen_final_urls:
+        identity = episode_id_value(local)
+        if identity not in seen_final_ids:
             final_archive.append(local)
+            seen_final_ids.add(identity)
     for item in final_archive:
         detail_paths[detail_path("episode", item)] += 1
     for path, count in detail_paths.items():
         if count > 1:
             errors.append(f"duplicate generated detail URL: /{path}")
 
-    if isinstance(site, dict) and isinstance(site.get("featured_audio_urls"), list):
-        known_urls = archive_urls | Counter(
-            str(item.get("audio_url") or "").rstrip("/") for item in cache_entries
-        )
-        for value in site["featured_audio_urls"]:
-            if str(value).rstrip("/") not in known_urls:
-                errors.append(f"featured_audio_url is not present in archive data: {value}")
+    listen = parsed_json.get("listen.json")
+    if not isinstance(listen, list):
+        errors.append("content/listen.json must contain a JSON array")
+    else:
+        if not 1 <= len(listen) <= 5:
+            errors.append("content/listen.json must contain 1 to 5 entries")
+        known_ids = {episode_id_value(item) for item in final_archive}
+        selected_ids: Counter[str] = Counter()
+        for index, row in enumerate(listen, start=1):
+            context = f"content/listen.json entry {index}"
+            if not isinstance(row, dict):
+                errors.append(f"{context} must be an object")
+                continue
+            identity = str(row.get("episode_id") or "").strip().lower()
+            if not EPISODE_ID_RE.fullmatch(identity):
+                errors.append(f"{context}.episode_id is missing or invalid")
+                continue
+            if not str(row.get("label") or "").strip():
+                errors.append(f"{context}.label is required for the CMS overview")
+            selected_ids[identity] += 1
+            if identity not in known_ids:
+                errors.append(f"{context}.episode_id is not present in archive data: {identity}")
+        for identity, count in selected_ids.items():
+            if count > 1:
+                errors.append(f"content/listen.json contains duplicate episode_id: {identity}")
 
     legal = parsed_json.get("legal.json")
     if not isinstance(legal, dict):

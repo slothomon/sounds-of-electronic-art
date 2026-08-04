@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
   "updated_at": "2026-08-04T18:06:58Z",
   "count": 65,
@@ -12,7 +12,8 @@
       "soundcloud_id": "2364733454",
       "duration_ms": 7680067,
       "artwork_url": "https://i1.sndcdn.com/artworks-Wfy5IYUBufbel3Ap-6sj9MQ-t500x500.jpg",
-      "image": "assets/images/episodes/2026-03-14-neele.png"
+      "image": "assets/images/episodes/2026-03-14-neele.png",
+      "episode_id": "2026-03-14-neele"
     },
     {
       "date": "2026-01-17",
@@ -22,7 +23,8 @@
       "soundcloud_id": "2257181867",
       "duration_ms": 21314191,
       "artwork_url": "https://i1.sndcdn.com/artworks-fPyAbHIfz73wj1Dc-t6pMvQ-t500x500.jpg",
-      "image": "assets/images/episodes/2026-01-17-sofea-friends.jpg"
+      "image": "assets/images/episodes/2026-01-17-sofea-friends.jpg",
+      "episode_id": "2026-01-17-sofea-friends"
     },
     {
       "date": "2025-11-22",
@@ -32,7 +34,8 @@
       "soundcloud_id": "2338157642",
       "duration_ms": 10615226,
       "artwork_url": "https://i1.sndcdn.com/artworks-4LjoklvuBsHSgsTE-6fazbA-t500x500.jpg",
-      "image": "assets/images/episodes/2025-11-22-werner-benzo.png"
+      "image": "assets/images/episodes/2025-11-22-werner-benzo.png",
+      "episode_id": "2025-11-22-werner-benzo"
     },
     {
       "date": "2025-06-07",
@@ -42,7 +45,8 @@
       "soundcloud_id": "2117702670",
       "duration_ms": 8216785,
       "artwork_url": "https://i1.sndcdn.com/artworks-q9MDSRJvigcwMnuA-2InOWw-t500x500.jpg",
-      "image": "assets/images/episodes/2025-06-07-r22.jpg"
+      "image": "assets/images/episodes/2025-06-07-r22.jpg",
+      "episode_id": "2025-06-07-r22"
     },
     {
       "date": "2024-10-26",
@@ -52,7 +56,8 @@
       "soundcloud_id": "1943117035",
       "duration_ms": 10633229,
       "artwork_url": "https://i1.sndcdn.com/artworks-SXumsCrMlAoQQaek-svo9QA-t500x500.jpg",
-      "image": "assets/images/episodes/2024-10-26-moritz-kaiser.jpg"
+      "image": "assets/images/episodes/2024-10-26-moritz-kaiser.jpg",
+      "episode_id": "2024-10-26-moritz-kaiser"
     },
     {
       "date": "2024-07-06",
@@ -62,7 +67,8 @@
       "soundcloud_id": "1907569211",
       "duration_ms": 3511702,
       "artwork_url": "https://i1.sndcdn.com/artworks-iXeTo9vkRqPBWutl-t7yNyQ-t500x500.jpg",
-      "image": "assets/images/episodes/2024-07-06-m-ono.jpg"
+      "image": "assets/images/episodes/2024-07-06-m-ono.jpg",
+      "episode_id": "2024-07-06-m-ono"
     },
     {
       "date": "2024-03-16",
@@ -72,7 +78,8 @@
       "soundcloud_id": "1844681862",
       "duration_ms": 7976699,
       "artwork_url": "https://i1.sndcdn.com/artworks-DDYyRWgyWupLPlKf-P6GdQQ-t500x500.jpg",
-      "image": "assets/images/episodes/2024-03-16-dahmar.jpg"
+      "image": "assets/images/episodes/2024-03-16-dahmar.jpg",
+      "episode_id": "2024-03-16-dahmar"
     },
     {
       "date": "2023-11-25",
@@ -82,7 +89,8 @@
       "soundcloud_id": "1842868149",
       "duration_ms": 4501786,
       "artwork_url": "https://i1.sndcdn.com/artworks-tkUYmj8JYj8qYwIC-WLS5wA-t500x500.jpg",
-      "image": "assets/images/episodes/2023-11-25-kontinum.jpg"
+      "image": "assets/images/episodes/2023-11-25-kontinum.jpg",
+      "episode_id": "2023-11-25-kontinum"
     },
     {
       "date": "2023-10-06",
@@ -92,7 +100,8 @@
       "soundcloud_id": "1551417316",
       "duration_ms": 4389437,
       "artwork_url": "https://i1.sndcdn.com/artworks-dz9nRJdIQSvM2zfZ-jIyu4w-t500x500.jpg",
-      "image": "assets/images/episodes/2023-10-06-scherbert-2023-10-06.jpg"
+      "image": "assets/images/episodes/2023-10-06-scherbert-2023-10-06.jpg",
+      "episode_id": "2023-10-06-scherbert"
     },
     {
       "date": "2023-08-05",
@@ -102,7 +111,8 @@
       "soundcloud_id": "1686435531",
       "duration_ms": 5745737,
       "artwork_url": "https://i1.sndcdn.com/artworks-YyB0QaB1ObK7EIR2-5yR5Qw-t500x500.jpg",
-      "image": "assets/images/episodes/2023-08-05-johnminusplus-2023-08-05.jpg"
+      "image": "assets/images/episodes/2023-08-05-johnminusplus-2023-08-05.jpg",
+      "episode_id": "2023-08-05-johnminusplus"
     },
     {
       "date": "2021-11-27",
@@ -112,7 +122,8 @@
       "soundcloud_id": "1238633656",
       "duration_ms": 10676663,
       "artwork_url": "https://i1.sndcdn.com/artworks-lyQ5MfnHGZ9OjmLY-yayI9g-t500x500.jpg",
-      "image": "assets/images/episodes/2021-11-27-dj-rijkaard-komplette-sendung-2021-11-27.jpg"
+      "image": "assets/images/episodes/2021-11-27-dj-rijkaard-komplette-sendung-2021-11-27.jpg",
+      "episode_id": "2021-11-27-dj-rijkaard-komplette-sendung"
     },
     {
       "date": "2021-02-20",
@@ -122,7 +133,8 @@
       "soundcloud_id": "988643302",
       "duration_ms": 5095721,
       "artwork_url": "https://i1.sndcdn.com/artworks-xiTo8KzrykuusshQ-8hUSZQ-t500x500.jpg",
-      "image": "assets/images/episodes/2021-02-20-translucid.jpg"
+      "image": "assets/images/episodes/2021-02-20-translucid.jpg",
+      "episode_id": "2021-02-20-translucid"
     },
     {
       "date": "2020-12-26",
@@ -132,7 +144,8 @@
       "soundcloud_id": "955275838",
       "duration_ms": 11649228,
       "artwork_url": "https://i1.sndcdn.com/artworks-2y4y0EP5eAnt1sbR-Z2iznw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-12-26-96kbps-easy-miner-komplette-sendung-2020-12-26.jpg"
+      "image": "assets/images/episodes/2020-12-26-96kbps-easy-miner-komplette-sendung-2020-12-26.jpg",
+      "episode_id": "2020-12-26-96kbps-easy-miner-komplette-sendung"
     },
     {
       "date": "2020-09-05",
@@ -142,7 +155,8 @@
       "soundcloud_id": "894221749",
       "duration_ms": 6077989,
       "artwork_url": "https://i1.sndcdn.com/artworks-IJtqVvzKDJWzLbl4-WnRyFQ-t500x500.jpg",
-      "image": "assets/images/episodes/2020-09-05-easy-miner-2020-09-05.jpg"
+      "image": "assets/images/episodes/2020-09-05-easy-miner-2020-09-05.jpg",
+      "episode_id": "2020-09-05-easy-miner"
     },
     {
       "date": "2020-07-11",
@@ -152,7 +166,8 @@
       "soundcloud_id": "865263352",
       "duration_ms": 3571792,
       "artwork_url": "https://i1.sndcdn.com/artworks-uPILlCXllkE3Ef6M-GY1nsw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-07-11-tωs-2020-07-11.jpg"
+      "image": "assets/images/episodes/2020-07-11-tωs-2020-07-11.jpg",
+      "episode_id": "2020-07-11-ts"
     },
     {
       "date": "2020-07-11",
@@ -162,7 +177,8 @@
       "soundcloud_id": "865259998",
       "duration_ms": 2443128,
       "artwork_url": "https://i1.sndcdn.com/artworks-TywVZjKIGyR3i0OR-i7yzEQ-t500x500.jpg",
-      "image": "assets/images/episodes/2020-07-11-96kbps-2020-07-11.jpg"
+      "image": "assets/images/episodes/2020-07-11-96kbps-2020-07-11.jpg",
+      "episode_id": "2020-07-11-96kbps"
     },
     {
       "date": "2020-03-21",
@@ -172,7 +188,8 @@
       "soundcloud_id": "780772057",
       "duration_ms": 10853747,
       "artwork_url": "https://i1.sndcdn.com/artworks-WdYyiPzZVnZa67XY-rsHyxw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-03-21-96kbps-easy-miner-komplette-sendung-2020-03-21.jpg"
+      "image": "assets/images/episodes/2020-03-21-96kbps-easy-miner-komplette-sendung-2020-03-21.jpg",
+      "episode_id": "2020-03-21-96kbps-easy-miner-komplette-sendung"
     },
     {
       "date": "2019-10-05",
@@ -182,7 +199,8 @@
       "soundcloud_id": "697141947",
       "duration_ms": 11423497,
       "artwork_url": "https://i1.sndcdn.com/artworks-000613869572-88z82p-t500x500.jpg",
-      "image": "assets/images/episodes/2019-10-05-96kbps-easy-miner-2019-10-05.jpg"
+      "image": "assets/images/episodes/2019-10-05-96kbps-easy-miner-2019-10-05.jpg",
+      "episode_id": "2019-10-05-96kbps-easy-miner"
     },
     {
       "date": "2019-06-15",
@@ -192,7 +210,8 @@
       "soundcloud_id": "688917841",
       "duration_ms": 9045029,
       "artwork_url": "https://i1.sndcdn.com/artworks-000605635252-f2dlom-t500x500.jpg",
-      "image": "assets/images/episodes/2019-06-15-easy-miner-2019-06-15.jpg"
+      "image": "assets/images/episodes/2019-06-15-easy-miner-2019-06-15.jpg",
+      "episode_id": "2019-06-15-easy-miner"
     },
     {
       "date": "2018-11-03",
@@ -202,7 +221,8 @@
       "soundcloud_id": "526083549",
       "duration_ms": 7625439,
       "artwork_url": "https://i1.sndcdn.com/artworks-000435337911-euwct8-t500x500.jpg",
-      "image": "assets/images/episodes/2018-11-03-frank-horn-2018-11-03.jpg"
+      "image": "assets/images/episodes/2018-11-03-frank-horn-2018-11-03.jpg",
+      "episode_id": "2018-11-03-frank-horn"
     },
     {
       "date": "2018-01-27",
@@ -212,7 +232,8 @@
       "soundcloud_id": "405353085",
       "duration_ms": 3761410,
       "artwork_url": "https://i1.sndcdn.com/artworks-000307977120-r6pcrh-t500x500.jpg",
-      "image": "assets/images/episodes/2018-01-27-vai-2018-01-27.jpg"
+      "image": "assets/images/episodes/2018-01-27-vai-2018-01-27.jpg",
+      "episode_id": "2018-01-27-vai"
     },
     {
       "date": "2017-12-02",
@@ -222,7 +243,8 @@
       "soundcloud_id": "397813437",
       "duration_ms": 10883397,
       "artwork_url": "https://i1.sndcdn.com/artworks-000300528054-tyypy7-t500x500.jpg",
-      "image": "assets/images/episodes/2017-12-02-tωs-easy-miner-fume-2017-12-02.jpg"
+      "image": "assets/images/episodes/2017-12-02-tωs-easy-miner-fume-2017-12-02.jpg",
+      "episode_id": "2017-12-02-ts-easy-miner-fume"
     },
     {
       "date": "2017-10-07",
@@ -232,7 +254,8 @@
       "soundcloud_id": "397776573",
       "duration_ms": 2720986,
       "artwork_url": "https://i1.sndcdn.com/artworks-000300504879-rm8yq8-t500x500.jpg",
-      "image": "assets/images/episodes/2017-10-07-vaya-music-2017-10-07.jpg"
+      "image": "assets/images/episodes/2017-10-07-vaya-music-2017-10-07.jpg",
+      "episode_id": "2017-10-07-vaya-music"
     },
     {
       "date": "2017-08-12",
@@ -242,7 +265,8 @@
       "soundcloud_id": "339713309",
       "duration_ms": 3604160,
       "artwork_url": "https://i1.sndcdn.com/artworks-000240080551-atptcl-t500x500.jpg",
-      "image": "assets/images/episodes/2017-08-12-black-nakhur-2017-08-12.jpg"
+      "image": "assets/images/episodes/2017-08-12-black-nakhur-2017-08-12.jpg",
+      "episode_id": "2017-08-12-black-nakhur"
     },
     {
       "date": "2017-04-22",
@@ -252,7 +276,8 @@
       "soundcloud_id": "323028521",
       "duration_ms": 3023432,
       "artwork_url": "https://i1.sndcdn.com/artworks-000222942790-d3odqk-t500x500.jpg",
-      "image": "assets/images/episodes/2017-04-22-fume-2017-04-22.jpg"
+      "image": "assets/images/episodes/2017-04-22-fume-2017-04-22.jpg",
+      "episode_id": "2017-04-22-fume"
     },
     {
       "date": "2017-04-22",
@@ -262,7 +287,8 @@
       "soundcloud_id": "323029228",
       "duration_ms": 3100659,
       "artwork_url": "https://i1.sndcdn.com/artworks-000222943898-p0gdr8-t500x500.jpg",
-      "image": "assets/images/episodes/2017-04-22-easy-miner-2017-04-22.jpg"
+      "image": "assets/images/episodes/2017-04-22-easy-miner-2017-04-22.jpg",
+      "episode_id": "2017-04-22-easy-miner"
     },
     {
       "date": "2016-12-31",
@@ -272,7 +298,8 @@
       "soundcloud_id": "308389685",
       "duration_ms": 10432611,
       "artwork_url": "https://i1.sndcdn.com/artworks-000208512775-hauf4s-t500x500.jpg",
-      "image": "assets/images/episodes/2016-12-31-friends-easy-miner-2016-12-31.jpg"
+      "image": "assets/images/episodes/2016-12-31-friends-easy-miner-2016-12-31.jpg",
+      "episode_id": "2016-12-31-friends-easy-miner"
     },
     {
       "date": "2016-11-05",
@@ -282,7 +309,8 @@
       "soundcloud_id": "307359700",
       "duration_ms": 3668430,
       "artwork_url": "https://i1.sndcdn.com/artworks-000207448946-s2c945-t500x500.jpg",
-      "image": "assets/images/episodes/2016-11-05-dynamite-kadinski-riotvan-radio-42-2016-11-05.jpg"
+      "image": "assets/images/episodes/2016-11-05-dynamite-kadinski-riotvan-radio-42-2016-11-05.jpg",
+      "episode_id": "2016-11-05-dynamite-kadinski-riotvan-radio-42"
     },
     {
       "date": "2016-09-10",
@@ -292,7 +320,8 @@
       "soundcloud_id": "292524540",
       "duration_ms": 6936447,
       "artwork_url": "https://i1.sndcdn.com/artworks-000193058652-ofs6jh-t500x500.jpg",
-      "image": "assets/images/episodes/2016-09-10-kleine-klinke-2016-09-10.jpg"
+      "image": "assets/images/episodes/2016-09-10-kleine-klinke-2016-09-10.jpg",
+      "episode_id": "2016-09-10-kleine-klinke"
     },
     {
       "date": "2016-07-16",
@@ -302,7 +331,8 @@
       "soundcloud_id": "292446260",
       "duration_ms": 5379220,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2016-07-16-fume-2016-07-16.jpg"
+      "image": "assets/images/episodes/2016-07-16-fume-2016-07-16.jpg",
+      "episode_id": "2016-07-16-fume"
     },
     {
       "date": "2016-07-16",
@@ -312,7 +342,8 @@
       "soundcloud_id": "292522211",
       "duration_ms": 10895075,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2016-07-16-easy-miner-2016-07-16.jpg"
+      "image": "assets/images/episodes/2016-07-16-easy-miner-2016-07-16.jpg",
+      "episode_id": "2016-07-16-easy-miner"
     },
     {
       "date": "2016-05-21",
@@ -322,7 +353,8 @@
       "soundcloud_id": "267135583",
       "duration_ms": 3375283,
       "artwork_url": "https://i1.sndcdn.com/artworks-000165578624-m1e2ib-t500x500.jpg",
-      "image": "assets/images/episodes/2016-05-21-schlepp-geist-2016-05-21.jpg"
+      "image": "assets/images/episodes/2016-05-21-schlepp-geist-2016-05-21.jpg",
+      "episode_id": "2016-05-21-schlepp-geist"
     },
     {
       "date": "2016-04-23",
@@ -332,7 +364,8 @@
       "soundcloud_id": "266390165",
       "duration_ms": 4348331,
       "artwork_url": "https://i1.sndcdn.com/artworks-000165190167-nnoe9v-t500x500.jpg",
-      "image": "assets/images/episodes/2016-04-23-in-hochsten-hohen-minimix-compilation-2016-04-23.jpg"
+      "image": "assets/images/episodes/2016-04-23-in-hochsten-hohen-minimix-compilation-2016-04-23.jpg",
+      "episode_id": "2016-04-23-in-hoechsten-hoehen-minimix-compilation"
     },
     {
       "date": "2016-01-30",
@@ -342,7 +375,8 @@
       "soundcloud_id": "256967796",
       "duration_ms": 4495520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000156255953-7dnt93-t500x500.jpg",
-      "image": "assets/images/episodes/2016-01-30-fume-2016-01-30.jpg"
+      "image": "assets/images/episodes/2016-01-30-fume-2016-01-30.jpg",
+      "episode_id": "2016-01-30-fume"
     },
     {
       "date": "2016-01-30",
@@ -352,7 +386,8 @@
       "soundcloud_id": "257015346",
       "duration_ms": 5816029,
       "artwork_url": "https://i1.sndcdn.com/artworks-000156255022-wb8f1j-t500x500.jpg",
-      "image": "assets/images/episodes/2016-01-30-easy-miner-2016-01-30.jpg"
+      "image": "assets/images/episodes/2016-01-30-easy-miner-2016-01-30.jpg",
+      "episode_id": "2016-01-30-easy-miner"
     },
     {
       "date": "2015-12-05",
@@ -362,7 +397,8 @@
       "soundcloud_id": "236633623",
       "duration_ms": 3419879,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138855590-9s8xp1-t500x500.jpg",
-      "image": "assets/images/episodes/2015-12-05-zacharias-2015-12-05.jpg"
+      "image": "assets/images/episodes/2015-12-05-zacharias-2015-12-05.jpg",
+      "episode_id": "2015-12-05-zacharias"
     },
     {
       "date": "2015-10-10",
@@ -372,7 +408,8 @@
       "soundcloud_id": "236529426",
       "duration_ms": 3546405,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138752508-qwfhim-t500x500.jpg",
-      "image": "assets/images/episodes/2015-10-10-toni-toronto-2015-10-10.jpg"
+      "image": "assets/images/episodes/2015-10-10-toni-toronto-2015-10-10.jpg",
+      "episode_id": "2015-10-10-toni-toronto"
     },
     {
       "date": "2015-08-15",
@@ -382,7 +419,8 @@
       "soundcloud_id": "225857696",
       "duration_ms": 5800431,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138817923-nu3573-t500x500.jpg",
-      "image": "assets/images/episodes/2015-08-15-fume-2015-08-15.jpg"
+      "image": "assets/images/episodes/2015-08-15-fume-2015-08-15.jpg",
+      "episode_id": "2015-08-15-fume"
     },
     {
       "date": "2015-08-15",
@@ -392,7 +430,8 @@
       "soundcloud_id": "225858387",
       "duration_ms": 5248309,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138818601-n0gswu-t500x500.jpg",
-      "image": "assets/images/episodes/2015-08-15-easy-miner-2015-08-15.jpg"
+      "image": "assets/images/episodes/2015-08-15-easy-miner-2015-08-15.jpg",
+      "episode_id": "2015-08-15-easy-miner"
     },
     {
       "date": "2015-06-20",
@@ -402,7 +441,8 @@
       "soundcloud_id": "225839741",
       "duration_ms": 9546089,
       "artwork_url": "https://i1.sndcdn.com/artworks-000130897777-3b8cjz-t500x500.jpg",
-      "image": "assets/images/episodes/2015-06-20-lowcut-easy-miner-2015-06-20.jpg"
+      "image": "assets/images/episodes/2015-06-20-lowcut-easy-miner-2015-06-20.jpg",
+      "episode_id": "2015-06-20-lowcut-easy-miner"
     },
     {
       "date": "2015-04-25",
@@ -412,7 +452,8 @@
       "soundcloud_id": "204180664",
       "duration_ms": 3710257,
       "artwork_url": "https://i1.sndcdn.com/artworks-000115823350-y5p4wf-t500x500.jpg",
-      "image": "assets/images/episodes/2015-04-25-n-o-k-2015-04-25.jpg"
+      "image": "assets/images/episodes/2015-04-25-n-o-k-2015-04-25.jpg",
+      "episode_id": "2015-04-25-n-o-k"
     },
     {
       "date": "2015-02-28",
@@ -422,7 +463,8 @@
       "soundcloud_id": "200464175",
       "duration_ms": 3168009,
       "artwork_url": "https://i1.sndcdn.com/artworks-000113147062-s0gola-t500x500.jpg",
-      "image": "assets/images/episodes/2015-02-28-tex-pantalow-2015-02-28.jpg"
+      "image": "assets/images/episodes/2015-02-28-tex-pantalow-2015-02-28.jpg",
+      "episode_id": "2015-02-28-tex-pantalow"
     },
     {
       "date": "2015-01-03",
@@ -432,7 +474,8 @@
       "soundcloud_id": "186969192",
       "duration_ms": 3714933,
       "artwork_url": "https://i1.sndcdn.com/artworks-000108415466-nu39gr-t500x500.jpg",
-      "image": "assets/images/episodes/2015-01-03-lunatic-2015-01-03.jpg"
+      "image": "assets/images/episodes/2015-01-03-lunatic-2015-01-03.jpg",
+      "episode_id": "2015-01-03-lunatic"
     },
     {
       "date": "2014-11-08",
@@ -442,7 +485,8 @@
       "soundcloud_id": "186774724",
       "duration_ms": 3406241,
       "artwork_url": "https://i1.sndcdn.com/artworks-000103865534-m7r9t9-t500x500.jpg",
-      "image": "assets/images/episodes/2014-11-08-leibniz-2014-11-08.jpg"
+      "image": "assets/images/episodes/2014-11-08-leibniz-2014-11-08.jpg",
+      "episode_id": "2014-11-08-leibniz"
     },
     {
       "date": "2014-09-13",
@@ -452,7 +496,8 @@
       "soundcloud_id": "169179513",
       "duration_ms": 3245233,
       "artwork_url": "https://i1.sndcdn.com/artworks-000092009692-m6hg6z-t500x500.jpg",
-      "image": "assets/images/episodes/2014-09-13-possblthings-2014-09-13.jpg"
+      "image": "assets/images/episodes/2014-09-13-possblthings-2014-09-13.jpg",
+      "episode_id": "2014-09-13-possblthings"
     },
     {
       "date": "2014-07-19",
@@ -462,7 +507,8 @@
       "soundcloud_id": "163279444",
       "duration_ms": 3601395,
       "artwork_url": "https://i1.sndcdn.com/artworks-000088161700-kvui10-t500x500.jpg",
-      "image": "assets/images/episodes/2014-07-19-schnesen-2014-07-19.jpg"
+      "image": "assets/images/episodes/2014-07-19-schnesen-2014-07-19.jpg",
+      "episode_id": "2014-07-19-schnesen"
     },
     {
       "date": "2014-05-24",
@@ -472,7 +518,8 @@
       "soundcloud_id": "151112172",
       "duration_ms": 3600094,
       "artwork_url": "https://i1.sndcdn.com/artworks-000080396266-66i3yi-t500x500.jpg",
-      "image": "assets/images/episodes/2014-05-24-monomood-2014-05-24.jpg"
+      "image": "assets/images/episodes/2014-05-24-monomood-2014-05-24.jpg",
+      "episode_id": "2014-05-24-monomood"
     },
     {
       "date": "2014-02-01",
@@ -482,7 +529,8 @@
       "soundcloud_id": "138554747",
       "duration_ms": 3448152,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072951483-wxxkh0-t500x500.jpg",
-      "image": "assets/images/episodes/2014-02-01-map-ache-bender-2014-02-01.jpg"
+      "image": "assets/images/episodes/2014-02-01-map-ache-bender-2014-02-01.jpg",
+      "episode_id": "2014-02-01-map-ache-bender"
     },
     {
       "date": "2013-10-12",
@@ -492,7 +540,8 @@
       "soundcloud_id": "138381325",
       "duration_ms": 3617853,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072850709-kfyubl-t500x500.jpg",
-      "image": "assets/images/episodes/2013-10-12-subʞutan-perm-2013-10-12.jpg"
+      "image": "assets/images/episodes/2013-10-12-subʞutan-perm-2013-10-12.jpg",
+      "episode_id": "2013-10-12-subutan-perm"
     },
     {
       "date": "2013-08-17",
@@ -502,7 +551,8 @@
       "soundcloud_id": "138376200",
       "duration_ms": 3465310,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072848437-le7cjx-t500x500.jpg",
-      "image": "assets/images/episodes/2013-08-17-filburt-2013-08-17.jpg"
+      "image": "assets/images/episodes/2013-08-17-filburt-2013-08-17.jpg",
+      "episode_id": "2013-08-17-filburt"
     },
     {
       "date": "2013-06-22",
@@ -512,7 +562,8 @@
       "soundcloud_id": "138373548",
       "duration_ms": 3247014,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072846471-q4c33k-t500x500.jpg",
-      "image": "assets/images/episodes/2013-06-22-dwell-on-2013-06-22.jpg"
+      "image": "assets/images/episodes/2013-06-22-dwell-on-2013-06-22.jpg",
+      "episode_id": "2013-06-22-dwell-on"
     },
     {
       "date": "2013-04-27",
@@ -522,7 +573,8 @@
       "soundcloud_id": "138266804",
       "duration_ms": 3606802,
       "artwork_url": "https://i1.sndcdn.com/artworks-000073401905-d3770x-t500x500.jpg",
-      "image": "assets/images/episodes/2013-04-27-conscious-mind-red-husk-2013-04-27.jpg"
+      "image": "assets/images/episodes/2013-04-27-conscious-mind-red-husk-2013-04-27.jpg",
+      "episode_id": "2013-04-27-conscious-mind-red-husk"
     },
     {
       "date": "2013-03-02",
@@ -532,7 +584,8 @@
       "soundcloud_id": "138252064",
       "duration_ms": 2811743,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072778628-4zdeb4-t500x500.jpg",
-      "image": "assets/images/episodes/2013-03-02-praezisa-rapid-3000-the-lazer-twins-2013-03-02.jpg"
+      "image": "assets/images/episodes/2013-03-02-praezisa-rapid-3000-the-lazer-twins-2013-03-02.jpg",
+      "episode_id": "2013-03-02-praezisa-rapid-3000-the-lazer-twins"
     },
     {
       "date": "2013-01-05",
@@ -542,7 +595,8 @@
       "soundcloud_id": "138052736",
       "duration_ms": 6571979,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2013-01-05-fume-meets-easy-miner-2013-01-05.jpg"
+      "image": "assets/images/episodes/2013-01-05-fume-meets-easy-miner-2013-01-05.jpg",
+      "episode_id": "2013-01-05-fume-meets-easy-miner"
     },
     {
       "date": "2012-11-10",
@@ -552,7 +606,8 @@
       "soundcloud_id": "138048124",
       "duration_ms": 3664773,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072779031-rm5d0k-t500x500.jpg",
-      "image": "assets/images/episodes/2012-11-10-stanley-schmidt-2012-11-10.jpg"
+      "image": "assets/images/episodes/2012-11-10-stanley-schmidt-2012-11-10.jpg",
+      "episode_id": "2012-11-10-stanley-schmidt"
     },
     {
       "date": "2012-11-10",
@@ -562,7 +617,8 @@
       "soundcloud_id": "138048540",
       "duration_ms": 3726377,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072778770-0wv268-t500x500.jpg",
-      "image": "assets/images/episodes/2012-11-10-depart-2012-11-10.jpg"
+      "image": "assets/images/episodes/2012-11-10-depart-2012-11-10.jpg",
+      "episode_id": "2012-11-10-depart"
     },
     {
       "date": "2012-09-15",
@@ -572,7 +628,8 @@
       "soundcloud_id": "137912452",
       "duration_ms": 4250520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072851023-sn5qwr-t500x500.jpg",
-      "image": "assets/images/episodes/2012-09-15-tωs-easy-miner-2012-09-15.jpg"
+      "image": "assets/images/episodes/2012-09-15-tωs-easy-miner-2012-09-15.jpg",
+      "episode_id": "2012-09-15-ts-easy-miner"
     },
     {
       "date": "2012-05-26",
@@ -582,7 +639,8 @@
       "soundcloud_id": "137905028",
       "duration_ms": 3925761,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072779562-vvr4ix-t500x500.jpg",
-      "image": "assets/images/episodes/2012-05-26-sebastian-dubiel-2012-05-26.jpg"
+      "image": "assets/images/episodes/2012-05-26-sebastian-dubiel-2012-05-26.jpg",
+      "episode_id": "2012-05-26-sebastian-dubiel"
     },
     {
       "date": "2012-03-31",
@@ -592,7 +650,8 @@
       "soundcloud_id": "137896703",
       "duration_ms": 3753833,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072578223-fh9hku-t500x500.jpg",
-      "image": "assets/images/episodes/2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape-2012-03-31.jpg"
+      "image": "assets/images/episodes/2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape-2012-03-31.jpg",
+      "episode_id": "2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape"
     },
     {
       "date": "2012-02-04",
@@ -602,7 +661,8 @@
       "soundcloud_id": "137867870",
       "duration_ms": 5734336,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072559362-964235-t500x500.jpg",
-      "image": "assets/images/episodes/2012-02-04-schmlz-schn-2012-02-04.jpg"
+      "image": "assets/images/episodes/2012-02-04-schmlz-schn-2012-02-04.jpg",
+      "episode_id": "2012-02-04-schmlz-schn"
     },
     {
       "date": "2011-12-10",
@@ -612,7 +672,8 @@
       "soundcloud_id": "137861480",
       "duration_ms": 7107017,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072558776-jt6uc6-t500x500.jpg",
-      "image": "assets/images/episodes/2011-12-10-fume-b2b-easy-miner-2011-12-10.jpg"
+      "image": "assets/images/episodes/2011-12-10-fume-b2b-easy-miner-2011-12-10.jpg",
+      "episode_id": "2011-12-10-fume-b2b-easy-miner"
     },
     {
       "date": "2011-10-15",
@@ -622,7 +683,8 @@
       "soundcloud_id": "137857223",
       "duration_ms": 4920258,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072557561-khb9io-t500x500.jpg",
-      "image": "assets/images/episodes/2011-10-15-rose-records-w-martin-hayes-luvless-m-ono-2011-10-15.jpg"
+      "image": "assets/images/episodes/2011-10-15-rose-records-w-martin-hayes-luvless-m-ono-2011-10-15.jpg",
+      "episode_id": "2011-10-15-rose-records-w-martin-hayes-luvless-m-ono"
     },
     {
       "date": "2011-08-20",
@@ -632,7 +694,8 @@
       "soundcloud_id": "137852527",
       "duration_ms": 4837520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072850931-lqz6kx-t500x500.jpg",
-      "image": "assets/images/episodes/2011-08-20-bartvogel-2011-08-20.jpg"
+      "image": "assets/images/episodes/2011-08-20-bartvogel-2011-08-20.jpg",
+      "episode_id": "2011-08-20-bartvogel"
     },
     {
       "date": "2011-06-25",
@@ -642,7 +705,8 @@
       "soundcloud_id": "137850562",
       "duration_ms": 2250659,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072557646-8zexu6-t500x500.jpg",
-      "image": "assets/images/episodes/2011-06-25-f-th-2011-06-25.jpg"
+      "image": "assets/images/episodes/2011-06-25-f-th-2011-06-25.jpg",
+      "episode_id": "2011-06-25-f-th"
     },
     {
       "date": "2011-03-05",
@@ -652,7 +716,8 @@
       "soundcloud_id": "137848572",
       "duration_ms": 6438793,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2011-03-05-easy-miner-fume-2011-03-05.jpg"
+      "image": "assets/images/episodes/2011-03-05-easy-miner-fume-2011-03-05.jpg",
+      "episode_id": "2011-03-05-easy-miner-fume"
     }
   ]
 }

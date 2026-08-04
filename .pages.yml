@@ -54,10 +54,9 @@ content:
       - name: episode_number
         label: Sendungsnummer (optional)
         type: number
-        description: Zum Beispiel 100. Wird in Detailseiten und strukturierten Daten verwendet.
+        description: Zum Beispiel 100. Wird in Metadaten und Detailseiten verwendet.
         options:
           min: 1
-          max: 9999
       - name: title_de
         label: Titel (Deutsch)
         type: string
@@ -146,6 +145,30 @@ content:
       - name: links
         component: editorial_links
 
+  - name: listen-selection
+    label: Hören – Auswahl
+    type: file
+    path: content/listen.json
+    format: json
+    list: true
+    operations:
+      rename: false
+      delete: false
+    fields:
+      - name: label
+        label: Bezeichnung im CMS
+        type: string
+        required: true
+        description: Nur zur Orientierung im CMS; die Website übernimmt Titel und Text aus dem Archiv.
+      - name: episode_id
+        label: Sendungs-ID
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9][a-z0-9-]{2,95}$"
+          message: Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.
+        description: Die ID steht beim zugehörigen Eintrag im Bereich Sendungsarchiv. Die Reihenfolge hier bestimmt die Reihenfolge unter Hören. Maximal fünf Einträge.
+
   - name: archive-episodes
     label: Sendungsarchiv
     type: file
@@ -156,25 +179,30 @@ content:
       rename: false
       delete: false
     fields:
+      - name: episode_id
+        label: Sendungs-ID
+        type: string
+        pattern:
+          regex: "^[a-z0-9][a-z0-9-]{2,95}$"
+          message: Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.
+        description: Stabile interne ID, z. B. 2026-03-14-neele. Falls leer, leitet der Build sie aus Datum und Titel ab. Nach der Verwendung unter Hören nicht mehr ändern.
       - name: date
         label: Sendungsdatum
         type: date
         required: true
         options:
           format: yyyy-MM-dd
+      - name: episode_number
+        label: Sendungsnummer (optional)
+        type: number
+        options:
+          min: 1
       - name: updated_at
         label: Inhalt zuletzt wesentlich geändert
         type: date
         default: ""
         options:
           format: yyyy-MM-dd
-      - name: episode_number
-        label: Sendungsnummer (optional)
-        type: number
-        description: Zum Beispiel 100. Wird in Detailseiten und strukturierten Daten verwendet.
-        options:
-          min: 1
-          max: 9999
       - name: title_de
         label: Titel (Deutsch)
         type: string
@@ -210,7 +238,7 @@ content:
         list:
           collapsible:
             collapsed: true
-            summary: "{artist} — {title}"
+            summary: "{artist} – {title}"
         fields:
           - name: artist
             label: Künstler:in
@@ -243,7 +271,7 @@ content:
         list:
           collapsible:
             collapsed: true
-            summary: "{time} {artist} — {title}"
+            summary: "{time} {artist} – {title}"
         fields:
           - name: time
             label: Zeitmarke

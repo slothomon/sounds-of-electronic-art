@@ -103,7 +103,13 @@
       button.setAttribute('aria-label', language === 'en' ? button.dataset.labelEn : button.dataset.labelDe);
     });
     const selectedMix = document.querySelector('.mix-item[aria-pressed="true"]');
+    const playerTitle = document.querySelector('[data-player-title]');
     const playerSubtitle = document.querySelector('[data-player-subtitle]');
+    if (selectedMix && playerTitle) {
+      playerTitle.textContent = language === 'en'
+        ? (selectedMix.dataset.titleEn || selectedMix.dataset.title || '')
+        : (selectedMix.dataset.title || '');
+    }
     if (selectedMix && playerSubtitle) {
       playerSubtitle.textContent = language === 'en' ? selectedMix.dataset.subtitleEn : selectedMix.dataset.subtitleDe;
     }
@@ -146,49 +152,6 @@
     if (url.origin !== location.origin) {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-    }
-  });
-
-  async function copyToClipboard(value) {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-      return;
-    }
-    const field = document.createElement('textarea');
-    field.value = value;
-    field.setAttribute('readonly', '');
-    field.style.position = 'fixed';
-    field.style.opacity = '0';
-    document.body.append(field);
-    field.select();
-    document.execCommand('copy');
-    field.remove();
-  }
-
-  document.addEventListener('click', async (event) => {
-    const button = event.target.closest('[data-share-button]');
-    if (!(button instanceof HTMLButtonElement)) return;
-    const url = new URL(button.dataset.shareUrl || location.href, location.href).href;
-    const title = language === 'en' ? button.dataset.shareTitleEn : button.dataset.shareTitleDe;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: title || document.title, url });
-        return;
-      }
-      await copyToClipboard(url);
-      const label = button.querySelector('[data-share-label]');
-      const status = button.querySelector('[data-share-status]');
-      if (label) label.textContent = language === 'en' ? 'Copied' : 'Kopiert';
-      if (status) status.textContent = language === 'en' ? 'Link copied' : 'Link kopiert';
-      window.setTimeout(() => {
-        if (label) label.textContent = language === 'en' ? 'Share' : 'Teilen';
-        if (status) status.textContent = '';
-      }, 2200);
-    } catch (error) {
-      if (error?.name !== 'AbortError') {
-        const status = button.querySelector('[data-share-status]');
-        if (status) status.textContent = language === 'en' ? 'Could not share' : 'Teilen nicht möglich';
-      }
     }
   });
 
@@ -250,7 +213,11 @@
 
   function selectMix(button) {
     mixButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
-    if (playerTitle) playerTitle.textContent = button.dataset.title || '';
+    if (playerTitle) {
+      playerTitle.textContent = language === 'en'
+        ? (button.dataset.titleEn || button.dataset.title || '')
+        : (button.dataset.title || '');
+    }
     if (playerSubtitle) {
       playerSubtitle.textContent = language === 'en' ? button.dataset.subtitleEn : button.dataset.subtitleDe;
     }

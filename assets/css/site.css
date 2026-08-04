@@ -1210,6 +1210,11 @@ body.detail-open {
   margin: 0;
   justify-self: start;
 }
+.detail-intro-with-artwork .detail-artwork picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .detail-intro-with-artwork .detail-artwork img {
   width: 100%;
   height: 100%;
@@ -1249,26 +1254,10 @@ body.detail-open {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.detail-lineup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.detail-lineup li {
-  padding: 0.42rem 0.65rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-2);
-}
-.detail-lineup a,
 .detail-tracklist a {
   color: inherit;
   text-decoration: none;
 }
-.detail-lineup a:hover,
 .detail-tracklist a:hover {
   color: var(--accent-soft);
 }
@@ -1307,27 +1296,6 @@ body.detail-open {
   margin-top: 1.75rem;
   padding-top: 1.4rem;
   border-top: 1px solid var(--line);
-}
-.share-button {
-  position: relative;
-  gap: 0.45rem;
-}
-.share-button svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.share-status {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }
 
 html[data-theme="light"] .detail-dialog::backdrop {

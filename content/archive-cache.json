@@ -1,723 +1,723 @@
 {
   "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
-  "updated_at": "2026-08-04T18:06:58Z",
+  "updated_at": "2026-08-04T22:46:58Z",
   "count": 65,
   "episodes": [
     {
+      "episode_id": "2026-03-14-neele",
       "date": "2026-03-14",
-      "title": "Neele (2026-03-14)",
+      "title": "Neele",
       "summary": "Mitschnitt des Sets von @nee-le aus unserer 98. Sendung im März.",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
       "soundcloud_id": "2364733454",
       "duration_ms": 7680067,
       "artwork_url": "https://i1.sndcdn.com/artworks-Wfy5IYUBufbel3Ap-6sj9MQ-t500x500.jpg",
-      "image": "assets/images/episodes/2026-03-14-neele.png",
-      "episode_id": "2026-03-14-neele"
+      "image": "assets/images/episodes/2026-03-14-neele.png"
     },
     {
+      "episode_id": "2026-01-17-sofea-friends",
       "date": "2026-01-17",
-      "title": "sofea & friends w/ Neele, Thomas Heinrich, HAL, John Minus Plus (2026-01-17)",
+      "title": "sofea & friends w/ Neele, Thomas Heinrich, HAL, John Minus Plus",
       "summary": "Erste Radiosendung des Jahres. Extended Geburtstagsmix mit Freunden.",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17",
       "soundcloud_id": "2257181867",
       "duration_ms": 21314191,
       "artwork_url": "https://i1.sndcdn.com/artworks-fPyAbHIfz73wj1Dc-t6pMvQ-t500x500.jpg",
-      "image": "assets/images/episodes/2026-01-17-sofea-friends.jpg",
-      "episode_id": "2026-01-17-sofea-friends"
+      "image": "assets/images/episodes/2026-01-17-sofea-friends.jpg"
     },
     {
+      "episode_id": "2025-11-22-werner-benzo",
       "date": "2025-11-22",
-      "title": "Werner Benzo (Komplette Sendung) (2025-11-22)",
+      "title": "Werner Benzo (Komplette Sendung)",
       "summary": "Dank geht raus an Werner Benzo für die ganze nice Mucke!",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
       "soundcloud_id": "2338157642",
       "duration_ms": 10615226,
       "artwork_url": "https://i1.sndcdn.com/artworks-4LjoklvuBsHSgsTE-6fazbA-t500x500.jpg",
-      "image": "assets/images/episodes/2025-11-22-werner-benzo.png",
-      "episode_id": "2025-11-22-werner-benzo"
+      "image": "assets/images/episodes/2025-11-22-werner-benzo.png"
     },
     {
+      "episode_id": "2025-06-07-r22",
       "date": "2025-06-07",
-      "title": "R22 (2025-06-07)",
+      "title": "R22",
       "summary": "Hier das Set aus unserer letzten Sendung von R22 (@paul_ph).",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07",
       "soundcloud_id": "2117702670",
       "duration_ms": 8216785,
       "artwork_url": "https://i1.sndcdn.com/artworks-q9MDSRJvigcwMnuA-2InOWw-t500x500.jpg",
-      "image": "assets/images/episodes/2025-06-07-r22.jpg",
-      "episode_id": "2025-06-07-r22"
+      "image": "assets/images/episodes/2025-06-07-r22.jpg"
     },
     {
+      "episode_id": "2024-10-26-moritz-kaiser",
       "date": "2024-10-26",
-      "title": "Moritz Kaiser (Komplette Sendung) (2024-10-26)",
+      "title": "Moritz Kaiser (Komplette Sendung)",
       "summary": "Das hat Spaß gemacht. Danke https://soundcloud.com/moritz-kaiser!",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26",
       "soundcloud_id": "1943117035",
       "duration_ms": 10633229,
       "artwork_url": "https://i1.sndcdn.com/artworks-SXumsCrMlAoQQaek-svo9QA-t500x500.jpg",
-      "image": "assets/images/episodes/2024-10-26-moritz-kaiser.jpg",
-      "episode_id": "2024-10-26-moritz-kaiser"
+      "image": "assets/images/episodes/2024-10-26-moritz-kaiser.jpg"
     },
     {
+      "episode_id": "2024-07-06-m-ono",
       "date": "2024-07-06",
-      "title": "M.ono (2024-07-06)",
+      "title": "M.ono",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea",
       "soundcloud_id": "1907569211",
       "duration_ms": 3511702,
       "artwork_url": "https://i1.sndcdn.com/artworks-iXeTo9vkRqPBWutl-t7yNyQ-t500x500.jpg",
-      "image": "assets/images/episodes/2024-07-06-m-ono.jpg",
-      "episode_id": "2024-07-06-m-ono"
+      "image": "assets/images/episodes/2024-07-06-m-ono.jpg"
     },
     {
+      "episode_id": "2024-03-16-dahmar",
       "date": "2024-03-16",
-      "title": "Dahmar (2024-03-16)",
+      "title": "Dahmar",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16",
       "soundcloud_id": "1844681862",
       "duration_ms": 7976699,
       "artwork_url": "https://i1.sndcdn.com/artworks-DDYyRWgyWupLPlKf-P6GdQQ-t500x500.jpg",
-      "image": "assets/images/episodes/2024-03-16-dahmar.jpg",
-      "episode_id": "2024-03-16-dahmar"
+      "image": "assets/images/episodes/2024-03-16-dahmar.jpg"
     },
     {
+      "episode_id": "2023-11-25-kontinum",
       "date": "2023-11-25",
-      "title": "Kontinum (2023-11-25)",
+      "title": "Kontinum",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25",
       "soundcloud_id": "1842868149",
       "duration_ms": 4501786,
       "artwork_url": "https://i1.sndcdn.com/artworks-tkUYmj8JYj8qYwIC-WLS5wA-t500x500.jpg",
-      "image": "assets/images/episodes/2023-11-25-kontinum.jpg",
-      "episode_id": "2023-11-25-kontinum"
+      "image": "assets/images/episodes/2023-11-25-kontinum.jpg"
     },
     {
+      "episode_id": "2023-10-06-scherbert",
       "date": "2023-10-06",
-      "title": "Scherbert (2023-10-06)",
+      "title": "Scherbert",
       "summary": "Dank geht nochmal raus an Scherbert für die entspannte Sendung und die ganze gute Mucke.",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/scherbert-2023-10-06",
       "soundcloud_id": "1551417316",
       "duration_ms": 4389437,
       "artwork_url": "https://i1.sndcdn.com/artworks-dz9nRJdIQSvM2zfZ-jIyu4w-t500x500.jpg",
-      "image": "assets/images/episodes/2023-10-06-scherbert-2023-10-06.jpg",
-      "episode_id": "2023-10-06-scherbert"
+      "image": "assets/images/episodes/2023-10-06-scherbert.jpg"
     },
     {
+      "episode_id": "2023-08-05-johnminusplus",
       "date": "2023-08-05",
-      "title": "Johnminusplus (2023-08-05)",
+      "title": "Johnminusplus",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/johnminusplus-2023-08-05",
       "soundcloud_id": "1686435531",
       "duration_ms": 5745737,
       "artwork_url": "https://i1.sndcdn.com/artworks-YyB0QaB1ObK7EIR2-5yR5Qw-t500x500.jpg",
-      "image": "assets/images/episodes/2023-08-05-johnminusplus-2023-08-05.jpg",
-      "episode_id": "2023-08-05-johnminusplus"
+      "image": "assets/images/episodes/2023-08-05-johnminusplus.jpg"
     },
     {
+      "episode_id": "2021-11-27-dj-rijkaard-komplette-sendung",
       "date": "2021-11-27",
-      "title": "DJ Rijkaard (Komplette Sendung) (2021-11-27)",
+      "title": "DJ Rijkaard (Komplette Sendung)",
       "summary": "Danke nochmal an DJ Rijkaard für die schöne Sendung.",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dj-rijkaard-komplette-sendung-2021-11-27",
       "soundcloud_id": "1238633656",
       "duration_ms": 10676663,
       "artwork_url": "https://i1.sndcdn.com/artworks-lyQ5MfnHGZ9OjmLY-yayI9g-t500x500.jpg",
-      "image": "assets/images/episodes/2021-11-27-dj-rijkaard-komplette-sendung-2021-11-27.jpg",
-      "episode_id": "2021-11-27-dj-rijkaard-komplette-sendung"
+      "image": "assets/images/episodes/2021-11-27-dj-rijkaard-komplette-sendung.jpg"
     },
     {
+      "episode_id": "2021-02-20-translucid",
       "date": "2021-02-20",
-      "title": "Translucid (2021-02-20)",
+      "title": "Translucid",
       "summary": "Tracklist:",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/translucid-2021-02-20",
       "soundcloud_id": "988643302",
       "duration_ms": 5095721,
       "artwork_url": "https://i1.sndcdn.com/artworks-xiTo8KzrykuusshQ-8hUSZQ-t500x500.jpg",
-      "image": "assets/images/episodes/2021-02-20-translucid.jpg",
-      "episode_id": "2021-02-20-translucid"
+      "image": "assets/images/episodes/2021-02-20-translucid.jpg"
     },
     {
+      "episode_id": "2020-12-26-96kbps-easy-miner-komplette-sendung",
       "date": "2020-12-26",
-      "title": "96kbps & easy.miner (Komplette Sendung) (2020-12-26)",
+      "title": "96kbps & easy.miner (Komplette Sendung)",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-easyminer-komplette-sendung-2020-12-26",
       "soundcloud_id": "955275838",
       "duration_ms": 11649228,
       "artwork_url": "https://i1.sndcdn.com/artworks-2y4y0EP5eAnt1sbR-Z2iznw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-12-26-96kbps-easy-miner-komplette-sendung-2020-12-26.jpg",
-      "episode_id": "2020-12-26-96kbps-easy-miner-komplette-sendung"
+      "image": "assets/images/episodes/2020-12-26-96kbps-easy-miner-komplette-sendung.jpg"
     },
     {
+      "episode_id": "2020-09-05-easy-miner",
       "date": "2020-09-05",
-      "title": "easy.miner (2020-09-05)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easyminer-2020-09-05",
       "soundcloud_id": "894221749",
       "duration_ms": 6077989,
       "artwork_url": "https://i1.sndcdn.com/artworks-IJtqVvzKDJWzLbl4-WnRyFQ-t500x500.jpg",
-      "image": "assets/images/episodes/2020-09-05-easy-miner-2020-09-05.jpg",
-      "episode_id": "2020-09-05-easy-miner"
+      "image": "assets/images/episodes/2020-09-05-easy-miner.jpg"
     },
     {
+      "episode_id": "2020-07-11-ts",
       "date": "2020-07-11",
-      "title": "TΩS (2020-07-11)",
+      "title": "TΩS",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/ts-2020-07-11",
       "soundcloud_id": "865263352",
       "duration_ms": 3571792,
       "artwork_url": "https://i1.sndcdn.com/artworks-uPILlCXllkE3Ef6M-GY1nsw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-07-11-tωs-2020-07-11.jpg",
-      "episode_id": "2020-07-11-ts"
+      "image": "assets/images/episodes/2020-07-11-ts.jpg"
     },
     {
+      "episode_id": "2020-07-11-96kbps",
       "date": "2020-07-11",
-      "title": "96kbps (2020-07-11)",
+      "title": "96kbps",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-2020-07-11",
       "soundcloud_id": "865259998",
       "duration_ms": 2443128,
       "artwork_url": "https://i1.sndcdn.com/artworks-TywVZjKIGyR3i0OR-i7yzEQ-t500x500.jpg",
-      "image": "assets/images/episodes/2020-07-11-96kbps-2020-07-11.jpg",
-      "episode_id": "2020-07-11-96kbps"
+      "image": "assets/images/episodes/2020-07-11-96kbps.jpg"
     },
     {
+      "episode_id": "2020-03-21-96kbps-easy-miner-komplette-sendung",
       "date": "2020-03-21",
-      "title": "96kbps & easy.miner (Komplette Sendung)(2020-03-21)",
+      "title": "96kbps & easy.miner (Komplette Sendung)",
       "summary": "Radio Blau feiert ab 1.3. den Fem*März!",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-easyminer-2020-03-21",
       "soundcloud_id": "780772057",
       "duration_ms": 10853747,
       "artwork_url": "https://i1.sndcdn.com/artworks-WdYyiPzZVnZa67XY-rsHyxw-t500x500.jpg",
-      "image": "assets/images/episodes/2020-03-21-96kbps-easy-miner-komplette-sendung-2020-03-21.jpg",
-      "episode_id": "2020-03-21-96kbps-easy-miner-komplette-sendung"
+      "image": "assets/images/episodes/2020-03-21-96kbps-easy-miner-komplette-sendung.jpg"
     },
     {
+      "episode_id": "2019-10-05-96kbps-easy-miner",
       "date": "2019-10-05",
-      "title": "96kbps & easy.miner (2019-10-05)",
+      "title": "96kbps & easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-easyminer-2019-10-05",
       "soundcloud_id": "697141947",
       "duration_ms": 11423497,
       "artwork_url": "https://i1.sndcdn.com/artworks-000613869572-88z82p-t500x500.jpg",
-      "image": "assets/images/episodes/2019-10-05-96kbps-easy-miner-2019-10-05.jpg",
-      "episode_id": "2019-10-05-96kbps-easy-miner"
+      "image": "assets/images/episodes/2019-10-05-96kbps-easy-miner.jpg"
     },
     {
+      "episode_id": "2019-06-15-easy-miner",
       "date": "2019-06-15",
-      "title": "easy.miner (2019-06-15)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-55-2019-06-15",
       "soundcloud_id": "688917841",
       "duration_ms": 9045029,
       "artwork_url": "https://i1.sndcdn.com/artworks-000605635252-f2dlom-t500x500.jpg",
-      "image": "assets/images/episodes/2019-06-15-easy-miner-2019-06-15.jpg",
-      "episode_id": "2019-06-15-easy-miner"
+      "image": "assets/images/episodes/2019-06-15-easy-miner.jpg"
     },
     {
+      "episode_id": "2018-11-03-frank-horn",
       "date": "2018-11-03",
-      "title": "Frank Horn (2018-11-03)",
+      "title": "Frank Horn",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/frank-horn-2018-11-03",
       "soundcloud_id": "526083549",
       "duration_ms": 7625439,
       "artwork_url": "https://i1.sndcdn.com/artworks-000435337911-euwct8-t500x500.jpg",
-      "image": "assets/images/episodes/2018-11-03-frank-horn-2018-11-03.jpg",
-      "episode_id": "2018-11-03-frank-horn"
+      "image": "assets/images/episodes/2018-11-03-frank-horn.jpg"
     },
     {
+      "episode_id": "2018-01-27-vai",
       "date": "2018-01-27",
-      "title": "Vai (2018-01-27)",
+      "title": "Vai",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/vai-2018-01-27",
       "soundcloud_id": "405353085",
       "duration_ms": 3761410,
       "artwork_url": "https://i1.sndcdn.com/artworks-000307977120-r6pcrh-t500x500.jpg",
-      "image": "assets/images/episodes/2018-01-27-vai-2018-01-27.jpg",
-      "episode_id": "2018-01-27-vai"
+      "image": "assets/images/episodes/2018-01-27-vai.jpg"
     },
     {
+      "episode_id": "2017-12-02-ts-easy-miner-fume",
       "date": "2017-12-02",
-      "title": "TΩS & easy.miner & Fumé (2017-12-02)",
+      "title": "TΩS & easy.miner & Fumé",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/ts-easyminer-fume-2017-12-02",
       "soundcloud_id": "397813437",
       "duration_ms": 10883397,
       "artwork_url": "https://i1.sndcdn.com/artworks-000300528054-tyypy7-t500x500.jpg",
-      "image": "assets/images/episodes/2017-12-02-tωs-easy-miner-fume-2017-12-02.jpg",
-      "episode_id": "2017-12-02-ts-easy-miner-fume"
+      "image": "assets/images/episodes/2017-12-02-ts-easy-miner-fume.jpg"
     },
     {
+      "episode_id": "2017-10-07-vaya-music",
       "date": "2017-10-07",
-      "title": "VAYA Music (2017-10-07)",
+      "title": "VAYA Music",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/vaya-music-2017-10-07",
       "soundcloud_id": "397776573",
       "duration_ms": 2720986,
       "artwork_url": "https://i1.sndcdn.com/artworks-000300504879-rm8yq8-t500x500.jpg",
-      "image": "assets/images/episodes/2017-10-07-vaya-music-2017-10-07.jpg",
-      "episode_id": "2017-10-07-vaya-music"
+      "image": "assets/images/episodes/2017-10-07-vaya-music.jpg"
     },
     {
+      "episode_id": "2017-08-12-black-nakhur",
       "date": "2017-08-12",
-      "title": "Black Nakhur (2017-08-12)",
+      "title": "Black Nakhur",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/black-nahkur-2017-08-12",
       "soundcloud_id": "339713309",
       "duration_ms": 3604160,
       "artwork_url": "https://i1.sndcdn.com/artworks-000240080551-atptcl-t500x500.jpg",
-      "image": "assets/images/episodes/2017-08-12-black-nakhur-2017-08-12.jpg",
-      "episode_id": "2017-08-12-black-nakhur"
+      "image": "assets/images/episodes/2017-08-12-black-nakhur.jpg"
     },
     {
+      "episode_id": "2017-04-22-fume",
       "date": "2017-04-22",
-      "title": "Fumé (2017-04-22)",
+      "title": "Fumé",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-2017-04-22",
       "soundcloud_id": "323028521",
       "duration_ms": 3023432,
       "artwork_url": "https://i1.sndcdn.com/artworks-000222942790-d3odqk-t500x500.jpg",
-      "image": "assets/images/episodes/2017-04-22-fume-2017-04-22.jpg",
-      "episode_id": "2017-04-22-fume"
+      "image": "assets/images/episodes/2017-04-22-fume.jpg"
     },
     {
+      "episode_id": "2017-04-22-easy-miner",
       "date": "2017-04-22",
-      "title": "easy.miner (2017-04-22)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easyminer-2017-04-22",
       "soundcloud_id": "323029228",
       "duration_ms": 3100659,
       "artwork_url": "https://i1.sndcdn.com/artworks-000222943898-p0gdr8-t500x500.jpg",
-      "image": "assets/images/episodes/2017-04-22-easy-miner-2017-04-22.jpg",
-      "episode_id": "2017-04-22-easy-miner"
+      "image": "assets/images/episodes/2017-04-22-easy-miner.jpg"
     },
     {
+      "episode_id": "2016-12-31-friends-easy-miner",
       "date": "2016-12-31",
-      "title": "friends & easy.miner (2016-12-31)",
+      "title": "friends & easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/friends-easyminer-2016-12-31",
       "soundcloud_id": "308389685",
       "duration_ms": 10432611,
       "artwork_url": "https://i1.sndcdn.com/artworks-000208512775-hauf4s-t500x500.jpg",
-      "image": "assets/images/episodes/2016-12-31-friends-easy-miner-2016-12-31.jpg",
-      "episode_id": "2016-12-31-friends-easy-miner"
+      "image": "assets/images/episodes/2016-12-31-friends-easy-miner.jpg"
     },
     {
+      "episode_id": "2016-11-05-dynamite-kadinski-riotvan-radio-42",
       "date": "2016-11-05",
-      "title": "Dynamite Kadinski [RIOTVAN RADIO #42] (2016-11-05)",
+      "title": "Dynamite Kadinski [RIOTVAN RADIO #42]",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dynamite-kadinski-riotvan-radio-42-2016-11-05",
       "soundcloud_id": "307359700",
       "duration_ms": 3668430,
       "artwork_url": "https://i1.sndcdn.com/artworks-000207448946-s2c945-t500x500.jpg",
-      "image": "assets/images/episodes/2016-11-05-dynamite-kadinski-riotvan-radio-42-2016-11-05.jpg",
-      "episode_id": "2016-11-05-dynamite-kadinski-riotvan-radio-42"
+      "image": "assets/images/episodes/2016-11-05-dynamite-kadinski-riotvan-radio-42.jpg"
     },
     {
+      "episode_id": "2016-09-10-kleine-klinke",
       "date": "2016-09-10",
-      "title": "Kleine Klinke (2016-09-10)",
+      "title": "Kleine Klinke",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kleineklinke-2016-09-10",
       "soundcloud_id": "292524540",
       "duration_ms": 6936447,
       "artwork_url": "https://i1.sndcdn.com/artworks-000193058652-ofs6jh-t500x500.jpg",
-      "image": "assets/images/episodes/2016-09-10-kleine-klinke-2016-09-10.jpg",
-      "episode_id": "2016-09-10-kleine-klinke"
+      "image": "assets/images/episodes/2016-09-10-kleine-klinke.jpg"
     },
     {
+      "episode_id": "2016-07-16-fume",
       "date": "2016-07-16",
-      "title": "Fumé (2016-07-16)",
+      "title": "Fumé",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-sofea-2016-07-16",
       "soundcloud_id": "292446260",
       "duration_ms": 5379220,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2016-07-16-fume-2016-07-16.jpg",
-      "episode_id": "2016-07-16-fume"
+      "image": "assets/images/episodes/2016-07-16-fume.jpg"
     },
     {
+      "episode_id": "2016-07-16-easy-miner",
       "date": "2016-07-16",
-      "title": "easy.miner (2016-07-16)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easyminer-sofea-2016-07-16",
       "soundcloud_id": "292522211",
       "duration_ms": 10895075,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2016-07-16-easy-miner-2016-07-16.jpg",
-      "episode_id": "2016-07-16-easy-miner"
+      "image": "assets/images/episodes/2016-07-16-easy-miner.jpg"
     },
     {
+      "episode_id": "2016-05-21-schlepp-geist",
       "date": "2016-05-21",
-      "title": "Schlepp Geist (2016-05-21)",
+      "title": "Schlepp Geist",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/schlepp-geist-2016-05-21",
       "soundcloud_id": "267135583",
       "duration_ms": 3375283,
       "artwork_url": "https://i1.sndcdn.com/artworks-000165578624-m1e2ib-t500x500.jpg",
-      "image": "assets/images/episodes/2016-05-21-schlepp-geist-2016-05-21.jpg",
-      "episode_id": "2016-05-21-schlepp-geist"
+      "image": "assets/images/episodes/2016-05-21-schlepp-geist.jpg"
     },
     {
+      "episode_id": "2016-04-23-in-hoechsten-hoehen-minimix-compilation",
       "date": "2016-04-23",
-      "title": "In Höchsten Höhen, MiniMix Compilation (2016-04-23)",
+      "title": "In Höchsten Höhen, MiniMix Compilation",
       "summary": "MiniMix Compilation",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/in-hochsten-hohen-minimix-compilation-sofea",
       "soundcloud_id": "266390165",
       "duration_ms": 4348331,
       "artwork_url": "https://i1.sndcdn.com/artworks-000165190167-nnoe9v-t500x500.jpg",
-      "image": "assets/images/episodes/2016-04-23-in-hochsten-hohen-minimix-compilation-2016-04-23.jpg",
-      "episode_id": "2016-04-23-in-hoechsten-hoehen-minimix-compilation"
+      "image": "assets/images/episodes/2016-04-23-in-hoechsten-hoehen-minimix-compilation.jpg"
     },
     {
+      "episode_id": "2016-01-30-fume",
       "date": "2016-01-30",
-      "title": "Fumé (2016-01-30)",
+      "title": "Fumé",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-2016-01-30",
       "soundcloud_id": "256967796",
       "duration_ms": 4495520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000156255953-7dnt93-t500x500.jpg",
-      "image": "assets/images/episodes/2016-01-30-fume-2016-01-30.jpg",
-      "episode_id": "2016-01-30-fume"
+      "image": "assets/images/episodes/2016-01-30-fume.jpg"
     },
     {
+      "episode_id": "2016-01-30-easy-miner",
       "date": "2016-01-30",
-      "title": "easy.miner (2016-01-30)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easyminer-2016-01-30",
       "soundcloud_id": "257015346",
       "duration_ms": 5816029,
       "artwork_url": "https://i1.sndcdn.com/artworks-000156255022-wb8f1j-t500x500.jpg",
-      "image": "assets/images/episodes/2016-01-30-easy-miner-2016-01-30.jpg",
-      "episode_id": "2016-01-30-easy-miner"
+      "image": "assets/images/episodes/2016-01-30-easy-miner.jpg"
     },
     {
+      "episode_id": "2015-12-05-zacharias",
       "date": "2015-12-05",
-      "title": "Zacharias (2015-12-05)",
+      "title": "Zacharias",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/zacharias-2015-12-05",
       "soundcloud_id": "236633623",
       "duration_ms": 3419879,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138855590-9s8xp1-t500x500.jpg",
-      "image": "assets/images/episodes/2015-12-05-zacharias-2015-12-05.jpg",
-      "episode_id": "2015-12-05-zacharias"
+      "image": "assets/images/episodes/2015-12-05-zacharias.jpg"
     },
     {
+      "episode_id": "2015-10-10-toni-toronto",
       "date": "2015-10-10",
-      "title": "Toni Toronto (2015-10-10)",
+      "title": "Toni Toronto",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/toni-toronto-2015-10-10",
       "soundcloud_id": "236529426",
       "duration_ms": 3546405,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138752508-qwfhim-t500x500.jpg",
-      "image": "assets/images/episodes/2015-10-10-toni-toronto-2015-10-10.jpg",
-      "episode_id": "2015-10-10-toni-toronto"
+      "image": "assets/images/episodes/2015-10-10-toni-toronto.jpg"
     },
     {
+      "episode_id": "2015-08-15-fume",
       "date": "2015-08-15",
-      "title": "Fumé (2015-08-15)",
+      "title": "Fumé",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-2015-08-15",
       "soundcloud_id": "225857696",
       "duration_ms": 5800431,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138817923-nu3573-t500x500.jpg",
-      "image": "assets/images/episodes/2015-08-15-fume-2015-08-15.jpg",
-      "episode_id": "2015-08-15-fume"
+      "image": "assets/images/episodes/2015-08-15-fume.jpg"
     },
     {
+      "episode_id": "2015-08-15-easy-miner",
       "date": "2015-08-15",
-      "title": "easy.miner (2015-08-15)",
+      "title": "easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easyminer-2015-08-15",
       "soundcloud_id": "225858387",
       "duration_ms": 5248309,
       "artwork_url": "https://i1.sndcdn.com/artworks-000138818601-n0gswu-t500x500.jpg",
-      "image": "assets/images/episodes/2015-08-15-easy-miner-2015-08-15.jpg",
-      "episode_id": "2015-08-15-easy-miner"
+      "image": "assets/images/episodes/2015-08-15-easy-miner.jpg"
     },
     {
+      "episode_id": "2015-06-20-lowcut-easy-miner",
       "date": "2015-06-20",
-      "title": "lowcut & easy.miner (2015-06-20)",
+      "title": "lowcut & easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/lowcut-easyminer-2015-06-20",
       "soundcloud_id": "225839741",
       "duration_ms": 9546089,
       "artwork_url": "https://i1.sndcdn.com/artworks-000130897777-3b8cjz-t500x500.jpg",
-      "image": "assets/images/episodes/2015-06-20-lowcut-easy-miner-2015-06-20.jpg",
-      "episode_id": "2015-06-20-lowcut-easy-miner"
+      "image": "assets/images/episodes/2015-06-20-lowcut-easy-miner.jpg"
     },
     {
+      "episode_id": "2015-04-25-n-o-k",
       "date": "2015-04-25",
-      "title": "n.o.k. (2015-04-25)",
+      "title": "n.o.k.",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/nok-2015-04-25",
       "soundcloud_id": "204180664",
       "duration_ms": 3710257,
       "artwork_url": "https://i1.sndcdn.com/artworks-000115823350-y5p4wf-t500x500.jpg",
-      "image": "assets/images/episodes/2015-04-25-n-o-k-2015-04-25.jpg",
-      "episode_id": "2015-04-25-n-o-k"
+      "image": "assets/images/episodes/2015-04-25-n-o-k.jpg"
     },
     {
+      "episode_id": "2015-02-28-tex-pantalow",
       "date": "2015-02-28",
-      "title": "Tex Pantalow (2015-02-28)",
+      "title": "Tex Pantalow",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/tex-pantalow-2015-02-28",
       "soundcloud_id": "200464175",
       "duration_ms": 3168009,
       "artwork_url": "https://i1.sndcdn.com/artworks-000113147062-s0gola-t500x500.jpg",
-      "image": "assets/images/episodes/2015-02-28-tex-pantalow-2015-02-28.jpg",
-      "episode_id": "2015-02-28-tex-pantalow"
+      "image": "assets/images/episodes/2015-02-28-tex-pantalow.jpg"
     },
     {
+      "episode_id": "2015-01-03-lunatic",
       "date": "2015-01-03",
-      "title": "Lunatic (2015-01-03)",
+      "title": "Lunatic",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/lunatic-2015-01-03",
       "soundcloud_id": "186969192",
       "duration_ms": 3714933,
       "artwork_url": "https://i1.sndcdn.com/artworks-000108415466-nu39gr-t500x500.jpg",
-      "image": "assets/images/episodes/2015-01-03-lunatic-2015-01-03.jpg",
-      "episode_id": "2015-01-03-lunatic"
+      "image": "assets/images/episodes/2015-01-03-lunatic.jpg"
     },
     {
+      "episode_id": "2014-11-08-leibniz",
       "date": "2014-11-08",
-      "title": "Leibniz (2014-11-08)",
+      "title": "Leibniz",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/leibniz-2014-11-08",
       "soundcloud_id": "186774724",
       "duration_ms": 3406241,
       "artwork_url": "https://i1.sndcdn.com/artworks-000103865534-m7r9t9-t500x500.jpg",
-      "image": "assets/images/episodes/2014-11-08-leibniz-2014-11-08.jpg",
-      "episode_id": "2014-11-08-leibniz"
+      "image": "assets/images/episodes/2014-11-08-leibniz.jpg"
     },
     {
+      "episode_id": "2014-09-13-possblthings",
       "date": "2014-09-13",
-      "title": "possblthings (2014-09-13)",
+      "title": "possblthings",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/possblthings-2014-09-13",
       "soundcloud_id": "169179513",
       "duration_ms": 3245233,
       "artwork_url": "https://i1.sndcdn.com/artworks-000092009692-m6hg6z-t500x500.jpg",
-      "image": "assets/images/episodes/2014-09-13-possblthings-2014-09-13.jpg",
-      "episode_id": "2014-09-13-possblthings"
+      "image": "assets/images/episodes/2014-09-13-possblthings.jpg"
     },
     {
+      "episode_id": "2014-07-19-schnesen",
       "date": "2014-07-19",
-      "title": "Schnesen (2014-07-19)",
+      "title": "Schnesen",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/schnesen-2014-07-19",
       "soundcloud_id": "163279444",
       "duration_ms": 3601395,
       "artwork_url": "https://i1.sndcdn.com/artworks-000088161700-kvui10-t500x500.jpg",
-      "image": "assets/images/episodes/2014-07-19-schnesen-2014-07-19.jpg",
-      "episode_id": "2014-07-19-schnesen"
+      "image": "assets/images/episodes/2014-07-19-schnesen.jpg"
     },
     {
+      "episode_id": "2014-05-24-monomood",
       "date": "2014-05-24",
-      "title": "Monomood (2014-05-24)",
+      "title": "Monomood",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/monomod-2014-05-24",
       "soundcloud_id": "151112172",
       "duration_ms": 3600094,
       "artwork_url": "https://i1.sndcdn.com/artworks-000080396266-66i3yi-t500x500.jpg",
-      "image": "assets/images/episodes/2014-05-24-monomood-2014-05-24.jpg",
-      "episode_id": "2014-05-24-monomood"
+      "image": "assets/images/episodes/2014-05-24-monomood.jpg"
     },
     {
+      "episode_id": "2014-02-01-map-ache-bender",
       "date": "2014-02-01",
-      "title": "Map.ache & Bender (2014-02-01)",
+      "title": "Map.ache & Bender",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/map-ache-bender-2014-02-01",
       "soundcloud_id": "138554747",
       "duration_ms": 3448152,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072951483-wxxkh0-t500x500.jpg",
-      "image": "assets/images/episodes/2014-02-01-map-ache-bender-2014-02-01.jpg",
-      "episode_id": "2014-02-01-map-ache-bender"
+      "image": "assets/images/episodes/2014-02-01-map-ache-bender.jpg"
     },
     {
+      "episode_id": "2013-10-12-subutan-perm",
       "date": "2013-10-12",
-      "title": "Subʞutan & Perm (2013-10-12)",
+      "title": "Subʞutan & Perm",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sub-utan-perm-2013-10-12",
       "soundcloud_id": "138381325",
       "duration_ms": 3617853,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072850709-kfyubl-t500x500.jpg",
-      "image": "assets/images/episodes/2013-10-12-subʞutan-perm-2013-10-12.jpg",
-      "episode_id": "2013-10-12-subutan-perm"
+      "image": "assets/images/episodes/2013-10-12-subutan-perm.jpg"
     },
     {
+      "episode_id": "2013-08-17-filburt",
       "date": "2013-08-17",
-      "title": "Filburt (2013-08-17)",
+      "title": "Filburt",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/filburd-2013-08-17",
       "soundcloud_id": "138376200",
       "duration_ms": 3465310,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072848437-le7cjx-t500x500.jpg",
-      "image": "assets/images/episodes/2013-08-17-filburt-2013-08-17.jpg",
-      "episode_id": "2013-08-17-filburt"
+      "image": "assets/images/episodes/2013-08-17-filburt.jpg"
     },
     {
+      "episode_id": "2013-06-22-dwell-on",
       "date": "2013-06-22",
-      "title": "Dwell On (2013-06-22)",
+      "title": "Dwell On",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dwell-on-2013-06-22",
       "soundcloud_id": "138373548",
       "duration_ms": 3247014,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072846471-q4c33k-t500x500.jpg",
-      "image": "assets/images/episodes/2013-06-22-dwell-on-2013-06-22.jpg",
-      "episode_id": "2013-06-22-dwell-on"
+      "image": "assets/images/episodes/2013-06-22-dwell-on.jpg"
     },
     {
+      "episode_id": "2013-04-27-conscious-mind-red-husk",
       "date": "2013-04-27",
-      "title": "conscious.mind & red husk (2013-04-27)",
+      "title": "conscious.mind & red husk",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/conscious-mind-red-husk-2013",
       "soundcloud_id": "138266804",
       "duration_ms": 3606802,
       "artwork_url": "https://i1.sndcdn.com/artworks-000073401905-d3770x-t500x500.jpg",
-      "image": "assets/images/episodes/2013-04-27-conscious-mind-red-husk-2013-04-27.jpg",
-      "episode_id": "2013-04-27-conscious-mind-red-husk"
+      "image": "assets/images/episodes/2013-04-27-conscious-mind-red-husk.jpg"
     },
     {
+      "episode_id": "2013-03-02-praezisa-rapid-3000-the-lazer-twins",
       "date": "2013-03-02",
-      "title": "Praezisa Rapid 3000 & The Lazer Twins (2013-03-02)",
+      "title": "Praezisa Rapid 3000 & The Lazer Twins",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/praezisa-rapid-3000-the-lazer",
       "soundcloud_id": "138252064",
       "duration_ms": 2811743,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072778628-4zdeb4-t500x500.jpg",
-      "image": "assets/images/episodes/2013-03-02-praezisa-rapid-3000-the-lazer-twins-2013-03-02.jpg",
-      "episode_id": "2013-03-02-praezisa-rapid-3000-the-lazer-twins"
+      "image": "assets/images/episodes/2013-03-02-praezisa-rapid-3000-the-lazer-twins.jpg"
     },
     {
+      "episode_id": "2013-01-05-fume-meets-easy-miner",
       "date": "2013-01-05",
-      "title": "fumè meets easy.miner (2013-01-05)",
+      "title": "fumè meets easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-meets-easy-miner",
       "soundcloud_id": "138052736",
       "duration_ms": 6571979,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2013-01-05-fume-meets-easy-miner-2013-01-05.jpg",
-      "episode_id": "2013-01-05-fume-meets-easy-miner"
+      "image": "assets/images/episodes/2013-01-05-fume-meets-easy-miner.jpg"
     },
     {
+      "episode_id": "2012-11-10-stanley-schmidt",
       "date": "2012-11-10",
-      "title": "Stanley Schmidt (2012-11-10)",
+      "title": "Stanley Schmidt",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/stanley-schmidt-2012-11-10",
       "soundcloud_id": "138048124",
       "duration_ms": 3664773,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072779031-rm5d0k-t500x500.jpg",
-      "image": "assets/images/episodes/2012-11-10-stanley-schmidt-2012-11-10.jpg",
-      "episode_id": "2012-11-10-stanley-schmidt"
+      "image": "assets/images/episodes/2012-11-10-stanley-schmidt.jpg"
     },
     {
+      "episode_id": "2012-11-10-depart",
       "date": "2012-11-10",
-      "title": "Dèpart (2012-11-10)",
+      "title": "Dèpart",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/de-part-2012-11-10",
       "soundcloud_id": "138048540",
       "duration_ms": 3726377,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072778770-0wv268-t500x500.jpg",
-      "image": "assets/images/episodes/2012-11-10-depart-2012-11-10.jpg",
-      "episode_id": "2012-11-10-depart"
+      "image": "assets/images/episodes/2012-11-10-depart.jpg"
     },
     {
+      "episode_id": "2012-09-15-ts-easy-miner",
       "date": "2012-09-15",
-      "title": "TΩS & easy.miner (2012-09-15)",
+      "title": "TΩS & easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/t-s-easy-miner-2012-09-15",
       "soundcloud_id": "137912452",
       "duration_ms": 4250520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072851023-sn5qwr-t500x500.jpg",
-      "image": "assets/images/episodes/2012-09-15-tωs-easy-miner-2012-09-15.jpg",
-      "episode_id": "2012-09-15-ts-easy-miner"
+      "image": "assets/images/episodes/2012-09-15-ts-easy-miner.jpg"
     },
     {
+      "episode_id": "2012-05-26-sebastian-dubiel",
       "date": "2012-05-26",
-      "title": "Sebastian Dubiel (2012-05-26)",
+      "title": "Sebastian Dubiel",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sebastian-dubiel-2012-05-26",
       "soundcloud_id": "137905028",
       "duration_ms": 3925761,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072779562-vvr4ix-t500x500.jpg",
-      "image": "assets/images/episodes/2012-05-26-sebastian-dubiel-2012-05-26.jpg",
-      "episode_id": "2012-05-26-sebastian-dubiel"
+      "image": "assets/images/episodes/2012-05-26-sebastian-dubiel.jpg"
     },
     {
+      "episode_id": "2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape",
       "date": "2012-03-31",
-      "title": "Sir Shandy Mox Mox \"MoxxoM Mix Tape\" (2012-03-31)",
+      "title": "Sir Shandy Mox Mox \"MoxxoM Mix Tape\"",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sir-shandy-mox-mox-moxxom-mix",
       "soundcloud_id": "137896703",
       "duration_ms": 3753833,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072578223-fh9hku-t500x500.jpg",
-      "image": "assets/images/episodes/2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape-2012-03-31.jpg",
-      "episode_id": "2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape"
+      "image": "assets/images/episodes/2012-03-31-sir-shandy-mox-mox-moxxom-mix-tape.jpg"
     },
     {
+      "episode_id": "2012-02-04-schmlz-schn",
       "date": "2012-02-04",
-      "title": "schmlz & schn (2012-02-04)",
+      "title": "schmlz & schn",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/schmlz-schn-2012-02-04",
       "soundcloud_id": "137867870",
       "duration_ms": 5734336,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072559362-964235-t500x500.jpg",
-      "image": "assets/images/episodes/2012-02-04-schmlz-schn-2012-02-04.jpg",
-      "episode_id": "2012-02-04-schmlz-schn"
+      "image": "assets/images/episodes/2012-02-04-schmlz-schn.jpg"
     },
     {
+      "episode_id": "2011-12-10-fume-b2b-easy-miner",
       "date": "2011-12-10",
-      "title": "fumè b2b easy.miner (2011-12-10)",
+      "title": "fumè b2b easy.miner",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/fume-b2b-easy-miner-2011-12-10",
       "soundcloud_id": "137861480",
       "duration_ms": 7107017,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072558776-jt6uc6-t500x500.jpg",
-      "image": "assets/images/episodes/2011-12-10-fume-b2b-easy-miner-2011-12-10.jpg",
-      "episode_id": "2011-12-10-fume-b2b-easy-miner"
+      "image": "assets/images/episodes/2011-12-10-fume-b2b-easy-miner.jpg"
     },
     {
+      "episode_id": "2011-10-15-rose-records-w-martin-hayes-luvless-m-ono",
       "date": "2011-10-15",
-      "title": "Rose Records /w Martin Hayes, Luvless, M.ono (2011-10-15)",
+      "title": "Rose Records /w Martin Hayes, Luvless, M.ono",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/rose-records",
       "soundcloud_id": "137857223",
       "duration_ms": 4920258,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072557561-khb9io-t500x500.jpg",
-      "image": "assets/images/episodes/2011-10-15-rose-records-w-martin-hayes-luvless-m-ono-2011-10-15.jpg",
-      "episode_id": "2011-10-15-rose-records-w-martin-hayes-luvless-m-ono"
+      "image": "assets/images/episodes/2011-10-15-rose-records-w-martin-hayes-luvless-m-ono.jpg"
     },
     {
+      "episode_id": "2011-08-20-bartvogel",
       "date": "2011-08-20",
-      "title": "Bartvogel (2011-08-20)",
+      "title": "Bartvogel",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/bartvogel-2011-08-20",
       "soundcloud_id": "137852527",
       "duration_ms": 4837520,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072850931-lqz6kx-t500x500.jpg",
-      "image": "assets/images/episodes/2011-08-20-bartvogel-2011-08-20.jpg",
-      "episode_id": "2011-08-20-bartvogel"
+      "image": "assets/images/episodes/2011-08-20-bartvogel.jpg"
     },
     {
+      "episode_id": "2011-06-25-f-th",
       "date": "2011-06-25",
-      "title": "F.TH (2011-06-25)",
+      "title": "F.TH",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/f-th-2011-06-25",
       "soundcloud_id": "137850562",
       "duration_ms": 2250659,
       "artwork_url": "https://i1.sndcdn.com/artworks-000072557646-8zexu6-t500x500.jpg",
-      "image": "assets/images/episodes/2011-06-25-f-th-2011-06-25.jpg",
-      "episode_id": "2011-06-25-f-th"
+      "image": "assets/images/episodes/2011-06-25-f-th.jpg"
     },
     {
+      "episode_id": "2011-03-05-easy-miner-fume",
       "date": "2011-03-05",
-      "title": "easy.miner & fumè (2011-03-05)",
+      "title": "easy.miner & fumè",
       "summary": "",
       "audio_url": "https://soundcloud.com/sounds-of-electronic-art/easy-miner-fum-2011-03-05",
       "soundcloud_id": "137848572",
       "duration_ms": 6438793,
       "artwork_url": "https://i1.sndcdn.com/avatars-000071536076-xna20e-t500x500.jpg",
-      "image": "assets/images/episodes/2011-03-05-easy-miner-fume-2011-03-05.jpg",
-      "episode_id": "2011-03-05-easy-miner-fume"
+      "image": "assets/images/episodes/2011-03-05-easy-miner-fume.jpg"
     }
   ]
 }

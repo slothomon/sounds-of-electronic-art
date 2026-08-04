@@ -125,12 +125,12 @@ def date_long(value: datetime, language: str) -> str:
 
 
 def hour_range_clock(start: datetime, end: datetime, language: str = "de") -> str:
-    """Return a clock range with protected spaces around the en dash.
+    """Return a compact clock range using an en dash without spaces.
 
-    The visible form is ``21:00 – 00:00``. Non-breaking spaces prevent an
-    awkward line break directly before or after the range separator.
+    The visible form is ``21:00–00:00``. Keeping the whole range compact
+    follows the preferred German notation and avoids ambiguous wrapping.
     """
-    return f"{start.strftime('%H:%M')} – {end.strftime('%H:%M')}"
+    return f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')}"
 
 
 def calendar_filename(item: dict, site: dict) -> str:

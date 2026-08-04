@@ -3,116 +3,108 @@
 A dependency-light static website for the `sounds of electronic art` radio
 show, published at <https://sofea.radio/>.
 
-## Included
+## Features
 
-- responsive orange design;
-- German default interface with an English language switch;
-- dark theme and a Solarized-Light-inspired light theme;
-- multiple upcoming broadcasts and events;
-- five selectable SoundCloud recordings with a click-to-load in-page player;
-- statically generated and searchable broadcast archive with pagination;
-- crawlable detail pages for broadcasts and upcoming events;
-- progressive enhancement: detail links open in a dialog on the homepage but
-  remain normal URLs for new tabs, no-JavaScript use and search engines;
-- RSS feed, sitemap, subscribable calendar, `robots.txt` and a custom 404 page;
-- separate GitHub Actions workflows for deployment and archive refresh;
-- automatically generated social cards for every broadcast and event;
+- responsive orange design with dark and Solarized-Light-inspired themes;
+- German default interface and English language switch;
+- separate upcoming broadcasts and events;
+- five editorially selected recordings whose metadata is derived from the
+  SoundCloud archive cache;
+- click-to-load SoundCloud player with a mobile inline accordion;
+- static, searchable and paginated broadcast archive;
+- crawlable detail pages that open as dialogs on the homepage;
+- tracklists and music presentations with optional external links;
+- local SoundCloud artwork cache plus responsive WebP variants;
+- individual PNG social cards, JSON-LD, RSS, sitemap and calendar feeds;
+- Pages CMS configuration for two or three editors;
+- source/build/output validation shared by local development and GitHub Actions;
 - no first-party analytics, advertising tracking or external web fonts.
 
-The SoundCloud iframe is not created until a visitor explicitly loads the player.
-After that click, the third-party embed may make requests to SoundCloud; see the
-generated privacy notice for details.
+The SoundCloud iframe is created only after a visitor explicitly loads the
+player. See the generated privacy notice for the resulting third-party request.
 
 ## Repository structure
 
 ```text
-assets/                     CSS, JavaScript, logos and images
-content/site.json           General website, team and recording data
-content/upcoming-broadcasts.json  Upcoming radio broadcasts
-content/upcoming-events.json      Upcoming events
-content/episodes.json             Local archive enrichment
-content/archive-cache.json        Cached SoundCloud playlist metadata
-content/legal.json          Operator details for legal pages
-docs/                       Search Console, Pages CMS and structured-data notes
-scripts/build.py             Static-site generator
-scripts/update_archive.py    SoundCloud archive and artwork updater
-scripts/normalize_episode_lists.py  One-time Pages CMS data normalizer
-.pages.yml                    Pages CMS editor schema
-scripts/validate_site.py     Generated-site validation
-templates/                  HTML templates
+.github/workflows/pages.yml            Build and deploy GitHub Pages
+.github/workflows/quality.yml          Validate pull requests
+.github/workflows/refresh-archive.yml  Refresh SoundCloud metadata and artwork
+.pages.yml                             Pages CMS schema
+assets/                                CSS, JavaScript, logos and source images
+content/site.json                      General site configuration
+content/upcoming-broadcasts.json       Future radio broadcasts
+content/upcoming-events.json           Future public events
+content/episodes.json                  Editorial archive enrichment
+content/archive-cache.json             Cached SoundCloud playlist metadata
+content/legal.json                     Legal-page operator data
+docs/pages-cms.md                      Editorial setup and workflow
+docs/search-console-setup.md           Google Search Console setup
+docs/structured-data.md                Generated Schema.org data
+scripts/build.py                       Static-site generator
+scripts/check.py                       Source → build → output quality command
+scripts/update_archive.py              SoundCloud metadata/artwork updater
+scripts/validate_site.py               Source and generated-site validator
+templates/                              HTML templates
 ```
 
-Do not edit `public/` directly. It is deleted and rebuilt by
-`scripts/build.py` and is ignored by Git.
+Do not edit `public/`. It is generated and ignored by Git.
 
 ## Edit content with Pages CMS
 
-The repository includes a focused `.pages.yml` configuration with three
-separate editors: **Demnächst – Sendungen**, **Demnächst – Veranstaltungen**
-and **Sendungsarchiv**. Each editor only exposes fields relevant to that content
-type.
+Use an individual GitHub account for every editor. The repository contains three
+focused CMS areas:
 
-Each editor should use an individual GitHub account; do not share one account.
-The complete one-time setup and editorial workflow are documented in:
+- **Demnächst – Sendungen**
+- **Demnächst – Veranstaltungen**
+- **Sendungsarchiv**
 
-```text
-docs/pages-cms.md
+The one-time setup and field descriptions are documented in
+[`docs/pages-cms.md`](docs/pages-cms.md).
+
+## Featured recordings under Hören
+
+`content/site.json` stores only the SoundCloud URLs selected for the five
+featured recordings:
+
+```json
+{
+  "featured_audio_urls": [
+    "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14"
+  ]
+}
 ```
 
-Before opening a file that still contains string-only music presentations or
-tracklist rows, run the included normalizer once:
+Title, description and duration are resolved from `archive-cache.json` and
+`episodes.json`. This avoids maintaining duplicate metadata in `site.json`.
+Use one to five unique URLs that are present in the archive.
 
-```cmd
-py scripts\normalize_episode_lists.py
-py scripts\normalize_episode_lists.py --write
-```
+## Upcoming broadcasts
 
-## Edit general content
-
-General information, team members, links and the recordings shown under
-**Hören / Listen** are maintained in:
-
-```text
-content/site.json
-```
-
-The build displays the first five objects in the `mixes` array.
-
-## Add broadcasts and events to Demnächst
-
-Pages CMS stores future content in two separate files:
-
-```text
-content/upcoming-broadcasts.json
-content/upcoming-events.json
-```
-
-Times are stored as Leipzig wall-clock time **without a UTC offset**, for
-example `2026-08-29T21:00:00`. This prevents the CMS from displaying 19:00
-when 21:00 was entered. The build applies the `Europe/Berlin` timezone and
-therefore handles summer and winter time correctly.
-
-There is only one editorial text per language: `details_de` and `details_en`.
-The homepage creates a short excerpt automatically; the detail view shows the
-complete text.
-
-### Broadcast example
+Edit `content/upcoming-broadcasts.json` or use Pages CMS:
 
 ```json
 {
   "date": "2026-08-29T21:00:00",
-  "title_de": "sofea #100 - tba",
-  "title_en": "sofea #100 - tba",
+  "episode_number": 100,
+  "title_de": "sofea #100 – tba",
+  "title_en": "sofea #100 – tba",
   "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
   "details_en": "Three hours of electronic music. Live on Radio Blau.",
-  "image": "/assets/images/uploads/sofea-100.jpg",
+  "image": "/assets/images/uploads/sofea-100.png",
   "links": []
 }
 ```
 
-Broadcasts default to three hours.
+Upcoming times are Leipzig wall-clock time without a UTC suffix. The build
+applies `Europe/Berlin`. Broadcasts default to three hours and the location
+`Radio Blau, Leipzig`.
 
-### Event example
+There is one full text per language. The homepage creates its excerpt
+automatically; the detail page displays the complete text.
+
+## Upcoming events
+
+Edit `content/upcoming-events.json`:
 
 ```json
 {
@@ -123,7 +115,7 @@ Broadcasts default to three hours.
   "details_de": "Eine Nacht mit dem sofea-Team und Gästen.",
   "details_en": "A night with the sofea team and guests.",
   "location": "Conne Island, Leipzig",
-  "image": "/assets/images/uploads/sofea-night.jpg",
+  "image": "/assets/images/uploads/sofea-night.png",
   "links": [
     {
       "label_de": "Veranstaltungsdetails",
@@ -135,114 +127,89 @@ Broadcasts default to three hours.
 }
 ```
 
-The build generates crawlable detail pages, individual calendar files and the
-subscribable calendar at `https://sofea.radio/calendar.ics`.
-
-### One-time migration from the former mixed file
-
-Preview the split:
-
-```cmd
-py scripts\split_episode_content.py
-```
-
-Then write the three focused files:
-
-```cmd
-py scripts\split_episode_content.py --write
-```
-
-The migration keeps the entered local hour and removes timezone suffixes from
-future dates. It also moves former `summary_*` values into the single
-`details_*` text fields.
+An event without `end` defaults to two hours.
 
 ## Enrich an archived broadcast
 
-The SoundCloud cache supplies title, date, description, audio URL and artwork.
-Add an object to `content/episodes.json` with the exact same `audio_url` to add
-editorial text, music presentations or a tracklist without modifying the cache:
+The SoundCloud cache supplies date, title, description, duration, audio URL and
+artwork. Add an object to `content/episodes.json` with the exact same
+`audio_url` to attach local editorial data:
 
 ```json
 {
   "date": "2026-03-14",
+  "episode_number": 98,
+  "updated_at": "2026-08-04",
   "title_de": "Neele",
   "title_en": "Neele",
+  "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
   "details_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
   "details_en": "Recording from the 98th broadcast.",
-  "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
   "music_presentations": [
-    "Artist A — Release without a link",
     {
-      "artist": "Artist B",
-      "title": "Album or track title",
-      "label": "Example Records",
-      "year": 2026,
-      "url": "https://www.discogs.com/master/example",
-      "note_de": "Kurzer redaktioneller Hinweis.",
-      "note_en": "Short editorial note."
+      "artist": "Artist",
+      "title": "Release",
+      "url": "https://www.discogs.com/"
     }
   ],
   "tracklist": [
-    {"time": "00:00", "artist": "Artist B", "title": "Track One"}
+    {
+      "time": "00:00",
+      "artist": "Artist",
+      "title": "Track"
+    }
   ]
 }
 ```
 
-Each archive entry receives a page below `/sendungen/`. Homepage titles open
-these pages in the existing modal/dialog interface; opening a title in a new
-tab uses the standalone page. `music_presentations` appears as a separate
-**Musikvorstellungen** section before the line-up and tracklist. Use simple
-strings when no external source is needed, or objects with `artist`, `title`
-and `url` for Discogs, Bandcamp or label links. The exact `audio_url` is the
-stable key used to merge these local additions with the SoundCloud cache.
+`episode_number` is optional and is used for Schema.org `episodeNumber`, labels
+and generated social cards. `updated_at` should change only after meaningful
+editorial changes.
 
-Every detail page receives an individual branded social card under
-`public/assets/images/social/`. Set `social_image` to a local path or absolute
-URL only when a hand-designed card should override the generated one.
+## Artwork and social images
 
-## Static SoundCloud archive
-
-`scripts/update_archive.py` reads this playlist through `yt-dlp`:
-
-```text
-https://soundcloud.com/sounds-of-electronic-art/sets/sendungen
-```
-
-It writes cleaned metadata to `content/archive-cache.json` and caches the
-corresponding SoundCloud artwork under:
+The archive updater stores SoundCloud artwork under:
 
 ```text
 assets/images/episodes/YYYY-MM-DD-title.jpg
 ```
 
-The public website therefore uses committed metadata and local images instead
-of requesting artwork from SoundCloud in a visitor's browser. A manually
-provided `.jpg`, `.jpeg`, `.png` or `.webp` with the same date/title filename
-is retained and takes precedence. An explicit `image` value in
-`content/episodes.json` takes precedence over both.
+A local file named for the same date/title is retained and takes precedence.
+An explicit `image` value in the content file wins over the automatic cache.
+During the build, local artwork receives 480, 800 and 1200 pixel WebP variants
+used through `srcset`.
 
-The **Refresh SoundCloud archive** workflow runs daily and can also be started
-manually. It commits the cache and newly discovered artwork only when something
-changes. That commit then triggers the independent **Deploy GitHub Pages**
-workflow. Existing custom artwork is not overwritten by the normal scheduled
-run.
+Each detail page also receives a generated PNG social card. A manual override is
+possible through the advanced field `social_image`, but it must point to a PNG.
 
-## Build and preview locally
+## Static SoundCloud archive
+
+Install updater dependencies and refresh locally only when needed:
+
+```cmd
+py -m pip install -r requirements-archive.txt
+py scripts\update_archive.py --strict
+```
+
+Useful options:
+
+```cmd
+py scripts\update_archive.py --no-artwork
+py scripts\update_archive.py --refresh-artwork
+```
+
+The daily **Refresh SoundCloud archive** workflow commits changed cache/artwork
+and explicitly dispatches the independent Pages deployment. A temporary
+SoundCloud error does not replace the last working cache.
+
+## Build and validate locally
 
 ### Windows
-
-Install the build dependencies once (Pillow for social cards and the Windows time-zone fallback):
 
 ```cmd
 cd /d M:\dev\sofea-github-pages
 py -m pip install -r requirements.txt
-```
-
-Then build and preview:
-
-```cmd
-py scripts\build.py
-py scripts\validate_site.py public
+py scripts\check.py
 py -m http.server 8000 --directory public
 ```
 
@@ -252,83 +219,45 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 
 ```bash
 python3 -m pip install -r requirements.txt
-python3 scripts/build.py
-python3 scripts/validate_site.py public
+python3 scripts/check.py
 python3 -m http.server 8000 --directory public
 ```
 
-The Windows-only `tzdata` dependency is skipped automatically on systems that
-provide the IANA time-zone database themselves. Pillow generates the per-page
-social cards during every build.
+`check.py` runs source validation, the build and generated-site validation. The
+same command is used by the deployment and pull-request workflows, preventing
+local/CI command drift.
 
-### Refresh the archive locally (optional)
+## GitHub Actions and Dependabot
 
-```cmd
-py -m pip install -r requirements-archive.txt
-py scripts\update_archive.py --strict
-py scripts\build.py
-```
-
-Useful artwork options:
-
-```cmd
-py scripts\update_archive.py --no-artwork
-py scripts\update_archive.py --refresh-artwork
-```
-
-`--refresh-artwork` deliberately replaces matching automatic files. Keep it
-off when the same filename contains a hand-selected image.
-
-## GitHub Actions
-
-- `.github/workflows/deploy-pages.yml` validates, builds and deploys the site
-  on pushes to `main`. Pull requests run the build and validation but do not
-  deploy.
-- `.github/workflows/refresh-archive.yml` is the only workflow with repository
-  write access and only updates `content/archive-cache.json` and local SoundCloud artwork.
-- `.github/dependabot.yml` checks the Python and GitHub Actions dependencies
-  monthly.
+- `pages.yml` builds and deploys pushes to `main`.
+- `quality.yml` performs the full check for pull requests.
+- `refresh-archive.yml` is the only workflow with repository write permission;
+  it refreshes archive metadata/artwork and dispatches `pages.yml` after a
+  changed commit.
+- Dependabot groups all Python updates into one monthly PR and all GitHub
+  Actions updates into one monthly PR.
 
 GitHub Pages must use **GitHub Actions** as its publishing source.
 
-## Search engine setup
+## SEO and structured data
 
-The build generates real detail URLs, canonical tags, an expanded sitemap and
-an RSS feed whose items point to local detail pages.
+The build creates canonical detail pages, sitemap entries, local RSS links,
+unique social cards and JSON-LD for:
 
-Google Search Console still requires a one-time account and DNS verification.
-Follow:
+- `WebSite`, `WebPage` and `RadioSeries` on the homepage;
+- `RadioEpisode`, `BroadcastEvent` and `RadioBroadcastService` for upcoming
+  broadcasts;
+- `MusicEvent` for events;
+- `RadioEpisode` and `AudioObject` for archived recordings.
 
-```text
-docs/search-console-setup.md
-```
+See [`docs/structured-data.md`](docs/structured-data.md) and
+[`docs/search-console-setup.md`](docs/search-console-setup.md).
 
-The build inserts JSON-LD structured data automatically:
+## Legal pages and licensing
 
-- the homepage describes the website and `RadioSeries`;
-- broadcast pages use `RadioEpisode` and, when audio exists, `AudioObject`;
-- public event pages use `MusicEvent`;
-- scheduled radio broadcasts include a `BroadcastEvent`.
+Operator details are in `content/legal.json`. The build creates Impressum and
+privacy pages. The supplied Radio Blau logo links to the station homepage.
 
-Implementation details and optional content fields are documented in:
-
-```text
-docs/structured-data-templates.md
-```
-
-## Legal pages
-
-Operator details are maintained centrally in `content/legal.json`. Review them
-before each public release. The build creates:
-
-- `public/impressum.html`
-- `public/datenschutz.html`
-
-The Radio Blau logo remains the supplied original file and links to
-<https://www.radioblau.de/>.
-
-## Licensing
-
-The website software is available under the MIT License in [`LICENSE`](LICENSE).
-Editorial content, branding, audio, artwork, photographs and third-party media
-are excluded; see [`CONTENT-LICENSE.md`](CONTENT-LICENSE.md).
+The website software is MIT-licensed. Editorial content, branding, audio,
+artwork, photographs and third-party media are excluded; see
+[`CONTENT-LICENSE.md`](CONTENT-LICENSE.md).

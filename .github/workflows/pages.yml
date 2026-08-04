@@ -30,20 +30,14 @@ jobs:
       - name: Install build requirements
         run: python -m pip install --disable-pip-version-check -r requirements.txt
 
-      - name: Validate source data
-        run: python scripts/validate_site.py --source
-
       - name: Configure GitHub Pages
         id: pages
         uses: actions/configure-pages@v6
 
-      - name: Build site
-        run: python scripts/build.py
+      - name: Validate and build site
+        run: python scripts/check.py
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-
-      - name: Validate generated site
-        run: python scripts/validate_site.py --public
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

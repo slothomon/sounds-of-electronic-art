@@ -1,12 +1,11 @@
 {
   "name": "sounds of electronic art",
   "short_name": "sofea",
-  "tagline_de": "Elektronische Musik, Radio und Clubkultur aus Leipzig.",
+  "tagline_de": "Elektronische Musik, Radio und Klubkultur aus Leipzig.",
   "tagline_en": "Electronic music, radio and club culture from Leipzig.",
-  "description_de": "sounds of electronic art ist eine Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Clubkultur — alle acht Wochen aus Leipzig.",
-  "description_en": "sounds of electronic art is a radio show on Radio Blau exploring electronic music, artists and club culture every eight weeks.",
+  "description_de": "sounds of electronic art ist eine alle acht Wochen ausgestrahlte Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Klubkultur.",
+  "description_en": "sounds of electronic art is a radio show broadcast every eight weeks on Radio Blau, exploring electronic music, artists and club culture.",
   "url": "https://sofea.radio",
-  "locale": "de_DE",
   "radio": {
     "name": "Radio Blau",
     "url": "https://www.radioblau.de/",
@@ -39,77 +38,12 @@
       "alias_url": "https://soundcloud.com/skile"
     }
   ],
-  "mixes": [
-    {
-      "title": "Neele (2026-03-14)",
-      "subtitle_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026",
-      "subtitle_en": "Recording of Neele's set from the 98th show in March 2026",
-      "duration": "2:08:00",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14"
-    },
-    {
-      "title": "Werner Benzo – komplette Sendung (2025-11-22)",
-      "subtitle_de": "Komplette Sendung mit Interview und Musik von Werner Benzo",
-      "subtitle_en": "Complete show featuring an interview and music by Werner Benzo",
-      "duration": "2:56:55",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung"
-    },
-    {
-      "title": "sofea & friends (2026-01-17)",
-      "subtitle_de": "Extended Geburtstagsmix mit Neele, Thomas Heinrich, HAL und John Minus Plus",
-      "subtitle_en": "Extended birthday mix with Neele, Thomas Heinrich, HAL and John Minus Plus",
-      "duration": "5:55:14",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17"
-    },
-    {
-      "title": "R22 (2025-06-07)",
-      "subtitle_de": "Gastset aus der Sendung vom 7. Juni 2025",
-      "subtitle_en": "Guest set from the show on 7 June 2025",
-      "duration": "2:16:56",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07"
-    },
-    {
-      "title": "Moritz Kaiser – komplette Sendung (2024-10-26)",
-      "subtitle_de": "Zwei Stunden Musikvorstellungen, Gespräche und eine Stunde Gastset",
-      "subtitle_en": "Two hours of selections and conversation followed by a one-hour guest set",
-      "duration": "2:57:13",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26"
-    },
-    {
-      "title": "96kbps – Warmup @ MCKR (2024-10-11)",
-      "subtitle_de": "Warmup für Stolen Money Posse in Mockau",
-      "subtitle_en": "Warm-up set for Stolen Money Posse in Mockau",
-      "duration": "2:31:26",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-warmup-mckr"
-    },
-    {
-      "title": "M.ono (2024-07-06)",
-      "subtitle_de": "House-Set aus der Sendung vom 6. Juli 2024",
-      "subtitle_en": "House set from the show on 6 July 2024",
-      "duration": "58:31",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea"
-    },
-    {
-      "title": "Dahmar (2024-03-16)",
-      "subtitle_de": "Gastset aus der Sendung vom 16. März 2024",
-      "subtitle_en": "Guest set from the show on 16 March 2024",
-      "duration": "2:12:56",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16"
-    },
-    {
-      "title": "Kontinum (2023-11-25)",
-      "subtitle_de": "Techno-Set aus der Sendung vom 25. November 2023",
-      "subtitle_en": "Techno set from the show on 25 November 2023",
-      "duration": "1:15:01",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25"
-    },
-    {
-      "title": "Weekender Veranda 2023",
-      "subtitle_de": "Aufnahme vom Conne Island Freisitz am Sonntagmorgen",
-      "subtitle_en": "Sunday morning recording from the Conne Island terrace",
-      "duration": "4:16:06",
-      "url": "https://soundcloud.com/sounds-of-electronic-art/weekender-veranda-2023"
-    }
-  ],
-  "archive_playlist_url": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen"
+  "archive_playlist_url": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
+  "featured_audio_urls": [
+    "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
+    "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
+    "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17",
+    "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07",
+    "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26"
+  ]
 }

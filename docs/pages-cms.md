@@ -1,128 +1,118 @@
 # Pages CMS editorial workflow
 
-Pages CMS edits the JSON files in this GitHub repository directly. There is no
-separate content database and every change remains visible in Git history.
+Pages CMS edits the JSON files in this GitHub repository directly. It does not
+introduce a second database or a shared password.
 
-## Editors
+## Accounts and access
 
-Use one personal GitHub account per editor. Add the two or three editors as
-repository collaborators and enable 2FA or passkeys. Do not create a shared
-editor account.
+Each editor should use an individual GitHub account. Add the two or three
+editors as collaborators under:
+
+```text
+Repository → Settings → Collaborators → Add people
+```
+
+Use two-factor authentication or passkeys. Do not create a shared editorial
+GitHub account: individual accounts preserve attribution and can be revoked
+separately.
+
+## One-time setup
+
+1. Open `app.pagescms.org`.
+2. Sign in with your own GitHub account.
+3. Install the Pages CMS GitHub App.
+4. Choose **Only select repositories**.
+5. Select `slothomon/sounds-of-electronic-art`.
+6. Open the repository and branch `main`.
+
+Pages CMS automatically reads `.pages.yml` from the repository root.
 
 ## Content areas
 
-The Pages CMS sidebar contains three focused editors:
+The CMS intentionally exposes three focused editors:
 
-1. **Demnächst – Sendungen** → `content/upcoming-broadcasts.json`
-2. **Demnächst – Veranstaltungen** → `content/upcoming-events.json`
-3. **Sendungsarchiv** → `content/episodes.json`
+- **Demnächst – Sendungen** → `content/upcoming-broadcasts.json`
+- **Demnächst – Veranstaltungen** → `content/upcoming-events.json`
+- **Sendungsarchiv** → `content/episodes.json`
 
-This separation is deliberate: Pages CMS cannot filter one top-level JSON array
-into several field-specific editors. Separate files keep the forms short and
-avoid showing venue, tracklist or archive fields where they are irrelevant.
+### Upcoming broadcasts
 
-### Demnächst – Sendungen
+Available fields:
 
-Fields:
-
-- start date and time;
+- local start date/time;
+- optional episode number;
 - German and English title;
-- one German and English text;
+- German and English full text;
 - optional artwork;
-- optional external buttons.
+- optional external buttons/links.
 
-Broadcasts default to three hours. The homepage automatically shortens the text;
-the detail page displays it in full.
+The website creates the shorter homepage excerpt automatically. Broadcasts
+default to three hours and `Radio Blau, Leipzig`.
 
-### Demnächst – Veranstaltungen
+### Upcoming events
 
-Fields:
+Available fields:
 
-- start and optional end;
+- local start and optional end date/time;
 - German and English title;
-- one German and English text;
-- one venue/location field;
-- optional flyer;
-- optional external buttons.
+- German and English full text;
+- one visible location field;
+- optional flyer/artwork;
+- optional external buttons/links.
 
-### Sendungsarchiv
+### Archive enrichment
 
-Fields:
+The SoundCloud cache supplies the basic metadata and locally cached artwork.
+The archive editor adds only the editorial fields that the site owns:
 
-- broadcast date and optional update date;
+- date and optional episode number;
 - German and English title;
-- exact SoundCloud URL;
-- optional German and English editorial text;
-- optional local artwork;
+- exact SoundCloud URL used as the merge key;
+- optional full editorial text;
+- optional artwork override;
 - music presentations;
-- tracklist.
+- tracklist;
+- optional `updated_at` for meaningful content changes.
 
-If the editorial text is empty, the SoundCloud description remains the fallback.
-The archive list shows an automatic excerpt and the detail page shows the full
-text.
+Music presentations and tracklist rows are object lists. Use the URL field for
+Discogs, Bandcamp, label or artist links.
 
-## Correct local time
+## Dates and time zones
 
-Future dates are stored without a timezone suffix:
+Upcoming times are saved as Leipzig wall-clock time without a UTC suffix:
 
-```json
-"date": "2026-08-29T21:00:00"
+```text
+2026-08-29T21:00:00
 ```
 
-Pages CMS therefore displays 21:00 instead of converting the value to 19:00.
-The build interprets the value as `Europe/Berlin`, including CET/CEST changes.
-Do not manually add `Z`, `+01:00` or `+02:00` to future dates in the new files.
+The build applies `Europe/Berlin`, including summer and winter time. Archive
+dates use `YYYY-MM-DD`.
 
-## One-time migration
+## Images
 
-The former `content/episodes.json` mixed archive entries and upcoming items.
-First preview the migration:
+Uploaded images are stored in:
+
+```text
+assets/images/uploads/
+```
+
+Cached SoundCloud artwork is stored in:
+
+```text
+assets/images/episodes/
+```
+
+An explicit CMS artwork wins over automatically cached SoundCloud artwork.
+Custom `social_image` values are an advanced manual option and must be PNG.
+
+## Publishing and validation
+
+Saving in Pages CMS creates a normal Git commit. GitHub Actions then runs the
+same command used locally:
 
 ```cmd
-py scripts\split_episode_content.py
+py scripts\check.py
 ```
 
-Then write the split files:
-
-```cmd
-py scripts\split_episode_content.py --write
-```
-
-The script:
-
-- keeps archive enrichment in `content/episodes.json`;
-- moves future broadcasts to `content/upcoming-broadcasts.json`;
-- moves future events to `content/upcoming-events.json`;
-- keeps the entered local clock time while removing the UTC offset;
-- replaces the old summary/detail duplication with one `details_*` text field;
-- removes redundant trailing dates from local archive titles.
-
-Review the diff before committing:
-
-```cmd
-git diff -- content
-```
-
-## Opening Pages CMS
-
-1. Open `https://app.pagescms.org/`.
-2. Sign in with your personal GitHub account.
-3. Install the Pages CMS GitHub App.
-4. Select **Only select repositories**.
-5. Authorize only `slothomon/sounds-of-electronic-art`.
-6. Open the repository and branch `main`.
-7. Choose one of the three content areas.
-
-After changing `.pages.yml`, Pages CMS may retain its cached configuration for a
-few minutes. Reload the repository view after the new commit is on `main`.
-
-## Before publishing locally
-
-```cmd
-py scripts\validate_site.py --source
-py scripts\build.py
-py scripts\validate_site.py --public
-```
-
-Pages CMS itself writes commits to GitHub. GitHub Actions then performs the same
-validation before deploying the site.
+If validation fails, inspect the Actions log before making further edits. The
+source JSON remains versioned and can be restored from Git history.

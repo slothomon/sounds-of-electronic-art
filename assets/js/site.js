@@ -11,16 +11,15 @@
       nav_listen: 'Hören',
       nav_about: 'Über uns',
       nav_archive: 'Archiv',
-      nav_live: 'Livestream',
       hero_eyebrow: 'Radio Blau · Leipzig · seit 2011',
-      hero_subtitle: 'Elektronische Musik, Radio und Clubkultur — alle acht Wochen aus Leipzig.',
+      hero_subtitle: 'Elektronische Musik, Radio und Klubkultur — alle acht Wochen aus Leipzig.',
       next_heading: 'Demnächst',
       listen_heading: 'Hören',
       selected_recording: 'Ausgewählte Aufnahme',
       open_soundcloud: 'Auf SoundCloud öffnen ↗',
       load_soundcloud: 'SoundCloud-Player laden',
       about_heading: 'Über die Sendung',
-      about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Clubkultur, Musikszenen und die Räume, in denen sie entstehen.',
+      about_primary: '<strong>sounds of electronic art</strong> beschäftigt sich mit elektronischer Musik in all ihren Formen. Regelmäßig sprechen Gäste über Klubkultur, Musikszenen und die Räume, in denen sie entstehen.',
       about_secondary: 'Die Sendung wurde 2011 gegründet und wird aus dem Studio von Radio Blau in Leipzig ausgestrahlt.',
       archive_heading: 'Sendungsarchiv',
       open_playlist: 'Playlist auf SoundCloud öffnen ↗',
@@ -38,7 +37,6 @@
       nav_listen: 'Listen',
       nav_about: 'About',
       nav_archive: 'Archive',
-      nav_live: 'Live stream',
       hero_eyebrow: 'Radio Blau · Leipzig · since 2011',
       hero_subtitle: 'Electronic music, radio and club culture — broadcast every eight weeks from Leipzig.',
       next_heading: 'Upcoming',
@@ -148,6 +146,49 @@
     if (url.origin !== location.origin) {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
+    }
+  });
+
+  async function copyToClipboard(value) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+    const field = document.createElement('textarea');
+    field.value = value;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.append(field);
+    field.select();
+    document.execCommand('copy');
+    field.remove();
+  }
+
+  document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-share-button]');
+    if (!(button instanceof HTMLButtonElement)) return;
+    const url = new URL(button.dataset.shareUrl || location.href, location.href).href;
+    const title = language === 'en' ? button.dataset.shareTitleEn : button.dataset.shareTitleDe;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: title || document.title, url });
+        return;
+      }
+      await copyToClipboard(url);
+      const label = button.querySelector('[data-share-label]');
+      const status = button.querySelector('[data-share-status]');
+      if (label) label.textContent = language === 'en' ? 'Copied' : 'Kopiert';
+      if (status) status.textContent = language === 'en' ? 'Link copied' : 'Link kopiert';
+      window.setTimeout(() => {
+        if (label) label.textContent = language === 'en' ? 'Share' : 'Teilen';
+        if (status) status.textContent = '';
+      }, 2200);
+    } catch (error) {
+      if (error?.name !== 'AbortError') {
+        const status = button.querySelector('[data-share-status]');
+        if (status) status.textContent = language === 'en' ? 'Could not share' : 'Teilen nicht möglich';
+      }
     }
   });
 

@@ -315,11 +315,6 @@ h1 {
   line-height: 0.95;
   letter-spacing: -0.055em;
 }
-.section-intro {
-  max-width: 520px;
-  margin: 0;
-  color: var(--muted);
-}
 /* Shared controls */
 .actions {
   display: flex;
@@ -473,8 +468,7 @@ html[data-theme="light"] a:hover { color: var(--accent-strong); }
   margin: 0;
   color: var(--muted);
 }
-.text-link,
-.recording-link {
+.text-link {
   color: var(--accent-soft);
   text-decoration: none;
   font-size: 0.88rem;
@@ -617,11 +611,6 @@ html[data-theme="light"] .soundcloud-load {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
-}
-.archive-status {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.88rem;
 }
 .archive-tools {
   display: flex;
@@ -1318,6 +1307,27 @@ body.detail-open {
   margin-top: 1.75rem;
   padding-top: 1.4rem;
   border-top: 1px solid var(--line);
+}
+.share-button {
+  position: relative;
+  gap: 0.45rem;
+}
+.share-button svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.share-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 html[data-theme="light"] .detail-dialog::backdrop {

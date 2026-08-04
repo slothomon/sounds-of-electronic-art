@@ -791,11 +791,11 @@ def tracklist_items(values: list) -> str:
             timecode = str(value.get("time") or value.get("timecode") or "").strip()
             label = str(value.get("label") or "").strip()
             url = str(value.get("url") or "").strip()
-            main = " — ".join(part for part in [artist, title] if part) or label
+            main = " – ".join(part for part in [artist, title] if part) or label
             if label and main != label:
                 main += f" ({label})"
         else:
-            main = str(value).strip()
+            main = str(value).strip().replace(" — ", " – ").replace(" - ", " – ")
             timecode = ""
             url = ""
         if not main:
@@ -824,7 +824,7 @@ def music_presentation_items(values: list, language: str) -> str:
                 or value.get("description")
                 or ""
             ).strip()
-            main = " — ".join(part for part in [artist, title] if part) or label
+            main = " – ".join(part for part in [artist, title] if part) or label
             meta = " · ".join(part for part in [label, year] if part)
         else:
             main = str(value).strip()

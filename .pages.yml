@@ -6,51 +6,51 @@ media:
     rename: safe
     extensions: [jpg, jpeg, png, webp]
 
+components:
+  editorial_links:
+    type: object
+    label: Weitere Links
+    list:
+      collapsible:
+        collapsed: true
+        summary: "{label_de}"
+    fields:
+      - name: label_de
+        label: Beschriftung (Deutsch)
+        type: string
+        required: true
+      - name: label_en
+        label: Beschriftung (Englisch)
+        type: string
+      - name: url
+        label: URL
+        type: string
+        required: true
+      - name: primary
+        label: Hervorgehoben
+        type: boolean
+        default: false
+
 content:
-  - name: episodes
-    label: Sendungen & Termine
+  - name: upcoming-broadcasts
+    label: Demnächst – Sendungen
     type: file
-    path: content/episodes.json
+    path: content/upcoming-broadcasts.json
     format: json
     list: true
+    operations:
+      rename: false
+      delete: false
     fields:
       - name: date
         label: Beginn
         type: date
         required: true
+        description: Leipziger Ortszeit. Der Build berücksichtigt Sommer- und Winterzeit.
         options:
           time: true
-          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+          format: "yyyy-MM-dd'T'HH:mm:ss"
           step: 3600
-      - name: end
-        label: Ende (optional)
-        type: date
-        default: ""
-        options:
-          time: true
-          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
-          step: 3600
-      - name: type
-        label: Typ
-        type: select
-        default: broadcast
-        options:
-          values:
-            - name: broadcast
-              label: Radiosendung
-            - name: event
-              label: Veranstaltung
-      - name: status
-        label: Status
-        type: select
-        required: true
-        default: upcoming
-        options:
-          values:
-            - name: upcoming
-              label: Demnächst
-            - name: past
-              label: Archiv
       - name: title_de
         label: Titel (Deutsch)
         type: string
@@ -58,56 +58,17 @@ content:
       - name: title_en
         label: Titel (Englisch)
         type: string
+        required: true
         description: Kann mit dem deutschen Titel identisch sein.
-      - name: summary_de
-        label: Kurztext (Deutsch)
-        type: text
-        options:
-          maxlength: 500
-      - name: summary_en
-        label: Kurztext (Englisch)
-        type: text
-        options:
-          maxlength: 500
       - name: details_de
-        label: Detailtext (Deutsch)
+        label: Text (Deutsch)
         type: text
+        required: true
+        description: Wird auf der Startseite automatisch gekürzt und in der Detailansicht vollständig gezeigt.
       - name: details_en
-        label: Detailtext (Englisch)
+        label: Text (Englisch)
         type: text
-      - name: location_de
-        label: Ort (Deutsch)
-        type: string
-      - name: location_en
-        label: Ort (Englisch)
-        type: string
-      - name: duration_hours
-        label: Dauer in Stunden (wenn kein Ende gesetzt ist)
-        type: number
-        options:
-          min: 0.5
-          max: 24
-      - name: audio_url
-        label: SoundCloud-URL
-        type: string
-        description: Für Archiveinträge exakt die öffentliche SoundCloud-Track-URL verwenden.
-      - name: updated_at
-        label: Inhalt zuletzt wesentlich geändert
-        type: date
-        default: ""
-        options:
-          format: yyyy-MM-dd
-      - name: slug
-        label: Eigener URL-Slug (optional)
-        type: string
-        pattern: "^[a-z0-9-]*$"
-        description: Leer lassen, damit der Build den Slug automatisch erzeugt.
-      - name: label_de
-        label: Kategorie (Deutsch, optional)
-        type: string
-      - name: label_en
-        label: Kategorie (Englisch, optional)
-        type: string
+        required: true
       - name: image
         label: Bild / Artwork
         type: image
@@ -115,15 +76,116 @@ content:
           media: episode-images
           extensions: [jpg, jpeg, png, webp]
           rename: safe
-      - name: image_alt_de
-        label: Bildbeschreibung (Deutsch)
+      - name: links
+        component: editorial_links
+
+  - name: upcoming-events
+    label: Demnächst – Veranstaltungen
+    type: file
+    path: content/upcoming-events.json
+    format: json
+    list: true
+    operations:
+      rename: false
+      delete: false
+    fields:
+      - name: date
+        label: Beginn
+        type: date
+        required: true
+        description: Leipziger Ortszeit. Der Build berücksichtigt Sommer- und Winterzeit.
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ss"
+          step: 3600
+      - name: end
+        label: Ende (optional)
+        type: date
+        default: ""
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ss"
+          step: 3600
+      - name: title_de
+        label: Titel (Deutsch)
         type: string
-      - name: image_alt_en
-        label: Bildbeschreibung (Englisch)
+        required: true
+      - name: title_en
+        label: Titel (Englisch)
         type: string
-      - name: social_image
-        label: Eigenes Social-Media-Bild (optional)
+        required: true
+        description: Kann mit dem deutschen Titel identisch sein.
+      - name: details_de
+        label: Text (Deutsch)
+        type: text
+        required: true
+        description: Wird auf der Startseite automatisch gekürzt und in der Detailansicht vollständig gezeigt.
+      - name: details_en
+        label: Text (Englisch)
+        type: text
+        required: true
+      - name: location
+        label: Veranstaltungsort
+        type: string
+        required: true
+        description: Zum Beispiel „Conne Island, Leipzig“.
+      - name: image
+        label: Bild / Flyer
         type: image
+        options:
+          media: episode-images
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: links
+        component: editorial_links
+
+  - name: archive-episodes
+    label: Sendungsarchiv
+    type: file
+    path: content/episodes.json
+    format: json
+    list: true
+    operations:
+      rename: false
+      delete: false
+    fields:
+      - name: date
+        label: Sendungsdatum
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: updated_at
+        label: Inhalt zuletzt wesentlich geändert
+        type: date
+        default: ""
+        options:
+          format: yyyy-MM-dd
+      - name: title_de
+        label: Titel (Deutsch)
+        type: string
+        required: true
+      - name: title_en
+        label: Titel (Englisch)
+        type: string
+        required: true
+        description: Kann mit dem deutschen Titel identisch sein.
+      - name: audio_url
+        label: SoundCloud-URL
+        type: string
+        required: true
+        description: Exakt die öffentliche URL der Aufnahme verwenden.
+      - name: details_de
+        label: Text (Deutsch, optional)
+        type: text
+        description: Falls leer, wird der Text aus SoundCloud verwendet. In der Archivliste wird der Text automatisch gekürzt.
+      - name: details_en
+        label: Text (Englisch, optional)
+        type: text
+      - name: image
+        label: Bild / Artwork (optional)
+        type: image
+        description: Falls leer, wird das lokal zwischengespeicherte SoundCloud-Artwork verwendet.
         options:
           media: episode-images
           extensions: [jpg, jpeg, png, webp]
@@ -186,69 +248,6 @@ content:
           - name: url
             label: Link
             type: string
-      - name: lineup
-        label: Line-up / Mitwirkende
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{name}"
-        fields:
-          - name: name
-            label: Name
-            type: string
-            required: true
-          - name: url
-            label: Link
-            type: string
-          - name: schema_type
-            label: Schema.org-Typ
-            type: select
-            default: Person
-            options:
-              values: [Person, MusicGroup, PerformingGroup]
-      - name: links
-        label: Weitere Links
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{label_de}"
-        fields:
-          - name: label_de
-            label: Beschriftung (Deutsch)
-            type: string
-            required: true
-          - name: label_en
-            label: Beschriftung (Englisch)
-            type: string
-          - name: url
-            label: URL
-            type: string
-            required: true
-          - name: primary
-            label: Hervorgehoben
-            type: boolean
-            default: false
-      - name: venue_name
-        label: Veranstaltungsort – Name
-        type: string
-      - name: street_address
-        label: Veranstaltungsort – Straße
-        type: string
-      - name: postal_code
-        label: Veranstaltungsort – PLZ
-        type: string
-      - name: address_locality
-        label: Veranstaltungsort – Ort
-        type: string
-      - name: address_region
-        label: Veranstaltungsort – Region
-        type: string
-      - name: address_country
-        label: Veranstaltungsort – Land (ISO-Code)
-        type: string
-        default: DE
 
 settings:
   content:

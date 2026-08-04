@@ -1,129 +1,128 @@
-# Pages CMS für sofea einrichten
+# Pages CMS editorial workflow
 
-Pages CMS ist hier nur die Bearbeitungsoberfläche. Die Daten bleiben in
-`content/episodes.json`, Bilder im GitHub-Repository und die Veröffentlichung
-läuft weiterhin über die vorhandenen GitHub Actions.
+Pages CMS edits the JSON files in this GitHub repository directly. There is no
+separate content database and every change remains visible in Git history.
 
-## Konten und Rechte
+## Editors
 
-Keinen gemeinsamen oder zusätzlichen GitHub-Benutzer anlegen. Jede der zwei
-oder drei beteiligten Personen verwendet ihr eigenes GitHub-Konto. Das hält
-Änderungen nachvollziehbar und vermeidet gemeinsam genutzte Passwörter und
-2FA-Zugänge.
+Use one personal GitHub account per editor. Add the two or three editors as
+repository collaborators and enable 2FA or passkeys. Do not create a shared
+editor account.
 
-1. Repository auf GitHub öffnen.
-2. **Settings → Collaborators** öffnen.
-3. Die weiteren Personen einzeln einladen.
-4. Alle sollten Zwei-Faktor-Authentifizierung oder einen Passkey verwenden.
+## Content areas
 
-## Einmalige Vorbereitung vorhandener Listen
+The Pages CMS sidebar contains three focused editors:
 
-Pages CMS bearbeitet `music_presentations` und `tracklist` als wiederholbare
-Objekte. Ältere Einträge dürfen im Build weiterhin einfache Strings enthalten,
-für das CMS sollten sie aber einmalig vereinheitlicht werden.
+1. **Demnächst – Sendungen** → `content/upcoming-broadcasts.json`
+2. **Demnächst – Veranstaltungen** → `content/upcoming-events.json`
+3. **Sendungsarchiv** → `content/episodes.json`
 
-Zuerst nur prüfen:
+This separation is deliberate: Pages CMS cannot filter one top-level JSON array
+into several field-specific editors. Separate files keep the forms short and
+avoid showing venue, tracklist or archive fields where they are irrelevant.
 
-```cmd
-py scripts\normalize_episode_lists.py
+### Demnächst – Sendungen
+
+Fields:
+
+- start date and time;
+- German and English title;
+- one German and English text;
+- optional artwork;
+- optional external buttons.
+
+Broadcasts default to three hours. The homepage automatically shortens the text;
+the detail page displays it in full.
+
+### Demnächst – Veranstaltungen
+
+Fields:
+
+- start and optional end;
+- German and English title;
+- one German and English text;
+- one venue/location field;
+- optional flyer;
+- optional external buttons.
+
+### Sendungsarchiv
+
+Fields:
+
+- broadcast date and optional update date;
+- German and English title;
+- exact SoundCloud URL;
+- optional German and English editorial text;
+- optional local artwork;
+- music presentations;
+- tracklist.
+
+If the editorial text is empty, the SoundCloud description remains the fallback.
+The archive list shows an automatic excerpt and the detail page shows the full
+text.
+
+## Correct local time
+
+Future dates are stored without a timezone suffix:
+
+```json
+"date": "2026-08-29T21:00:00"
 ```
 
-Wenn Konvertierungen angekündigt werden, vorher committen oder ein Backup
-anlegen und dann schreiben:
+Pages CMS therefore displays 21:00 instead of converting the value to 19:00.
+The build interprets the value as `Europe/Berlin`, including CET/CEST changes.
+Do not manually add `Z`, `+01:00` or `+02:00` to future dates in the new files.
+
+## One-time migration
+
+The former `content/episodes.json` mixed archive entries and upcoming items.
+First preview the migration:
 
 ```cmd
-py scripts\normalize_episode_lists.py --write
-py -m json.tool content\episodes.json > nul
+py scripts\split_episode_content.py
+```
+
+Then write the split files:
+
+```cmd
+py scripts\split_episode_content.py --write
+```
+
+The script:
+
+- keeps archive enrichment in `content/episodes.json`;
+- moves future broadcasts to `content/upcoming-broadcasts.json`;
+- moves future events to `content/upcoming-events.json`;
+- keeps the entered local clock time while removing the UTC offset;
+- replaces the old summary/detail duplication with one `details_*` text field;
+- removes redundant trailing dates from local archive titles.
+
+Review the diff before committing:
+
+```cmd
+git diff -- content
+```
+
+## Opening Pages CMS
+
+1. Open `https://app.pagescms.org/`.
+2. Sign in with your personal GitHub account.
+3. Install the Pages CMS GitHub App.
+4. Select **Only select repositories**.
+5. Authorize only `slothomon/sounds-of-electronic-art`.
+6. Open the repository and branch `main`.
+7. Choose one of the three content areas.
+
+After changing `.pages.yml`, Pages CMS may retain its cached configuration for a
+few minutes. Reload the repository view after the new commit is on `main`.
+
+## Before publishing locally
+
+```cmd
 py scripts\validate_site.py --source
 py scripts\build.py
 py scripts\validate_site.py --public
 ```
 
-Ein String wie
-
-```json
-"Headache – Nineteen Sixty Five"
-```
-
-wird dabei zu:
-
-```json
-{
-  "artist": "Headache",
-  "title": "Nineteen Sixty Five"
-}
-```
-
-Links und weitere Felder können danach im CMS ergänzt werden.
-
-## Pages CMS verbinden
-
-1. `https://app.pagescms.org` öffnen.
-2. Mit dem eigenen GitHub-Konto anmelden.
-3. Die Pages-CMS-GitHub-App installieren.
-4. Bei der Repository-Auswahl am besten **Only select repositories** wählen
-   und nur `slothomon/sounds-of-electronic-art` freigeben.
-5. Das Repository und den Branch `main` öffnen.
-6. Pages CMS liest die im Repository enthaltene `.pages.yml` automatisch.
-7. In der Seitenleiste **Sendungen & Termine** öffnen.
-
-Jede Person wiederholt nur Anmeldung und GitHub-Autorisierung mit ihrem eigenen
-Konto. Eine gemeinsame CMS-Anmeldung ist nicht nötig.
-
-## Was im Editor gepflegt werden kann
-
-Der Editor deckt derzeit beides in einer Liste ab:
-
-- künftige Radiosendungen und Veranstaltungen (`status: upcoming`);
-- lokale Ergänzungen zu archivierten SoundCloud-Sendungen (`status: past`).
-
-Unter anderem stehen Formulare bereit für:
-
-- Beginn und Ende;
-- Typ und Status;
-- Titel, Kurz- und Detailtexte auf Deutsch und Englisch;
-- Ort und strukturierte Veranstaltungsadresse;
-- SoundCloud-URL;
-- Artwork und eigenes Social-Media-Bild;
-- Musikvorstellungen inklusive Discogs-/Bandcamp-Link;
-- Tracklist und Zeitmarken;
-- Line-up und weitere Links;
-- `updated_at` für wesentliche Inhaltsänderungen.
-
-### Archivsendung richtig zuordnen
-
-Bei einer bestehenden Sendung muss `audio_url` exakt der öffentlichen
-SoundCloud-Track-URL entsprechen. Dieses Feld verbindet den lokalen Eintrag
-mit `content/archive-cache.json`.
-
-### Bilder hochladen
-
-Das Bildfeld speichert hochgeladene Dateien unter:
-
-```text
-assets/images/uploads/
-```
-
-Das Feld `image` überschreibt das automatisch von SoundCloud geladene Artwork.
-Das Feld `social_image` ist nur nötig, wenn die automatisch erzeugte Social
-Card ersetzt werden soll.
-
-### Speichern und Veröffentlichung
-
-Beim Speichern schreibt Pages CMS einen normalen Commit in das Repository.
-Der bestehende Pages-Workflow validiert die JSON-Daten, baut die Seite und
-veröffentlicht sie. Falls der Build rot wird, ist die Website weiterhin auf dem
-zuletzt erfolgreichen Stand; die Fehlermeldung steht unter GitHub **Actions**.
-
-## Empfohlener Redaktionsablauf
-
-1. Eintrag in Pages CMS öffnen oder neu hinzufügen.
-2. Änderungen speichern.
-3. Auf GitHub den neuen Actions-Lauf kontrollieren.
-4. Bei Tracklists oder Musikvorstellungen `updated_at` auf das aktuelle Datum
-   setzen, weil sich der sichtbare Seiteninhalt wesentlich geändert hat.
-5. Die veröffentlichte Detailseite kurz kontrollieren.
-
-Für zwei bis drei Personen und einen Acht-Wochen-Rhythmus ist die bestehende
-Top-Level-Liste praktikabel. Erst bei häufigen parallelen Änderungen wäre eine
-spätere Aufteilung in eine JSON-Datei pro Sendung sinnvoll.
+Pages CMS itself writes commits to GitHub. GitHub Actions then performs the same
+validation before deploying the site.

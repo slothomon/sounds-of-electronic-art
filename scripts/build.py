@@ -30,6 +30,16 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def read_json_list(path: Path) -> list[dict]:
+    """Read an optional top-level JSON array."""
+    if not path.exists():
+        return []
+    value = read_json(path)
+    if not isinstance(value, list):
+        raise ValueError(f"{path.relative_to(ROOT)} must contain a top-level JSON array")
+    return [item for item in value if isinstance(item, dict)]
+
+
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
@@ -50,6 +60,28 @@ def card_excerpt(value: str, limit: int = 100) -> str:
         return normalized
     shortened = normalized[: limit + 1].rsplit(" ", 1)[0].rstrip(" .,;:–—-")
     return (shortened or normalized[:limit].rstrip()) + "…"
+
+
+def content_text(item: dict, language: str = "de") -> str:
+    """Return the single editorial text used for cards and detail pages.
+
+    ``details_*`` is the current field. ``summary_*`` remains a compatibility
+    fallback for older entries and the imported SoundCloud cache.
+    """
+    primary = str(item.get(f"details_{language}") or item.get(f"summary_{language}") or "").strip()
+    if primary:
+        return primary
+    if language == "en":
+        return str(item.get("details_de") or item.get("summary_de") or "").strip()
+    return str(item.get("summary") or "").strip()
+
+
+def clean_archive_title(value: object) -> str:
+    """Remove a redundant trailing SoundCloud date while preserving other notes."""
+    title = " ".join(str(value or "").split())
+    title = re.sub(r"\s*\(\s*(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*\)\s*$", "", title)
+    title = re.sub(r"\s+(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*$", "", title)
+    return title.strip()
 
 
 def parse_date(value: str) -> datetime:
@@ -649,8 +681,8 @@ def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -
 
 def detail_description(item: dict, site: dict) -> str:
     value = (
-        item.get("summary_de")
-        or item.get("details_de")
+        item.get("details_de")
+        or item.get("summary_de")
         or item.get("summary")
         or site.get("description_de")
         or site["name"]
@@ -1014,10 +1046,13 @@ def archive_detail_inner(
     heading_id: str,
 ) -> str:
     value = parse_date(str(item["date"]))
-    title_de = str(item["title_de"])
-    title_en = str(item.get("title_en") or title_de)
-    summary_de = str(item.get("summary_de") or "")
-    summary_en = str(item.get("summary_en") or summary_de)
+    title_de = clean_archive_title(item["title_de"])
+    title_en = clean_archive_title(item.get("title_en") or title_de)
+    # When an editorial details text exists it is the single visible text.
+    # The imported SoundCloud summary remains only a fallback.
+    has_details = bool(item.get("details_de") or item.get("details_en"))
+    summary_de = "" if has_details else str(item.get("summary_de") or "")
+    summary_en = "" if has_details else str(item.get("summary_en") or summary_de)
     date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
     date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1]} {value.year}"
     summary_html = ""
@@ -1096,8 +1131,8 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
         end = upcoming_end(item)
         title_de = str(item.get("title_de") or site["name"])
         title_en = str(item.get("title_en") or title_de)
-        summary_de = str(item.get("summary_de") or "")
-        summary_en = str(item.get("summary_en") or summary_de)
+        summary_de = content_text(item, "de")
+        summary_en = content_text(item, "en")
         card_summary_de = card_excerpt(summary_de)
         card_summary_en = card_excerpt(summary_en)
         default_label_de = "Sendung" if item_type == "broadcast" else "Veranstaltung"
@@ -1203,8 +1238,8 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                     continue
                 base = {
                     "date": str(item["date"]),
-                    "title_de": str(item["title"]),
-                    "title_en": str(item["title"]),
+                    "title_de": clean_archive_title(item["title"]),
+                    "title_en": clean_archive_title(item["title"]),
                     "summary_de": str(item.get("summary") or ""),
                     "summary_en": str(item.get("summary") or ""),
                     "audio_url": str(item["audio_url"]),
@@ -1219,6 +1254,8 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                         if key in {"status", "date", "audio_url"}:
                             continue
                         base[key] = value
+                base["title_de"] = clean_archive_title(base.get("title_de"))
+                base["title_en"] = clean_archive_title(base.get("title_en") or base["title_de"])
                 if not base.get("image"):
                     base["image"] = local_episode_artwork(base)
                 result.append(base)
@@ -1231,6 +1268,10 @@ def load_archive(episodes: list[dict]) -> list[dict]:
         if normalised_url in seen_urls:
             continue
         local_item = dict(item)
+        if local_item.get("title_de"):
+            local_item["title_de"] = clean_archive_title(local_item["title_de"])
+        if local_item.get("title_en"):
+            local_item["title_en"] = clean_archive_title(local_item["title_en"])
         if not local_item.get("image"):
             local_item["image"] = local_episode_artwork(local_item)
         result.append(local_item)
@@ -1260,10 +1301,12 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
         value = parse_date(str(item["date"]))
         date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
         date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1][:3]} {value.year}"
-        title_de = str(item["title_de"])
-        title_en = str(item.get("title_en") or title_de)
-        summary_de = str(item.get("summary_de") or "")
-        summary_en = str(item.get("summary_en") or summary_de)
+        title_de = clean_archive_title(item["title_de"])
+        title_en = clean_archive_title(item.get("title_en") or title_de)
+        summary_de = content_text(item, "de")
+        summary_en = content_text(item, "en")
+        card_summary_de = card_excerpt(summary_de, 180)
+        card_summary_en = card_excerpt(summary_en, 180)
         search_text = " ".join(
             [str(item["date"]), date_de, date_en, title_de, title_en, summary_de, summary_en]
             + flatten_search_values(item.get("details_de"))
@@ -1275,9 +1318,9 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
             + flatten_search_values(item.get("tracklist"))
         )
         summary_html = ""
-        if summary_de or summary_en:
+        if card_summary_de or card_summary_en:
             summary_html = (
-                f'<p data-bilingual data-de="{esc(summary_de)}" data-en="{esc(summary_en)}">{esc(summary_de)}</p>'
+                f'<p data-bilingual data-de="{esc(card_summary_de)}" data-en="{esc(card_summary_en)}">{esc(card_summary_de)}</p>'
             )
         url_hash = hashlib.sha1(str(item["audio_url"]).encode("utf-8")).hexdigest()[:7]
         episode_id = f"episode-{value.strftime('%Y-%m-%d')}-{slugify(title_de)}-{url_hash}"
@@ -1421,8 +1464,20 @@ def legal_pages_content(legal: dict[str, str]) -> dict[str, str]:
 def main() -> None:
     site = read_json(ROOT / "content" / "site.json")
     legal = read_json(ROOT / "content" / "legal.json")
-    episodes = read_json(ROOT / "content" / "episodes.json")
-    archive = load_archive(episodes)
+
+    # Pages CMS uses three focused editors. Legacy upcoming entries left in
+    # episodes.json are still accepted until the migration script is run.
+    archive_entries = read_json_list(ROOT / "content" / "episodes.json")
+    broadcast_entries = read_json_list(ROOT / "content" / "upcoming-broadcasts.json")
+    event_entries = read_json_list(ROOT / "content" / "upcoming-events.json")
+    for item in broadcast_entries:
+        item.setdefault("status", "upcoming")
+        item.setdefault("type", "broadcast")
+    for item in event_entries:
+        item.setdefault("status", "upcoming")
+        item.setdefault("type", "event")
+    episodes = archive_entries + broadcast_entries + event_entries
+    archive = load_archive(archive_entries)
 
     pages_url = str(os.environ.get("SITE_URL") or site.get("url") or "http://localhost:8000").rstrip("/")
     parsed = urlparse(pages_url)
@@ -1625,7 +1680,7 @@ def main() -> None:
             {
                 "date": item["date"],
                 "title": item["title_de"],
-                "summary": item.get("summary_de") or "",
+                "summary": content_text(item, "de"),
                 "url": absolute_site_url(canonical_url, detail_relative_path("episode", item, site)),
                 "audio_url": item["audio_url"],
                 "music_presentations": item.get("music_presentations") or item.get("music_presentations_de") or [],
@@ -1646,7 +1701,7 @@ def main() -> None:
         feed_items.append(
             "<item>"
             f"<title>{esc(item['title_de'])}</title>"
-            f"<description>{esc(item.get('summary_de') or '')}</description>"
+            f"<description>{esc(content_text(item, 'de'))}</description>"
             f"<link>{esc(detail_url)}</link>"
             f"<pubDate>{format_datetime(value)}</pubDate>"
             f"<guid isPermaLink=\"true\">{esc(detail_url)}</guid>"

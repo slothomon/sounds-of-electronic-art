@@ -125,6 +125,8 @@ def validate_source(root: Path) -> int:
         root / "templates" / "404.html",
         root / "content" / "site.json",
         root / "content" / "episodes.json",
+        root / "content" / "upcoming-broadcasts.json",
+        root / "content" / "upcoming-events.json",
         root / "content" / "legal.json",
         root / "content" / "archive-cache.json",
     ]
@@ -135,6 +137,8 @@ def validate_source(root: Path) -> int:
     json_files = [
         root / "content" / "site.json",
         root / "content" / "episodes.json",
+        root / "content" / "upcoming-broadcasts.json",
+        root / "content" / "upcoming-events.json",
         root / "content" / "legal.json",
         root / "content" / "archive-cache.json",
     ]
@@ -155,19 +159,42 @@ def validate_source(root: Path) -> int:
             if not site.get(key):
                 errors.append(f"content/site.json is missing required key: {key}")
 
-    episodes = parsed_json.get("episodes.json")
-    if episodes is not None and not isinstance(episodes, list):
+    archive_entries = parsed_json.get("episodes.json")
+    if archive_entries is not None and not isinstance(archive_entries, list):
         errors.append("content/episodes.json must contain a JSON array")
-    elif isinstance(episodes, list):
-        for index, episode in enumerate(episodes):
+    elif isinstance(archive_entries, list):
+        for index, episode in enumerate(archive_entries):
             if not isinstance(episode, dict):
                 errors.append(f"content/episodes.json entry {index + 1} must be an object")
                 continue
-            for key in ("date", "title_de", "status"):
+            for key in ("date", "title_de", "audio_url"):
                 if not episode.get(key):
                     errors.append(
                         f"content/episodes.json entry {index + 1} is missing required key: {key}"
                     )
+
+    for filename, required_keys in (
+        ("upcoming-broadcasts.json", ("date", "title_de", "title_en", "details_de", "details_en")),
+        ("upcoming-events.json", ("date", "title_de", "title_en", "details_de", "details_en", "location")),
+    ):
+        entries = parsed_json.get(filename)
+        if entries is not None and not isinstance(entries, list):
+            errors.append(f"content/{filename} must contain a JSON array")
+            continue
+        if not isinstance(entries, list):
+            continue
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                errors.append(f"content/{filename} entry {index + 1} must be an object")
+                continue
+            for key in required_keys:
+                if not entry.get(key):
+                    errors.append(f"content/{filename} entry {index + 1} is missing required key: {key}")
+            date_value = str(entry.get("date") or "")
+            if re.search(r"(?:Z|[+-]\d{2}:?\d{2})$", date_value):
+                errors.append(
+                    f"content/{filename} entry {index + 1} date must be local Leipzig time without a UTC offset"
+                )
 
     legal = parsed_json.get("legal.json")
     if legal is not None and not isinstance(legal, dict):

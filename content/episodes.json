@@ -1,67 +1,28 @@
 [
   {
-    "date": "2026-08-29T21:00:00+02:00",
-    "title_de": "sofea #100 - tba",
-    "title_en": "sofea #100 - tba",
-    "status": "upcoming",
-    "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau",
-    "summary_en": "Three hours of electronic music. Live on Radio Blau.",
-    "audio_url": null
-  },
-  {
-    "date": "2026-10-24T21:00:00+02:00",
-    "title_de": "sofea #101 - tba",
-    "title_en": "sofea #101 - tba",
-    "status": "upcoming",
-    "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "summary_en": "Three hours of electronic music. Live on Radio Blau.",
-    "audio_url": null
-  },
-  {
-    "date": "2026-12-19T21:00:00+02:00",
-    "title_de": "sofea #102 - tba",
-    "title_en": "sofea #102 - tba",
-    "status": "upcoming",
-    "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "summary_en": "Three hours of electronic music. Live on Radio Blau.",
-    "audio_url": null
-  },
-  {
-    "date": "2026-07-04T21:00:00+02:00",
-    "title_de": "sounds of electronic art",
-    "title_en": "sounds of electronic art",
-    "status": "past",
-    "summary_de": "Elektronische Musik und Clubkultur live aus Leipzig.",
-    "summary_en": "Electronic music and club culture live from Leipzig.",
-    "audio_url": null
-  },
-  {
-    "date": "2026-03-14T21:00:00+01:00",
+    "date": "2026-03-14",
     "title_de": "Neele",
     "title_en": "Neele",
-    "status": "past",
-    "summary_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
-    "summary_en": "Recording of Neele's set from the 98th show in March 2026.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
+    "details_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
+    "details_en": "Recording of Neele's set from the 98th show in March 2026."
   },
   {
-    "date": "2026-01-17T21:00:00+01:00",
+    "date": "2026-01-17",
     "title_de": "sofea & friends",
     "title_en": "sofea & friends",
-    "status": "past",
-    "summary_de": "Extended Geburtstagsmix mit Neele, Thomas Heinrich, HAL und John Minus Plus.",
-    "summary_en": "Extended birthday mix with Neele, Thomas Heinrich, HAL and John Minus Plus.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-friends-w-neele-thomas-heinrich-hal-john-minus-plus-2026-01-17",
+    "details_de": "Extended Geburtstagsmix mit Neele, Thomas Heinrich, HAL und John Minus Plus.",
+    "details_en": "Extended birthday mix with Neele, Thomas Heinrich, HAL and John Minus Plus."
   },
   {
-    "date": "2025-11-22T21:00:00+01:00",
-    "updated_at": "2026-08-02",
+    "date": "2025-11-22",
     "title_de": "Werner Benzo",
     "title_en": "Werner Benzo",
-    "status": "past",
-    "summary_de": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
-    "summary_en": "Complete show featuring an interview and music by Werner Benzo.",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
+    "updated_at": "2026-08-02",
+    "details_de": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
+    "details_en": "Complete show featuring an interview and music by Werner Benzo.",
     "music_presentations": [
       {
         "artist": "Headache",
@@ -86,68 +47,53 @@
     ]
   },
   {
-    "date": "2025-08-02T21:00:00+02:00",
-    "title_de": "sounds of electronic art",
-    "title_en": "sounds of electronic art",
-    "status": "past",
-    "summary_de": "Elektronische Musik und Clubkultur live aus Leipzig.",
-    "summary_en": "Electronic music and club culture live from Leipzig.",
-    "audio_url": null
-  },
-  {
-    "date": "2025-06-07T21:00:00+02:00",
+    "date": "2025-06-07",
     "title_de": "R22",
     "title_en": "R22",
-    "status": "past",
-    "summary_de": "Gastset aus der Sendung vom 7. Juni 2025.",
-    "summary_en": "Guest set from the show on 7 June 2025.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/r22-2025-06-07",
+    "details_de": "Gastset aus der Sendung vom 7. Juni 2025.",
+    "details_en": "Guest set from the show on 7 June 2025."
   },
   {
-    "date": "2024-10-26T21:00:00+02:00",
+    "date": "2024-10-26",
     "title_de": "Moritz Kaiser",
     "title_en": "Moritz Kaiser",
-    "status": "past",
-    "summary_de": "Zwei Stunden Musikvorstellungen und Gespräche, gefolgt von einem einstündigen Gastset.",
-    "summary_en": "Two hours of selections and conversation followed by a one-hour guest set.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/moritz-kaiser-komplette-sendung-2024-10-26",
+    "details_de": "Zwei Stunden Musikvorstellungen und Gespräche, gefolgt von einem einstündigen Gastset.",
+    "details_en": "Two hours of selections and conversation followed by a one-hour guest set."
   },
   {
-    "date": "2024-07-06T21:00:00+02:00",
+    "date": "2024-07-06",
     "title_de": "M.ono",
     "title_en": "M.ono",
-    "status": "past",
-    "summary_de": "House-Set aus der Sendung vom 6. Juli 2024.",
-    "summary_en": "House set from the show on 6 July 2024.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/mono-at-sofea",
+    "details_de": "House-Set aus der Sendung vom 6. Juli 2024.",
+    "details_en": "House set from the show on 6 July 2024."
   },
   {
-    "date": "2024-03-16T21:00:00+01:00",
+    "date": "2024-03-16",
     "title_de": "Dahmar",
     "title_en": "Dahmar",
-    "status": "past",
-    "summary_de": "Gastset aus der Sendung vom 16. März 2024.",
-    "summary_en": "Guest set from the show on 16 March 2024.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/dahmar-2024-03-16",
+    "details_de": "Gastset aus der Sendung vom 16. März 2024.",
+    "details_en": "Guest set from the show on 16 March 2024."
   },
   {
-    "date": "2023-11-25T21:00:00+01:00",
+    "date": "2023-11-25",
     "title_de": "Kontinum",
     "title_en": "Kontinum",
-    "status": "past",
-    "summary_de": "Techno-Set aus der Sendung vom 25. November 2023.",
-    "summary_en": "Techno set from the show on 25 November 2023.",
-    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25"
+    "audio_url": "https://soundcloud.com/sounds-of-electronic-art/kontinum-2023-11-25",
+    "details_de": "Techno-Set aus der Sendung vom 25. November 2023.",
+    "details_en": "Techno set from the show on 25 November 2023."
   },
   {
-    "date": "2021-02-20T21:00:00+01:00",
-    "updated_at": "2026-08-02",
+    "date": "2021-02-20",
     "title_de": "Translucid",
     "title_en": "Translucid",
-    "status": "past",
-    "summary_de": "Sendung mit Translucid vom 20. Februar 2021.",
-    "summary_en": "Broadcast featuring Translucid from 20 February 2021.",
     "audio_url": "https://soundcloud.com/sounds-of-electronic-art/translucid-2021-02-20",
+    "updated_at": "2026-08-02",
+    "details_de": "Sendung mit Translucid vom 20. Februar 2021.",
+    "details_en": "Broadcast featuring Translucid from 20 February 2021.",
     "tracklist": [
       {
         "artist": "Queniv",

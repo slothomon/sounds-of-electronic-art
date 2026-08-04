@@ -28,8 +28,10 @@ generated privacy notice for details.
 ```text
 assets/                     CSS, JavaScript, logos and images
 content/site.json           General website, team and recording data
-content/episodes.json       Upcoming entries and local archive enrichment
-content/archive-cache.json  Cached SoundCloud playlist metadata
+content/upcoming-broadcasts.json  Upcoming radio broadcasts
+content/upcoming-events.json      Upcoming events
+content/episodes.json             Local archive enrichment
+content/archive-cache.json        Cached SoundCloud playlist metadata
 content/legal.json          Operator details for legal pages
 docs/                       Search Console, Pages CMS and structured-data notes
 scripts/build.py             Static-site generator
@@ -45,9 +47,10 @@ Do not edit `public/` directly. It is deleted and rebuilt by
 
 ## Edit content with Pages CMS
 
-The repository includes a ready-to-use `.pages.yml` configuration for editing
-`content/episodes.json` through Pages CMS. It covers upcoming dates, archive
-enrichment, music presentations, tracklists, artwork, line-ups and links.
+The repository includes a focused `.pages.yml` configuration with three
+separate editors: **Demnächst – Sendungen**, **Demnächst – Veranstaltungen**
+and **Sendungsarchiv**. Each editor only exposes fields relevant to that content
+type.
 
 Each editor should use an individual GitHub account; do not share one account.
 The complete one-time setup and editorial workflow are documented in:
@@ -75,60 +78,52 @@ content/site.json
 
 The build displays the first five objects in the `mixes` array.
 
-## Add broadcasts and events to Upcoming
+## Add broadcasts and events to Demnächst
 
-Upcoming items are maintained in:
+Pages CMS stores future content in two separate files:
 
 ```text
-content/episodes.json
+content/upcoming-broadcasts.json
+content/upcoming-events.json
 ```
 
-Every future object with `"status": "upcoming"` is rendered and sorted by
-start date. Expired items are excluded automatically during the next build.
+Times are stored as Leipzig wall-clock time **without a UTC offset**, for
+example `2026-08-29T21:00:00`. This prevents the CMS from displaying 19:00
+when 21:00 was entered. The build applies the `Europe/Berlin` timezone and
+therefore handles summer and winter time correctly.
+
+There is only one editorial text per language: `details_de` and `details_en`.
+The homepage creates a short excerpt automatically; the detail view shows the
+complete text.
 
 ### Broadcast example
 
 ```json
 {
-  "date": "2026-08-29T21:00:00+02:00",
-  "end": "2026-08-30T00:00:00+02:00",
-  "type": "broadcast",
+  "date": "2026-08-29T21:00:00",
   "title_de": "sofea #100 - tba",
   "title_en": "sofea #100 - tba",
-  "status": "upcoming",
-  "summary_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-  "summary_en": "Three hours of electronic music. Live on Radio Blau.",
-  "audio_url": null
+  "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+  "details_en": "Three hours of electronic music. Live on Radio Blau.",
+  "image": "/assets/images/uploads/sofea-100.jpg",
+  "links": []
 }
 ```
 
-If `end` is omitted, broadcasts default to three hours and events to two
-hours. `duration_hours` can override that default.
+Broadcasts default to three hours.
 
 ### Event example
 
 ```json
 {
-  "date": "2026-09-12T20:00:00+02:00",
-  "end": "2026-09-13T02:00:00+02:00",
-  "type": "event",
-  "status": "upcoming",
+  "date": "2026-09-12T20:00:00",
+  "end": "2026-09-13T02:00:00",
   "title_de": "sofea night",
   "title_en": "sofea night",
-  "summary_de": "Eine Nacht mit dem sofea-Team und Gästen.",
-  "summary_en": "A night with the sofea team and guests.",
-  "details_de": "Hier kann ein längerer Beschreibungstext stehen.",
-  "details_en": "A longer event description can be placed here.",
-  "location_de": "Conne Island, Leipzig",
-  "location_en": "Conne Island, Leipzig",
-  "image": "assets/images/sofea-night.jpg",
-  "image_alt_de": "Flyer der sofea night",
-  "image_alt_en": "sofea night flyer",
-  "lineup": [
-    {"name": "96kbps", "url": "https://soundcloud.com/skile"},
-    {"name": "easy.miner", "url": "https://soundcloud.com/easy_miner"},
-    {"name": "fumé", "url": "https://soundcloud.com/fume"}
-  ],
+  "details_de": "Eine Nacht mit dem sofea-Team und Gästen.",
+  "details_en": "A night with the sofea team and guests.",
+  "location": "Conne Island, Leipzig",
+  "image": "/assets/images/uploads/sofea-night.jpg",
   "links": [
     {
       "label_de": "Veranstaltungsdetails",
@@ -136,67 +131,44 @@ hours. `duration_hours` can override that default.
       "url": "https://example.org/event",
       "primary": true
     }
-  ],
-  "audio_url": null
+  ]
 }
 ```
 
-Supported optional fields include:
+The build generates crawlable detail pages, individual calendar files and the
+subscribable calendar at `https://sofea.radio/calendar.ics`.
 
-- `slug`: stable custom URL segment;
-- `label_de` / `label_en`: category shown above the title;
-- `location`, or separate `location_de` / `location_en`;
-- `details_de` / `details_en`: longer text; blank lines create paragraphs;
-- `image` or `image_url`, plus localized alt text;
-- `lineup`: strings or objects with `name`, optional `url` and optional
-  `schema_type` (for example `Person`, `MusicGroup` or `PerformingGroup`);
-- optional structured venue fields: `venue_name`, `street_address`,
-  `postal_code`, `address_locality`, `address_region` and `address_country`;
-- `music_presentations`: records or tracks introduced during the editorial part
-  of the programme; strings or objects with `artist`, `title`, optional `label`,
-  `year`, `url` and localized `note_de` / `note_en`;
-- `tracklist`: strings or objects with `artist`, `title`, optional `time`,
-  `label` and `url`;
-- `social_image`: optional custom Open Graph image; otherwise the build creates
-  an individual branded 1200 × 630 pixel card automatically;
-- `links`: additional buttons with labels, URL and optional `primary: true`;
-- `updated_at`: optional `YYYY-MM-DD` date for the sitemap.
+### One-time migration from the former mixed file
 
-The build generates:
+Preview the split:
 
-```text
-/termine/YYYY-MM-DD-slug/
-/calendar/YYYY-MM-DD-slug.ics
-/calendar.ics
+```cmd
+py scripts\split_episode_content.py
 ```
 
-`/calendar.ics` contains all future entries and is linked through the
-**Kalender abonnieren** control. Its stable subscription address is:
+Then write the three focused files:
 
-```text
-webcal://sofea.radio/calendar.ics
+```cmd
+py scripts\split_episode_content.py --write
 ```
 
-The HTTPS fallback is `https://sofea.radio/calendar.ics`. Individual `.ics`
-files remain available for one-off imports. Calendar notes contain the
-Radio Blau DAB+/FM frequencies and the stream URL in a consistent footer.
+The migration keeps the entered local hour and removes timezone suffixes from
+future dates. It also moves former `summary_*` values into the single
+`details_*` text fields.
 
 ## Enrich an archived broadcast
 
-The SoundCloud cache supplies title, date, description and audio URL. Add a
-non-upcoming object to `content/episodes.json` with the exact same `audio_url`
-to add longer text, an image, lineup or tracklist without modifying the cache:
+The SoundCloud cache supplies title, date, description, audio URL and artwork.
+Add an object to `content/episodes.json` with the exact same `audio_url` to add
+editorial text, music presentations or a tracklist without modifying the cache:
 
 ```json
 {
   "date": "2026-03-14",
-  "status": "past",
   "title_de": "Neele",
   "title_en": "Neele",
-  "summary_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
-  "summary_en": "Recording from the 98th broadcast.",
-  "details_de": "Weitere Informationen zur Sendung.",
-  "details_en": "Additional information about the broadcast.",
+  "details_de": "Mitschnitt des Sets aus der 98. Sendung im März 2026.",
+  "details_en": "Recording from the 98th broadcast.",
   "audio_url": "https://soundcloud.com/sounds-of-electronic-art/neele-2026-03-14",
   "music_presentations": [
     "Artist A — Release without a link",

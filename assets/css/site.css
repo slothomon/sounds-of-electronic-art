@@ -1822,3 +1822,12 @@ html[data-theme="light"] .detail-dialog {
     max-width: 56px;
   }
 }
+
+/* Keep episode artwork compact on phones while retaining the desktop layout. */
+@media (max-width: 760px) {
+  .detail-intro-with-artwork .detail-artwork,
+  .detail-dialog .detail-intro-with-artwork .detail-artwork {
+    width: min(72vw, 280px);
+    max-width: 280px;
+  }
+}

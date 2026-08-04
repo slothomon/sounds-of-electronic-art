@@ -48,12 +48,19 @@ def normalise_text(value: Any) -> str:
 
 
 def clean_title(value: Any) -> str:
+    """Normalize title dates, then remove a redundant trailing date.
+
+    Notes such as ``(Komplette Sendung)`` remain untouched.
+    """
     title = clean_text(value)
-    return re.sub(
+    title = re.sub(
         r"\b(20\d{2})\s*[-_.]\s*(\d{1,2})\s*[-_.]\s*(\d{1,2})\b",
         lambda match: f"{match.group(1)}-{int(match.group(2)):02d}-{int(match.group(3)):02d}",
         title,
     )
+    title = re.sub(r"\s*\(\s*20\d{2}-\d{2}-\d{2}\s*\)\s*$", "", title)
+    title = re.sub(r"\s+20\d{2}-\d{2}-\d{2}\s*$", "", title)
+    return title.strip()
 
 
 def valid_date(year: Any, month: Any, day: Any) -> date | None:

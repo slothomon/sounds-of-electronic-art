@@ -12,7 +12,14 @@
     "title_de": "sofea #101 - Credit 00",
     "title_en": "sofea #101 - Credit 00",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "links": [
+      {
+        "label_de": "https://de.ra.co/dj/credit00",
+        "url": "https://de.ra.co/dj/credit00",
+        "primary": false
+      }
+    ]
   },
   {
     "date": "2026-12-19T21:00:00",

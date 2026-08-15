@@ -2,10 +2,17 @@
   {
     "date": "2026-08-29T21:00:00",
     "episode_number": 100,
-    "title_de": "tba",
-    "title_en": "tba",
+    "title_de": "Heckintosh",
+    "title_en": "Heckintosh",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "links": [
+      {
+        "label_de": "Soundcloud",
+        "url": "https://on.soundcloud.com/mA4Hf4bToRDnsA3tNy",
+        "primary": false
+      }
+    ]
   },
   {
     "date": "2026-10-24T21:00:00",

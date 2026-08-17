@@ -1,0 +1,402 @@
+[
+  {
+    "date": "2026-08-15",
+    "episode_number": 100
+  },
+  {
+    "date": "2026-07-04",
+    "episode_number": 99
+  },
+  {
+    "date": "2026-03-14",
+    "episode_number": 98
+  },
+  {
+    "date": "2026-01-17",
+    "episode_number": 97
+  },
+  {
+    "date": "2025-11-22",
+    "episode_number": 96
+  },
+  {
+    "date": "2025-08-02",
+    "episode_number": 95
+  },
+  {
+    "date": "2025-06-07",
+    "episode_number": 94
+  },
+  {
+    "date": "2025-04-12",
+    "episode_number": 93
+  },
+  {
+    "date": "2025-02-15",
+    "episode_number": 92
+  },
+  {
+    "date": "2024-12-21",
+    "episode_number": 91
+  },
+  {
+    "date": "2024-10-26",
+    "episode_number": 90
+  },
+  {
+    "date": "2024-08-31",
+    "episode_number": 89
+  },
+  {
+    "date": "2024-07-06",
+    "episode_number": 88
+  },
+  {
+    "date": "2024-05-11",
+    "episode_number": 87
+  },
+  {
+    "date": "2024-03-16",
+    "episode_number": 86
+  },
+  {
+    "date": "2024-01-20",
+    "episode_number": 85
+  },
+  {
+    "date": "2023-11-25",
+    "episode_number": 84
+  },
+  {
+    "date": "2023-09-30",
+    "episode_number": 83
+  },
+  {
+    "date": "2023-08-05",
+    "episode_number": 82
+  },
+  {
+    "date": "2023-06-10",
+    "episode_number": 81
+  },
+  {
+    "date": "2023-04-15",
+    "episode_number": 80
+  },
+  {
+    "date": "2023-02-18",
+    "episode_number": 79
+  },
+  {
+    "date": "2022-12-24",
+    "episode_number": 78
+  },
+  {
+    "date": "2022-10-29",
+    "episode_number": 77
+  },
+  {
+    "date": "2022-09-03",
+    "episode_number": 76
+  },
+  {
+    "date": "2022-07-09",
+    "episode_number": 75
+  },
+  {
+    "date": "2022-05-14",
+    "episode_number": 74
+  },
+  {
+    "date": "2022-03-19",
+    "episode_number": 73
+  },
+  {
+    "date": "2022-01-22",
+    "episode_number": 72
+  },
+  {
+    "date": "2021-11-27",
+    "episode_number": 71
+  },
+  {
+    "date": "2021-10-02",
+    "episode_number": 70
+  },
+  {
+    "date": "2021-08-07",
+    "episode_number": 69
+  },
+  {
+    "date": "2021-06-12",
+    "episode_number": 68
+  },
+  {
+    "date": "2021-04-17",
+    "episode_number": 67
+  },
+  {
+    "date": "2021-02-20",
+    "episode_number": 66
+  },
+  {
+    "date": "2020-12-26",
+    "episode_number": 65
+  },
+  {
+    "date": "2020-10-31",
+    "episode_number": 64
+  },
+  {
+    "date": "2020-09-05",
+    "episode_number": 63
+  },
+  {
+    "date": "2020-07-11",
+    "episode_number": 62
+  },
+  {
+    "date": "2020-05-16",
+    "episode_number": 61
+  },
+  {
+    "date": "2020-03-21",
+    "episode_number": 60
+  },
+  {
+    "date": "2020-01-25",
+    "episode_number": 59
+  },
+  {
+    "date": "2019-11-30",
+    "episode_number": 58
+  },
+  {
+    "date": "2019-10-05",
+    "episode_number": 57
+  },
+  {
+    "date": "2019-08-10",
+    "episode_number": 56
+  },
+  {
+    "date": "2019-06-15",
+    "episode_number": 55
+  },
+  {
+    "date": "2019-04-20",
+    "episode_number": 54
+  },
+  {
+    "date": "2019-02-23",
+    "episode_number": 53
+  },
+  {
+    "date": "2018-12-29",
+    "episode_number": 52
+  },
+  {
+    "date": "2018-11-03",
+    "episode_number": 51
+  },
+  {
+    "date": "2018-09-08",
+    "episode_number": 50
+  },
+  {
+    "date": "2018-07-14",
+    "episode_number": 49
+  },
+  {
+    "date": "2018-05-19",
+    "episode_number": 48
+  },
+  {
+    "date": "2018-03-24",
+    "episode_number": 47
+  },
+  {
+    "date": "2018-01-27",
+    "episode_number": 46
+  },
+  {
+    "date": "2017-12-02",
+    "episode_number": 45
+  },
+  {
+    "date": "2017-10-07",
+    "episode_number": 44
+  },
+  {
+    "date": "2017-08-12",
+    "episode_number": 43
+  },
+  {
+    "date": "2017-06-17",
+    "episode_number": 42
+  },
+  {
+    "date": "2017-04-22",
+    "episode_number": 41
+  },
+  {
+    "date": "2017-02-25",
+    "episode_number": 40
+  },
+  {
+    "date": "2016-12-31",
+    "episode_number": 39
+  },
+  {
+    "date": "2016-11-05",
+    "episode_number": 38
+  },
+  {
+    "date": "2016-09-10",
+    "episode_number": 37
+  },
+  {
+    "date": "2016-07-16",
+    "episode_number": 36
+  },
+  {
+    "date": "2016-05-21",
+    "episode_number": 35
+  },
+  {
+    "date": "2016-04-23",
+    "episode_number": 34
+  },
+  {
+    "date": "2016-01-30",
+    "episode_number": 33
+  },
+  {
+    "date": "2015-12-05",
+    "episode_number": 32
+  },
+  {
+    "date": "2015-10-10",
+    "episode_number": 31
+  },
+  {
+    "date": "2015-08-15",
+    "episode_number": 30
+  },
+  {
+    "date": "2015-06-20",
+    "episode_number": 29
+  },
+  {
+    "date": "2015-04-25",
+    "episode_number": 28
+  },
+  {
+    "date": "2015-02-28",
+    "episode_number": 27
+  },
+  {
+    "date": "2015-01-03",
+    "episode_number": 26
+  },
+  {
+    "date": "2014-11-08",
+    "episode_number": 25
+  },
+  {
+    "date": "2014-09-13",
+    "episode_number": 24
+  },
+  {
+    "date": "2014-07-19",
+    "episode_number": 23
+  },
+  {
+    "date": "2014-05-24",
+    "episode_number": 22
+  },
+  {
+    "date": "2014-03-29",
+    "episode_number": 21
+  },
+  {
+    "date": "2014-02-01",
+    "episode_number": 20
+  },
+  {
+    "date": "2013-12-07",
+    "episode_number": 19
+  },
+  {
+    "date": "2013-10-12",
+    "episode_number": 18
+  },
+  {
+    "date": "2013-08-17",
+    "episode_number": 17
+  },
+  {
+    "date": "2013-06-22",
+    "episode_number": 16
+  },
+  {
+    "date": "2013-04-27",
+    "episode_number": 15
+  },
+  {
+    "date": "2013-03-02",
+    "episode_number": 14
+  },
+  {
+    "date": "2013-01-05",
+    "episode_number": 13
+  },
+  {
+    "date": "2012-11-10",
+    "episode_number": 12
+  },
+  {
+    "date": "2012-09-15",
+    "episode_number": 11
+  },
+  {
+    "date": "2012-07-21",
+    "episode_number": 10
+  },
+  {
+    "date": "2012-05-26",
+    "episode_number": 9
+  },
+  {
+    "date": "2012-03-31",
+    "episode_number": 8
+  },
+  {
+    "date": "2012-02-04",
+    "episode_number": 7
+  },
+  {
+    "date": "2011-12-10",
+    "episode_number": 6
+  },
+  {
+    "date": "2011-10-15",
+    "episode_number": 5
+  },
+  {
+    "date": "2011-08-20",
+    "episode_number": 4
+  },
+  {
+    "date": "2011-06-25",
+    "episode_number": 3
+  },
+  {
+    "date": "2011-04-30",
+    "episode_number": 2
+  },
+  {
+    "date": "2011-03-05",
+    "episode_number": 1
+  }
+]

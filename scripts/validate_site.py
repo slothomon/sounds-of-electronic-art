@@ -297,6 +297,61 @@ def validate_source(root: Path) -> int:
             if isinstance(value, dict):
                 validate_url(errors, f"content/site.json team[{index}].alias_url", value.get("alias_url"))
 
+    episode_number_path = root / "content" / "episode-numbers.json"
+    episode_number_entries: list[dict] = []
+    if not episode_number_path.is_file():
+        errors.append("missing required source file: content/episode-numbers.json")
+    else:
+        try:
+            raw_episode_numbers = json.loads(episode_number_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"invalid JSON in content/episode-numbers.json: {exc}")
+            raw_episode_numbers = []
+        if not isinstance(raw_episode_numbers, list):
+            errors.append("content/episode-numbers.json must contain a JSON array")
+        else:
+            episode_number_entries = [item for item in raw_episode_numbers if isinstance(item, dict)]
+            if len(episode_number_entries) != len(raw_episode_numbers):
+                errors.append("content/episode-numbers.json entries must all be objects")
+
+    episode_dates: Counter[str] = Counter()
+    episode_numbers: Counter[int] = Counter()
+    for index, item in enumerate(episode_number_entries, start=1):
+        context = f"content/episode-numbers.json entry {index}"
+        date_value = str(item.get("date") or "").strip()
+        try:
+            parsed_date = datetime.fromisoformat(date_value).date().isoformat()
+        except ValueError:
+            errors.append(f"{context}.date must use YYYY-MM-DD")
+            parsed_date = ""
+        if parsed_date and parsed_date != date_value:
+            errors.append(f"{context}.date must use YYYY-MM-DD")
+        validate_episode_number(errors, context, item)
+        if date_value:
+            episode_dates[date_value] += 1
+        value = item.get("episode_number")
+        if not isinstance(value, bool):
+            try:
+                number = int(value)
+            except (TypeError, ValueError):
+                number = 0
+            if number > 0 and str(number) == str(value).strip():
+                episode_numbers[number] += 1
+
+    for date_value, count in episode_dates.items():
+        if count > 1:
+            errors.append(f"content/episode-numbers.json contains duplicate date: {date_value}")
+    for number, count in episode_numbers.items():
+        if count > 1:
+            errors.append(f"content/episode-numbers.json contains duplicate episode_number: {number}")
+    if episode_numbers:
+        missing = sorted(set(range(1, max(episode_numbers) + 1)).difference(episode_numbers))
+        if missing:
+            errors.append(
+                "content/episode-numbers.json is missing episode_number values: "
+                + ", ".join(str(number) for number in missing)
+            )
+
     archive_entries = parsed_json.get("episodes.json")
     if not isinstance(archive_entries, list):
         errors.append("content/episodes.json must contain a JSON array")

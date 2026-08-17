@@ -54,7 +54,7 @@ content:
       - name: episode_number
         label: Sendungsnummer (optional)
         type: number
-        description: Zum Beispiel 100. Wird in Metadaten und Detailseiten verwendet.
+        description: Wird normalerweise automatisch vergeben. Nur für einen bewussten Override setzen.
         options:
           min: 1
       - name: title_de
@@ -169,6 +169,31 @@ content:
           message: Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.
         description: Die ID steht beim zugehörigen Eintrag im Bereich Sendungsarchiv. Die Reihenfolge hier bestimmt die Reihenfolge unter Hören. Maximal fünf Einträge.
 
+  - name: episode-numbers
+    label: Sendungsnummern
+    type: file
+    path: content/episode-numbers.json
+    format: json
+    list: true
+    operations:
+      rename: false
+      delete: false
+    fields:
+      - name: date
+        label: Sendungsdatum
+        type: date
+        required: true
+        description: Eine Zeile pro tatsächlich ausgestrahlter Sendung. Die Dateireihenfolge ist egal.
+        options:
+          format: yyyy-MM-dd
+      - name: episode_number
+        label: Sendungsnummer
+        type: number
+        required: true
+        description: Alle Sets mit demselben Sendungsdatum erhalten automatisch diese Nummer.
+        options:
+          min: 1
+
   - name: archive-episodes
     label: Sendungsarchiv
     type: file
@@ -195,6 +220,7 @@ content:
       - name: episode_number
         label: Sendungsnummer (optional)
         type: number
+        description: Normalerweise automatisch über das Sendungsdatum; hier nur als Override verwenden.
         options:
           min: 1
       - name: updated_at

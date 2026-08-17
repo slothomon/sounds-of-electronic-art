@@ -1,7 +1,6 @@
 [
   {
     "date": "2026-08-29T21:00:00",
-    "episode_number": 100,
     "title_de": "Heckintosh",
     "title_en": "Heckintosh",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau",
@@ -16,7 +15,6 @@
   },
   {
     "date": "2026-10-24T21:00:00",
-    "episode_number": 101,
     "title_de": "Credit 00",
     "title_en": "Credit 00",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
@@ -31,7 +29,6 @@
   },
   {
     "date": "2026-12-19T21:00:00",
-    "episode_number": 102,
     "title_de": "tba",
     "title_en": "tba",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",

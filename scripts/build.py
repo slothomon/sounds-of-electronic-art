@@ -1518,18 +1518,88 @@ def legal_pages_content(legal: dict[str, str]) -> dict[str, str]:
 
     return {"impressum": imprint, "datenschutz": privacy}
 
+def episode_numbers_by_date(entries: list[dict]) -> dict[str, int]:
+    """Return the canonical episode number for each broadcast date."""
+    numbers_by_date: dict[str, int] = {}
+    dates_by_number: dict[int, str] = {}
+    for index, item in enumerate(entries, start=1):
+        date_value = str(item.get("date") or "").strip()
+        number = episode_number_value(item)
+        try:
+            parsed_date = datetime.fromisoformat(date_value).date().isoformat()
+        except ValueError as exc:
+            raise ValueError(
+                f"content/episode-numbers.json entry {index} has an invalid date: {date_value!r}"
+            ) from exc
+        if parsed_date != date_value:
+            raise ValueError(
+                f"content/episode-numbers.json entry {index} date must use YYYY-MM-DD: {date_value!r}"
+            )
+        if number is None:
+            raise ValueError(
+                f"content/episode-numbers.json entry {index} has an invalid episode_number"
+            )
+        if date_value in numbers_by_date:
+            raise ValueError(f"Duplicate episode-number date: {date_value}")
+        if number in dates_by_number:
+            raise ValueError(
+                f"Duplicate episode_number {number}: {dates_by_number[number]} and {date_value}"
+            )
+        numbers_by_date[date_value] = number
+        dates_by_number[number] = date_value
+
+    if dates_by_number:
+        expected = set(range(1, max(dates_by_number) + 1))
+        missing = sorted(expected.difference(dates_by_number))
+        if missing:
+            raise ValueError(
+                "Missing episode_number values: " + ", ".join(str(number) for number in missing)
+            )
+    return numbers_by_date
+
+
+def apply_archive_episode_numbers(items: list[dict], numbers_by_date: dict[str, int]) -> None:
+    """Apply the date-based number unless an archive item explicitly overrides it."""
+    for item in items:
+        if episode_number_value(item) is not None:
+            continue
+        number = numbers_by_date.get(str(item.get("date") or "")[:10])
+        if number is not None:
+            item["episode_number"] = number
+
+
+def assign_upcoming_episode_numbers(items: list[dict], numbers_by_date: dict[str, int]) -> None:
+    """Number future broadcasts chronologically after the latest confirmed episode."""
+    next_number = max(numbers_by_date.values(), default=0) + 1
+    for item in sorted(items, key=lambda entry: parse_upcoming_date(str(entry["date"]))):
+        explicit = episode_number_value(item)
+        if explicit is not None:
+            next_number = max(next_number, explicit + 1)
+            continue
+        known = numbers_by_date.get(str(item.get("date") or "")[:10])
+        if known is not None:
+            item["episode_number"] = known
+            next_number = max(next_number, known + 1)
+            continue
+        item["episode_number"] = next_number
+        next_number += 1
+
+
 def main() -> None:
     site = read_json(ROOT / "content" / "site.json")
     legal = read_json(ROOT / "content" / "legal.json")
     listen_entries = read_json_list(ROOT / "content" / "listen.json")
     archive_entries = read_json_list(ROOT / "content" / "episodes.json")
+    episode_number_entries = read_json_list(ROOT / "content" / "episode-numbers.json")
     broadcast_entries = read_json_list(ROOT / "content" / "upcoming-broadcasts.json")
     event_entries = read_json_list(ROOT / "content" / "upcoming-events.json")
     for item in broadcast_entries:
         item["type"] = "broadcast"
     for item in event_entries:
         item["type"] = "event"
+    numbers_by_date = episode_numbers_by_date(episode_number_entries)
     archive = load_archive(archive_entries)
+    apply_archive_episode_numbers(archive, numbers_by_date)
 
     pages_url = str(os.environ.get("SITE_URL") or site.get("url") or "http://localhost:8000").rstrip("/")
     parsed = urlparse(pages_url)
@@ -1538,12 +1608,19 @@ def main() -> None:
     home_href = site_href(base_path)
 
     now_utc = datetime.now(timezone.utc)
+    future_broadcasts = [
+        item
+        for item in broadcast_entries
+        if upcoming_end(item).astimezone(timezone.utc) > now_utc
+    ]
+    assign_upcoming_episode_numbers(future_broadcasts, numbers_by_date)
+    future_events = [
+        item
+        for item in event_entries
+        if upcoming_end(item).astimezone(timezone.utc) > now_utc
+    ]
     upcoming = sorted(
-        [
-            item
-            for item in broadcast_entries + event_entries
-            if upcoming_end(item).astimezone(timezone.utc) > now_utc
-        ],
+        future_broadcasts + future_events,
         key=lambda item: parse_upcoming_date(str(item["date"])),
     )
 

@@ -1,9 +1,20 @@
 {
   "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
-  "updated_at": "2026-08-04T22:46:58Z",
-  "count": 65,
+  "updated_at": "2026-08-17T20:02:19Z",
+  "count": 66,
   "episodes": [
+    {
+      "episode_id": "2026-07-04-thomas-heinrich-taask-96kbps",
+      "date": "2026-07-04",
+      "title": "Thomas Heinrich, taask & 96kbps",
+      "summary": "Mixing Session mit Thomas Heinrich und taask. Danke für euren Support!",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/thomas-heinrich-taask-96kbps",
+      "soundcloud_id": "2365203533",
+      "duration_ms": 10032490,
+      "artwork_url": "https://i1.sndcdn.com/artworks-h7DjDMu01qqaWy3E-CaKsJA-t500x500.jpg",
+      "image": "assets/images/episodes/2026-07-04-thomas-heinrich-taask-96kbps.jpg"
+    },
     {
       "episode_id": "2026-03-14-neele",
       "date": "2026-03-14",
@@ -93,17 +104,6 @@
       "image": "assets/images/episodes/2023-11-25-kontinum.jpg"
     },
     {
-      "episode_id": "2023-10-06-scherbert",
-      "date": "2023-10-06",
-      "title": "Scherbert",
-      "summary": "Dank geht nochmal raus an Scherbert für die entspannte Sendung und die ganze gute Mucke.",
-      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/scherbert-2023-10-06",
-      "soundcloud_id": "1551417316",
-      "duration_ms": 4389437,
-      "artwork_url": "https://i1.sndcdn.com/artworks-dz9nRJdIQSvM2zfZ-jIyu4w-t500x500.jpg",
-      "image": "assets/images/episodes/2023-10-06-scherbert.jpg"
-    },
-    {
       "episode_id": "2023-08-05-johnminusplus",
       "date": "2023-08-05",
       "title": "Johnminusplus",
@@ -113,6 +113,17 @@
       "duration_ms": 5745737,
       "artwork_url": "https://i1.sndcdn.com/artworks-YyB0QaB1ObK7EIR2-5yR5Qw-t500x500.jpg",
       "image": "assets/images/episodes/2023-08-05-johnminusplus.jpg"
+    },
+    {
+      "episode_id": "2023-10-06-scherbert",
+      "date": "2023-06-10",
+      "title": "Scherbert",
+      "summary": "Dank geht nochmal raus an Scherbert für die entspannte Sendung und die ganze gute Mucke.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/scherbert-2023-10-06",
+      "soundcloud_id": "1551417316",
+      "duration_ms": 4389437,
+      "artwork_url": "https://i1.sndcdn.com/artworks-dz9nRJdIQSvM2zfZ-jIyu4w-t500x500.jpg",
+      "image": "assets/images/episodes/2023-06-10-scherbert.jpg"
     },
     {
       "episode_id": "2021-11-27-dj-rijkaard-komplette-sendung",

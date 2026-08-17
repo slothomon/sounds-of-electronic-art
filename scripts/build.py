@@ -1030,7 +1030,6 @@ def upcoming_detail_inner(
     item: dict,
     site: dict,
     base_path: str,
-    calendar_href: str,
     heading_tag: str,
     heading_id: str,
 ) -> str:
@@ -1055,13 +1054,7 @@ def upcoming_detail_inner(
         meta.append(f'<span>{esc(location)}</span>')
 
     actions = external_action_links(item)
-    actions.append(
-        f'<a class="button calendar-button" href="{esc(calendar_href)}" type="text/calendar">'
-        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-        '<path d="M7 3v3M17 3v3M4.5 9h15M5 5.5h14a1 1 0 0 1 1 1V20H4V6.5a1 1 0 0 1 1-1Z"/>'
-        '<path d="m9 14 2 2 4-4"/></svg>'
-        '<span data-bilingual data-de="Termin speichern" data-en="Save event">Termin speichern</span></a>'
-    )
+    action_html = f'<div class="detail-actions">{"".join(actions)}</div>' if actions else ""
 
     header_html = (
         '<header class="detail-header">'
@@ -1075,21 +1068,20 @@ def upcoming_detail_inner(
     return (
         f'{detail_intro(header_html, image_html, "")}'
         f'{detail_prose(item)}'
-        f'<div class="detail-actions">{"".join(actions)}</div>'
+        f'{action_html}'
     )
 
 def upcoming_detail_dialog(
     item: dict,
     site: dict,
     base_path: str,
-    calendar_href: str,
     detail_url: str,
 ) -> str:
     dialog_id = detail_identifier("upcoming", item, site)
     heading_id = f"{dialog_id}-heading"
     title_de = str(item.get("title_de") or site["name"])
     page_title = f"{title_de} | {site['name']}"
-    inner = upcoming_detail_inner(item, site, base_path, calendar_href, "h2", heading_id)
+    inner = upcoming_detail_inner(item, site, base_path, "h2", heading_id)
     return (
         f'<dialog class="detail-dialog" id="{esc(dialog_id)}" data-detail-dialog '
         f'data-detail-url="{esc(detail_url)}" data-page-title="{esc(page_title)}" '
@@ -1105,10 +1097,9 @@ def upcoming_detail_page(
     item: dict,
     site: dict,
     base_path: str,
-    calendar_href: str,
 ) -> str:
     heading_id = "detail-page-heading"
-    inner = upcoming_detail_inner(item, site, base_path, calendar_href, "h1", heading_id)
+    inner = upcoming_detail_inner(item, site, base_path, "h1", heading_id)
     return f'<article class="detail-page-card" aria-labelledby="{heading_id}">{inner}</article>'
 
 def archive_detail_inner(
@@ -1253,7 +1244,7 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
             f'<footer class="upcoming-card-footer">{footer_html}</footer>'
             '</div></article>'
         )
-        dialogs.append(upcoming_detail_dialog(item, site, base_path, calendar_href, absolute_detail_url))
+        dialogs.append(upcoming_detail_dialog(item, site, base_path, absolute_detail_url))
     return "".join(rows), "".join(dialogs)
 
 def archive_match_key(item: dict) -> tuple[str, str]:
@@ -1753,7 +1744,6 @@ def main() -> None:
         relative_path = detail_relative_path("upcoming", item, site)
         output_dir = PUBLIC / relative_path
         output_dir.mkdir(parents=True, exist_ok=True)
-        calendar_href = site_href(base_path, f"calendar/{calendar_filename(item, site)}")
         canonical_detail_url = absolute_site_url(canonical_url, relative_path)
         item_type = str(item.get("type") or "broadcast").lower()
         detail_values = common_values | {
@@ -1767,7 +1757,7 @@ def main() -> None:
             "detail_back_href": esc(site_href(base_path, "#upcoming")),
             "detail_back_de": "← Zurück zu Demnächst",
             "detail_back_en": "← Back to upcoming",
-            "detail_content": upcoming_detail_page(item, site, base_path, calendar_href),
+            "detail_content": upcoming_detail_page(item, site, base_path),
             "detail_navigation": detail_navigation(upcoming, index, "upcoming", site, base_path),
         }
         (output_dir / "index.html").write_text(render(detail_template, detail_values), encoding="utf-8")

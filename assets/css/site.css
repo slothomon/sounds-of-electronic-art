@@ -821,8 +821,8 @@ section[id] { scroll-margin-top: 96px; }
   padding: 0.75rem 0.85rem;
   border-radius: calc(var(--radius) - 9px);
 }
-.overview-listen .mix-copy strong { font-size: 0.92rem; }
-.overview-listen .mix-copy > span { font-size: 0.76rem; }
+.overview-listen .mix-copy strong { font-size: 1.05rem; }
+.overview-listen .mix-copy > span { font-size: 0.88rem; }
 .overview-listen .player-panel {
   position: static;
   gap: 0.9rem;
@@ -883,6 +883,7 @@ section[id] { scroll-margin-top: 96px; }
   background: var(--surface);
 }
 #about .about-copy { font-size: clamp(1.05rem, 1.75vw, 1.35rem); }
+#about .about-secondary p { font-size: 0.88rem; line-height: 1.5; }
 #about .team { gap: 0; margin-top: 1rem; }
 #about .team-member { padding: 0.72rem 0; }
 #archive .archive-meta { margin-bottom: 0.75rem; }
@@ -979,7 +980,7 @@ section[id] { scroll-margin-top: 96px; }
 .overview-upcoming .upcoming-year {
   margin-top: 1.05rem;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 0.76rem;
+  font-size: 0.88rem;
   font-weight: 780;
   opacity: 0.76;
 }
@@ -1039,7 +1040,7 @@ section[id] { scroll-margin-top: 96px; }
   display: -webkit-box;
   margin: 0 0 0.32rem;
   overflow: hidden;
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   line-height: 1.24;
   letter-spacing: -0.015em;
   -webkit-box-orient: vertical;
@@ -1050,7 +1051,7 @@ section[id] { scroll-margin-top: 96px; }
   margin: 0;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.88rem;
   line-height: 1.4;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -1462,7 +1463,7 @@ html[data-theme="light"] .detail-dialog {
   .overview-upcoming .date-panel { padding: 0.8rem 0.55rem; }
   .overview-upcoming .upcoming-day { font-size: 2.75rem; }
   .overview-upcoming .upcoming-month { font-size: 0.62rem; }
-  .overview-upcoming .upcoming-year { margin-top: 0.82rem; font-size: 0.68rem; }
+  .overview-upcoming .upcoming-year { margin-top: 0.82rem; font-size: 0.78rem; }
   .overview-upcoming .upcoming-card-header { padding-right: 2.6rem; }
   .overview-upcoming .upcoming-calendar-button { top: 0.7rem; right: 0.8rem; width: 31px; padding: 0; }
   .overview-upcoming .upcoming-calendar-button span { display: none; }

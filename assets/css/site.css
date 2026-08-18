@@ -2061,3 +2061,39 @@ body {
   font-synthesis: none;
 }
 /* SOFEA Archivo 800 display font · 2026-08 · END */
+
+/* SOFEA hero-art restoration · 2026-08 · START */
+/*
+  Keep the accepted v3 geometry (including both circles), but bring back the
+  depth that was removed in the first cleanup pass. This restores the original
+  warm glow over the striped panel and a dedicated artwork shadow without
+  changing shadows elsewhere on the site.
+*/
+:root {
+  --hero-art-background:
+    linear-gradient(130deg, rgb(var(--glow-3) / 0.24), transparent 40%),
+    repeating-linear-gradient(90deg, transparent 0 18px, color-mix(in srgb, var(--ink) 4%, transparent) 18px 19px),
+    var(--surface);
+  --hero-art-shadow: 0 22px 70px rgba(0, 0, 0, 0.30);
+}
+
+html[data-theme="light"] {
+  --hero-art-shadow: 0 22px 65px rgba(88, 110, 117, 0.16);
+}
+
+.hero-art {
+  background: var(--hero-art-background);
+  box-shadow: var(--hero-art-shadow);
+}
+
+/* Restore the artwork type voice from before the Hallmark pass.
+   On Windows this normally resolves to Consolas; other platforms use their
+   native UI-monospace/SF Mono equivalent. */
+.frequency {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.frequency small {
+  font-family: ui-sans-serif, system-ui;
+}
+/* SOFEA hero-art restoration · 2026-08 · END */

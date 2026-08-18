@@ -1,3 +1,22 @@
+/* Self-hosted Archivo display face (OFL-1.1). */
+@font-face {
+  font-family: "SOFEA Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url("../fonts/archivo/archivo-latin-ext-800-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "SOFEA Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url("../fonts/archivo/archivo-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
 :root {
   color-scheme: dark;
   --bg: #151210;
@@ -25,15 +44,17 @@
   --radius: 18px;
   --radius-control: 10px;
   --font-body: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Segoe UI Variable Display", "Aptos Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "SOFEA Archivo", "Segoe UI Variable Display", "Aptos Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
   --page-background:
     radial-gradient(circle at 90% 0%, rgb(var(--glow-3) / 0.14), transparent 34rem),
     radial-gradient(circle at 8% 35%, rgb(var(--glow-2) / 0.08), transparent 28rem),
     var(--bg);
   --hero-art-background:
+    linear-gradient(130deg, rgb(var(--glow-3) / 0.24), transparent 40%),
     repeating-linear-gradient(90deg, transparent 0 18px, color-mix(in srgb, var(--ink) 4%, transparent) 18px 19px),
     var(--surface);
+  --hero-art-shadow: 0 22px 70px rgba(0, 0, 0, 0.30);
   --date-panel-background: var(--accent);
   --mix-selected-background: color-mix(in srgb, var(--accent) 9%, var(--surface-2));
   --focus-ring: 0 0 0 3px rgb(var(--glow-3) / 0.22);
@@ -68,6 +89,7 @@ html[data-theme="light"] {
   --accent-ink: #2d170c;
   --header-bg: rgba(253, 246, 227, 0.92);
   --shadow: 0 10px 30px rgba(88, 110, 117, 0.12);
+  --hero-art-shadow: 0 22px 65px rgba(88, 110, 117, 0.16);
   --glow-1: 128 108 168;
   --glow-2: 184 95 112;
   --glow-3: 214 95 20;
@@ -272,7 +294,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--hero-art-background);
-  box-shadow: var(--shadow);
+  box-shadow: var(--hero-art-shadow);
   overflow: hidden;
 }
 .hero-art::before,
@@ -301,7 +323,7 @@ h1 {
   position: absolute;
   inset: auto 1.5rem 1.3rem;
   color: var(--accent-soft);
-  font: 850 clamp(2.1rem, 5vw, 4rem) / 1 var(--font-mono);
+  font: 850 clamp(2.1rem, 5vw, 4rem) / 1 ui-monospace, SFMono-Regular, Consolas, monospace;
   letter-spacing: -0.065em;
   text-transform: lowercase;
 }
@@ -312,7 +334,7 @@ h1 {
   display: block;
   margin-top: 0.8rem;
   color: var(--ink);
-  font: 750 0.75rem / 1.2 var(--font-body);
+  font: 750 0.75rem / 1.2 ui-sans-serif, system-ui;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1828,8 +1850,7 @@ html[data-theme="light"] .detail-dialog {
   }
 }
 
-/* SOFEA design refresh · Hallmark-inspired · 2026-08 */
-/* Position: poster-like radio identity, not a SaaS landing page. */
+/* SOFEA design system refinements · 2026-08 */
 html,
 body {
   overflow-x: clip;
@@ -1842,21 +1863,37 @@ body {
   min-width: 0;
   font-family: var(--font-display);
   font-style: normal;
-  font-weight: 900;
-  overflow-wrap: anywhere;
+  font-weight: 800;
+  font-synthesis: none;
   text-wrap: balance;
 }
 
-.hero-title {
-  font-size: clamp(3.8rem, 9.2vw, 8.3rem);
-  line-height: 0.9;
-  letter-spacing: -0.055em;
+.hero-title,
+.legal-title,
+.detail-header h2 {
+  overflow-wrap: anywhere;
 }
 
-.section h2,
-.detail-header h2 {
+.hero-title {
+  font-size: clamp(3.45rem, 8.2vw, 7.35rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.section h2 {
+  font-size: clamp(2.75rem, 5.2vw, 4.35rem);
   line-height: 0.98;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.detail-header h2,
+.legal-title {
+  font-size: clamp(2.65rem, 5.4vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
 }
 
 .hero-subtitle,
@@ -1883,7 +1920,6 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* The desktop livestream is a broadcast affordance, not a SaaS CTA pill. */
 .nav .listen-link {
   padding: 0.35rem 0;
   border-radius: 0;
@@ -1927,12 +1963,23 @@ body {
   transform: translateY(1px);
 }
 
+#about .eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 0.48rem 0.78rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--accent-soft);
+  box-shadow: none;
+  cursor: default;
+}
+
 .footer-partner {
   border-radius: 14px;
 }
 
-/* Tokenize branch-dependent late components by selector instead of relying
-   on exact historical literal values in the source file. */
 .episode.is-linked {
   background: var(--linked-row-background);
   box-shadow: var(--linked-row-outline);
@@ -1948,63 +1995,6 @@ body {
 
 .detail-dialog::backdrop {
   background: var(--dialog-backdrop);
-}
-
-@media (max-width: 900px) {
-}
-
-@media (max-width: 620px) {
-  .hero-title {
-    font-size: clamp(3.1rem, 15vw, 5rem);
-    line-height: 0.92;
-  }
-}
-
-/* SOFEA design refresh v3 · feedback pass · 2026-08 */
-/* Keep the cleaner system, but return more weight to the original SOFEA identity. */
-
-/* Headings: still poster-like, but one step quieter than v2. */
-.hero-title {
-  font-size: clamp(3.45rem, 8.2vw, 7.35rem);
-  line-height: 0.92;
-  letter-spacing: -0.045em;
-}
-
-.section h2 {
-  font-size: clamp(2.75rem, 5.2vw, 4.35rem);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
-}
-
-.detail-header h2,
-.legal-title {
-  font-size: clamp(2.65rem, 5.4vw, 4.6rem);
-  line-height: 1;
-  letter-spacing: -0.035em;
-}
-
-/* Logo/artwork: keep the original two-ring construction and its old type voice.
-   The ring geometry comes from the original base CSS now that the v2 override is gone. */
-.hero-art {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-/* The About eyebrow is a static editorial label, not an action. A pill is fine
-   here as long as it does not pretend to be a clickable CTA. */
-#about .eyebrow {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  padding: 0.48rem 0.78rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--accent-soft);
-  box-shadow: none;
-  cursor: default;
 }
 
 @media (max-width: 620px) {
@@ -2023,77 +2013,3 @@ body {
     font-size: clamp(2.35rem, 11vw, 3.55rem);
   }
 }
-
-/* SOFEA Archivo 800 display font · 2026-08 · START */
-/*
-  Final display type choice after the local comparison pass.
-  Archivo is self-hosted; the site makes no runtime request to Fontsource.
-  Weight 800 is used only for the established display roles. The body and the
-  hero artwork/logo keep their existing system stacks from design refresh v3.
-*/
-@font-face {
-  font-family: "SOFEA Archivo";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 800;
-  src: url("../fonts/archivo/archivo-latin-ext-800-normal.woff2") format("woff2");
-  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
-}
-
-@font-face {
-  font-family: "SOFEA Archivo";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 800;
-  src: url("../fonts/archivo/archivo-latin-800-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-}
-
-:root {
-  --font-display: "SOFEA Archivo", "Segoe UI Variable Display", "Aptos Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-}
-
-.hero-title,
-.section h2,
-.detail-header h2,
-.legal-title {
-  font-weight: 800;
-  font-synthesis: none;
-}
-/* SOFEA Archivo 800 display font · 2026-08 · END */
-
-/* SOFEA hero-art restoration · 2026-08 · START */
-/*
-  Keep the accepted v3 geometry (including both circles), but bring back the
-  depth that was removed in the first cleanup pass. This restores the original
-  warm glow over the striped panel and a dedicated artwork shadow without
-  changing shadows elsewhere on the site.
-*/
-:root {
-  --hero-art-background:
-    linear-gradient(130deg, rgb(var(--glow-3) / 0.24), transparent 40%),
-    repeating-linear-gradient(90deg, transparent 0 18px, color-mix(in srgb, var(--ink) 4%, transparent) 18px 19px),
-    var(--surface);
-  --hero-art-shadow: 0 22px 70px rgba(0, 0, 0, 0.30);
-}
-
-html[data-theme="light"] {
-  --hero-art-shadow: 0 22px 65px rgba(88, 110, 117, 0.16);
-}
-
-.hero-art {
-  background: var(--hero-art-background);
-  box-shadow: var(--hero-art-shadow);
-}
-
-/* Restore the artwork type voice from before the Hallmark pass.
-   On Windows this normally resolves to Consolas; other platforms use their
-   native UI-monospace/SF Mono equivalent. */
-.frequency {
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-}
-
-.frequency small {
-  font-family: ui-sans-serif, system-ui;
-}
-/* SOFEA hero-art restoration · 2026-08 · END */

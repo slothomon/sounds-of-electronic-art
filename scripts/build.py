@@ -81,15 +81,24 @@ def content_text(item: dict, language: str = "de") -> str:
 
 
 def episode_number_value(item: dict) -> int | None:
-    """Return a valid positive episode number, otherwise ``None``."""
+    """Return an upcoming broadcast episode number as an integer when present."""
     value = item.get("episode_number")
     if value in (None, ""):
         return None
     try:
-        number = int(value)
+        return int(value)
     except (TypeError, ValueError):
         return None
-    return number if number > 0 else None
+
+def upcoming_label(item: dict, language: str = "de") -> str:
+    """Return the visible label without storing removed label_* fields on broadcasts."""
+    item_type = str(item.get("type") or "broadcast").lower()
+    if item_type == "broadcast":
+        number = episode_number_value(item)
+        base = "Sendung" if language == "de" else "Broadcast"
+        return f"{base} #{number}" if number is not None else base
+    fallback = "Veranstaltung" if language == "de" else "Event"
+    return str(item.get(f"label_{language}") or fallback)
 
 
 EPISODE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,95}$")
@@ -220,10 +229,43 @@ def hour_range_clock(start: datetime, end: datetime, language: str = "de") -> st
     return f"{start.strftime('%H:%M')}–{end.strftime('%H:%M')}"
 
 
+def broadcast_guest_title(item: dict, site: dict, language: str = "de") -> str:
+    """Return only the editorial guest/title part of a broadcast title."""
+    title = str(item.get(f"title_{language}") or item.get("title_de") or "").strip()
+    if not title:
+        return ""
+    site_name = str(site.get("name") or "sounds of electronic art").strip()
+    short_name = str(site.get("short_name") or "sofea").strip()
+    names = [name for name in (site_name, short_name) if name]
+    if names:
+        prefix = "|".join(re.escape(name) for name in sorted(names, key=len, reverse=True))
+        match = re.match(rf"^(?:{prefix})\s*#\s*\d+\s*[-–—:]\s*(.+)$", title, flags=re.IGNORECASE)
+        if match:
+            title = match.group(1).strip()
+        elif re.match(rf"^(?:{prefix})\s*#\s*\d+\s*$", title, flags=re.IGNORECASE):
+            return ""
+    folded = title.casefold().strip(" .")
+    placeholders = {"tba", "t.b.a", "to be announced", site_name.casefold(), short_name.casefold()}
+    return "" if folded in placeholders else title
+
+def calendar_title(item: dict, site: dict) -> str:
+    """Return the public calendar title for broadcasts and events."""
+    item_type = str(item.get("type") or "broadcast").lower()
+    if item_type != "broadcast":
+        return str(item.get("title_de") or site["name"])
+    base = str(site.get("name") or "sounds of electronic art")
+    number = episode_number_value(item)
+    if number is not None:
+        base = f"{base} #{number}"
+    guest = broadcast_guest_title(item, site, "de")
+    return f"{base} – {guest}" if guest else base
+
 def calendar_filename(item: dict, site: dict) -> str:
+    stable_id = str(item.get("id") or "").strip()
+    if stable_id:
+        return f"{slugify(stable_id)}.ics"
     start = parse_upcoming_date(item["date"])
-    title = str(item.get("title_de") or site["name"])
-    return f"{start.strftime('%Y-%m-%d')}-{slugify(title)}.ics"
+    return f"{start.strftime('%Y-%m-%d')}-{slugify(calendar_title(item, site))}.ics"
 
 
 def ical_escape(value: str) -> str:
@@ -255,15 +297,15 @@ def fold_ical_line(line: str, limit: int = 73) -> list[str]:
 
 
 def calendar_event_lines(item: dict, site: dict, event_url: str, dtstamp: str) -> list[str]:
-    start = parse_upcoming_date(str(item["date"]))
+    start = parse_upcoming_date(item["date"])
     end = upcoming_end(item)
     item_type = str(item.get("type") or "broadcast").lower()
-    title = str(item.get("title_de") or site["name"])
+    title = calendar_title(item, site)
     summary = content_text(item, "de")
     default_location = "Radio Blau, Leipzig" if item_type == "broadcast" else ""
-    location = str(item.get("location") or default_location).strip()
-
-    uid_source = f"{start.isoformat()}|{title}"
+    location = str(item.get("location_de") or item.get("location") or default_location)
+    stable_id = str(item.get("id") or "").strip()
+    uid_source = stable_id or f"{start.isoformat()}|{title}"
     uid = hashlib.sha1(uid_source.encode("utf-8")).hexdigest()[:24] + "@sofea.radio"
     raw_lines = [
         "BEGIN:VEVENT",
@@ -338,23 +380,33 @@ def upcoming_end(item: dict) -> datetime:
 def detail_identifier(kind: str, item: dict, site: dict) -> str:
     title = str(item.get("title_de") or item.get("title") or site["name"])
     if kind == "upcoming":
+        stable_id = str(item.get("id") or "").strip()
+        if stable_id:
+            return f"detail-upcoming-{slugify(stable_id)}"
         date_part = parse_upcoming_date(str(item["date"])).strftime("%Y-%m-%d")
         seed = f"{item.get('date')}|{title}"
-        suffix = f"{date_part}-{slugify(title)}"
     else:
-        suffix = episode_id_value(item)
-        seed = suffix
+        date_part = parse_date(str(item["date"])).strftime("%Y-%m-%d")
+        seed = str(item.get("audio_url") or f"{item.get('date')}|{title}")
     digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:8]
-    return f"detail-{kind}-{suffix}-{digest}"
+    return f"detail-{kind}-{date_part}-{slugify(title)}-{digest}"
 
 
 def detail_relative_path(kind: str, item: dict, site: dict) -> str:
-    if kind == "episode":
-        return f"sendungen/{episode_id_value(item)}/"
     title = str(item.get("title_de") or item.get("title") or site["name"])
     title_for_slug = re.sub(r"\s*\(\d{4}-\d{2}-\d{2}\)\s*$", "", title).strip()
-    date_part = parse_upcoming_date(str(item["date"])).strftime("%Y-%m-%d")
-    return f"termine/{date_part}-{slugify(title_for_slug)}/"
+    custom_slug = str(item.get("slug") or "").strip()
+    if kind == "upcoming":
+        stable_id = str(item.get("id") or "").strip()
+        if stable_id:
+            return f"termine/{slugify(stable_id)}/"
+        date_part = parse_upcoming_date(str(item["date"])).strftime("%Y-%m-%d")
+        folder = "termine"
+    else:
+        date_part = parse_date(str(item["date"])).strftime("%Y-%m-%d")
+        folder = "sendungen"
+    slug = slugify(custom_slug or title_for_slug)
+    return f"{folder}/{date_part}-{slug}/"
 
 def site_href(base_path: str, relative_path: str = "") -> str:
     root = (base_path.rstrip("/") + "/") if base_path else "/"
@@ -1038,8 +1090,8 @@ def upcoming_detail_inner(
     item_type = str(item.get("type") or "broadcast").lower()
     title_de = str(item.get("title_de") or site["name"])
     title_en = str(item.get("title_en") or title_de)
-    label_de = episode_label(item, "de") if item_type == "broadcast" else "Veranstaltung"
-    label_en = episode_label(item, "en") if item_type == "broadcast" else "Event"
+    label_de = upcoming_label(item, "de")
+    label_en = upcoming_label(item, "en")
     default_location = "Radio Blau, Leipzig" if item_type == "broadcast" else ""
     location = str(item.get("location") or default_location).strip()
     date_de = date_long(start, "de")
@@ -1184,8 +1236,8 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
         title_en = str(item.get("title_en") or title_de)
         card_summary_de = card_excerpt(content_text(item, "de"))
         card_summary_en = card_excerpt(content_text(item, "en"))
-        label_de = episode_label(item, "de") if item_type == "broadcast" else "Veranstaltung"
-        label_en = episode_label(item, "en") if item_type == "broadcast" else "Event"
+        label_de = upcoming_label(item, "de")
+        label_en = upcoming_label(item, "en")
         default_location = "Radio Blau, Leipzig" if item_type == "broadcast" else ""
         location = str(item.get("location") or default_location).strip()
         dialog_id = detail_identifier("upcoming", item, site)
@@ -1657,7 +1709,7 @@ def main() -> None:
     )
     logo_svg = (ROOT / "assets" / "icons" / "logo.svg").read_text(encoding="utf-8")
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
-    upcoming_html, upcoming_dialogs = upcoming_rows(upcoming, site, base_path)
+    upcoming_html, upcoming_dialogs = upcoming_rows(upcoming[:3], site, base_path)
     episodes_html, episode_dialogs = episode_rows(archive, site, base_path)
     default_social_image = absolute_site_url(canonical_url, "assets/images/sofea-social-card-v3.png")
 

@@ -11,7 +11,9 @@
         "url": "https://on.soundcloud.com/mA4Hf4bToRDnsA3tNy",
         "primary": false
       }
-    ]
+    ],
+    "id": "broadcast-2026-08-29",
+    "episode_number": 101
   },
   {
     "date": "2026-10-24T21:00:00",
@@ -25,12 +27,52 @@
         "url": "https://de.ra.co/dj/credit00",
         "primary": false
       }
-    ]
+    ],
+    "id": "broadcast-2026-10-24",
+    "episode_number": 102
   },
   {
     "date": "2026-12-19T21:00:00",
-    "title_de": "tba",
-    "title_en": "tba",
+    "title_de": "sounds of electronic art",
+    "title_en": "sounds of electronic art",
+    "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2026-12-19",
+    "episode_number": 103
+  },
+  {
+    "id": "broadcast-2027-02-13",
+    "date": "2027-02-13T21:00:00",
+    "episode_number": 104,
+    "title_de": "sounds of electronic art",
+    "title_en": "sounds of electronic art",
+    "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
+  },
+  {
+    "id": "broadcast-2027-04-10",
+    "date": "2027-04-10T21:00:00",
+    "episode_number": 105,
+    "title_de": "sounds of electronic art",
+    "title_en": "sounds of electronic art",
+    "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
+  },
+  {
+    "id": "broadcast-2027-06-05",
+    "date": "2027-06-05T21:00:00",
+    "episode_number": 106,
+    "title_de": "sounds of electronic art",
+    "title_en": "sounds of electronic art",
+    "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
+  },
+  {
+    "id": "broadcast-2027-07-31",
+    "date": "2027-07-31T21:00:00",
+    "episode_number": 107,
+    "title_de": "sounds of electronic art",
+    "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
     "details_en": "Three hours of electronic music. Live on Radio Blau."
   }

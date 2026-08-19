@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE_PATH = ROOT / "content" / "site.json"
+SCHEDULE_PATH = ROOT / "content" / "broadcast-schedule.json"
 UPCOMING_PATH = ROOT / "content" / "upcoming-broadcasts.json"
 BERLIN_TZ = ZoneInfo("Europe/Berlin")
 
@@ -68,10 +69,48 @@ def is_regular_slot_date(candidate, anchor, interval_days: int) -> bool:
     return delta >= 0 and delta % interval_days == 0
 
 
+def normalize_date_overrides(value: object) -> dict[str, str]:
+    """Return schedule overrides as {regular_date: new_local_datetime}.
+
+    Pages CMS stores overrides as a list of objects. The legacy mapping form is
+    still accepted so existing repositories can migrate without a flag day.
+    """
+    if value in (None, "", {}, []):
+        return {}
+    if isinstance(value, dict):
+        pairs = value.items()
+    elif isinstance(value, list):
+        normalized_pairs: list[tuple[object, object]] = []
+        for index, item in enumerate(value, start=1):
+            if not isinstance(item, dict):
+                raise ValueError(f"broadcast_schedule.date_overrides item {index} must be an object")
+            normalized_pairs.append((item.get("date"), item.get("new_date")))
+        pairs = normalized_pairs
+    else:
+        raise ValueError("broadcast_schedule.date_overrides must be an object or a list")
+
+    result: dict[str, str] = {}
+    for raw_date, raw_new_date in pairs:
+        slot_date = str(raw_date or "").strip()
+        new_date = str(raw_new_date or "").strip()
+        if not slot_date or not new_date:
+            raise ValueError("each broadcast schedule override needs date and new_date")
+        try:
+            normalized_slot = datetime.fromisoformat(slot_date).date().isoformat()
+        except ValueError as exc:
+            raise ValueError(f"invalid regular broadcast date in date_overrides: {slot_date}") from exc
+        if normalized_slot != slot_date:
+            raise ValueError(f"date_overrides date must use YYYY-MM-DD: {slot_date}")
+        parse_local(new_date)
+        if slot_date in result:
+            raise ValueError(f"duplicate broadcast schedule override for {slot_date}")
+        result[slot_date] = new_date
+    return result
+
 def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = None) -> list[dict]:
     config = site.get("broadcast_schedule")
     if not isinstance(config, dict):
-        raise ValueError("content/site.json is missing broadcast_schedule configuration")
+        raise ValueError("broadcast schedule configuration is missing")
 
     anchor = parse_local(str(config["anchor"]))
     first_episode_number = int(config["first_episode_number"])
@@ -80,10 +119,26 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
     if interval_weeks <= 0 or horizon_months <= 0:
         raise ValueError("broadcast_schedule interval_weeks and horizon_months must be positive")
 
-    skip_dates = {str(value) for value in config.get("skip_dates", [])}
-    overrides = config.get("date_overrides", {}) or {}
-    if not isinstance(overrides, dict):
-        raise ValueError("broadcast_schedule.date_overrides must be an object")
+    interval = timedelta(weeks=interval_weeks)
+    interval_days = interval.days
+
+    skip_dates: set[str] = set()
+    for raw_value in config.get("skip_dates", []) or []:
+        value = str(raw_value or "").strip()
+        try:
+            normalized = datetime.fromisoformat(value).date().isoformat()
+        except ValueError as exc:
+            raise ValueError(f"invalid date in broadcast_schedule.skip_dates: {value}") from exc
+        if normalized != value:
+            raise ValueError(f"skip_dates must use YYYY-MM-DD: {value}")
+        if not is_regular_slot_date(datetime.fromisoformat(value).date(), anchor, interval_days):
+            raise ValueError(f"skip_dates contains a date outside the regular schedule: {value}")
+        skip_dates.add(value)
+
+    overrides = normalize_date_overrides(config.get("date_overrides", []))
+    for value in overrides:
+        if not is_regular_slot_date(datetime.fromisoformat(value).date(), anchor, interval_days):
+            raise ValueError(f"date_overrides contains a date outside the regular schedule: {value}")
     overlap = skip_dates.intersection(overrides)
     if overlap:
         raise ValueError("a broadcast slot cannot be both skipped and overridden: " + ", ".join(sorted(overlap)))
@@ -94,8 +149,6 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
     else:
         now = now.astimezone(BERLIN_TZ)
     horizon = add_months(now, horizon_months)
-    interval = timedelta(weeks=interval_weeks)
-    interval_days = interval.days
     site_name = str(site.get("name") or "sounds of electronic art")
     short_name = str(site.get("short_name") or "sofea")
     default_de = str(config.get("details_de") or "Drei Stunden elektronische Musik. Live auf Radio Blau.")
@@ -108,14 +161,20 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
     managed_ids: set[str] = set()
 
     slot = anchor
-    index = 0
+    episode_number = first_episode_number
     while slot <= horizon:
         slot_key = slot.date().isoformat()
         stable_id = regular_slot_id(slot)
         managed_ids.add(stable_id)
-        episode_number = first_episode_number + index
-        actual = parse_local(str(overrides[slot_key])) if slot_key in overrides else slot
-        if slot_key not in skip_dates and actual + timedelta(hours=3) > now:
+
+        # A cancelled broadcast does not exist and therefore does not consume
+        # an episode number. A rescheduled broadcast does consume its number.
+        if slot_key in skip_dates:
+            slot += interval
+            continue
+
+        actual = parse_local(overrides[slot_key]) if slot_key in overrides else slot
+        if actual + timedelta(hours=3) > now:
             current = by_id.get(stable_id) or by_date.get(slot.replace(tzinfo=None).isoformat(timespec="seconds"))
             if current is None:
                 current = by_date.get(actual.replace(tzinfo=None).isoformat(timespec="seconds"))
@@ -132,8 +191,9 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
             entry.pop("label_de", None)
             entry.pop("label_en", None)
             result.append(entry)
+
+        episode_number += 1
         slot += interval
-        index += 1
 
     skipped_ids = {f"broadcast-{value}" for value in skip_dates}
     for entry in existing:
@@ -150,7 +210,12 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
             except ValueError:
                 slot_date = None
             if slot_date is not None and is_regular_slot_date(slot_date, anchor, interval_days):
-                if entry_id not in managed_ids or parse_local(date_value) + timedelta(hours=3) <= now:
+                # Inside the managed horizon, regular entries were either
+                # consumed above or intentionally skipped. Past entries are
+                # removed. Future entries beyond the horizon are preserved.
+                if entry_id in managed_ids:
+                    continue
+                if parse_local(date_value) + timedelta(hours=3) <= now:
                     continue
         result.append(dict(entry))
 
@@ -160,6 +225,15 @@ def maintain_schedule(site: dict, existing: list[dict], now: datetime | None = N
 
 def main() -> int:
     site = read_json(SITE_PATH)
+    if SCHEDULE_PATH.is_file():
+        schedule = read_json(SCHEDULE_PATH)
+    else:
+        schedule = site.get("broadcast_schedule")
+    if not isinstance(schedule, dict):
+        raise ValueError(f"missing broadcast schedule configuration: {SCHEDULE_PATH.relative_to(ROOT)}")
+    site = dict(site)
+    site["broadcast_schedule"] = schedule
+
     existing = read_json(UPCOMING_PATH)
     if not isinstance(existing, list):
         raise ValueError("content/upcoming-broadcasts.json must contain a top-level JSON array")

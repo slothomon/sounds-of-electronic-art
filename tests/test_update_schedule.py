@@ -79,7 +79,8 @@ class BroadcastScheduleTests(unittest.TestCase):
         site["broadcast_schedule"]["skip_dates"] = ["2027-02-13"]
         rows = update_schedule.maintain_schedule(site, [], self.now())
         self.assertNotIn("2027-02-13", [row["date"][:10] for row in rows])
-        self.assertNotIn(104, [row["episode_number"] for row in rows])
+        next_regular = next(row for row in rows if row["date"][:10] == "2027-04-10")
+        self.assertEqual(next_regular["episode_number"], 104)
 
     def test_override_keeps_slot_identity_and_number(self):
         site = self.site()

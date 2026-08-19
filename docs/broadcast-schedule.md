@@ -2,9 +2,9 @@
 
 Regular `sounds of electronic art` broadcasts are maintained by `scripts/update_schedule.py`.
 
-The schedule is configured in `content/site.json` under `broadcast_schedule`:
+The authoritative schedule configuration lives in `content/broadcast-schedule.json` and is editable in Pages CMS under **Sendungsplanung**.
 
-- `anchor`: first regular slot managed by the automation. The current anchor is 2026-08-29 21:00, episode #101.
+- `anchor`: first regular slot managed by the automation. Current anchor: 2026-08-29 21:00, episode #101.
 - `first_episode_number`: episode number belonging to the anchor.
 - `interval_weeks`: regular cadence, currently 8 weeks.
 - `horizon_months`: how far the generated calendar is kept populated, currently 12 months.
@@ -15,7 +15,11 @@ Unknown guests use `sounds of electronic art` as the editorial title. Do not use
 
 ## Cancellation
 
-To cancel the regular slot on 2027-02-13:
+In Pages CMS, open **Sendungsplanung → Ausfallende Sendungen** and add the regular date, for example `2027-02-13`.
+
+A cancelled slot does **not** consume an episode number. If #103 is followed by a cancelled regular slot, the next broadcast is #104.
+
+Equivalent JSON:
 
 ```json
 "skip_dates": [
@@ -25,12 +29,21 @@ To cancel the regular slot on 2027-02-13:
 
 ## Rescheduling
 
-To move the same slot to 2027-02-20 at 21:00 while keeping its identity and episode number:
+In Pages CMS, open **Sendungsplanung → Verschobene Sendungen** and add the regular slot plus its new local date/time.
+
+Example: move the regular slot from 2027-02-13 to 2027-02-20 21:00 while keeping its identity and episode number:
 
 ```json
-"date_overrides": {
-  "2027-02-13": "2027-02-20T21:00:00"
-}
+"date_overrides": [
+  {
+    "date": "2027-02-13",
+    "new_date": "2027-02-20T21:00:00"
+  }
+]
 ```
 
 Do not put the same slot in both `skip_dates` and `date_overrides`.
+
+## Calendar notes
+
+The iCalendar output folds long lines according to the existing byte limit while keeping ordinary HTTP(S) URLs on a single physical folded line when possible. This avoids clients treating the livestream URL as a truncated link when the preceding description is long.

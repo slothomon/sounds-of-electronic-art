@@ -279,11 +279,36 @@ def ical_escape(value: str) -> str:
 
 
 def fold_ical_line(line: str, limit: int = 73) -> list[str]:
-    """Fold iCalendar lines without splitting UTF-8 characters."""
+    """Fold iCalendar lines without splitting UTF-8 or short HTTP(S) URLs."""
+    if limit < 4:
+        raise ValueError("iCalendar fold limit must be at least 4 bytes")
+
+    url_pattern = re.compile(r"https?://[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=%-]+")
     lines: list[str] = []
     current = ""
     current_bytes = 0
-    for char in line:
+    index = 0
+
+    while index < len(line):
+        url_match = url_pattern.match(line, index)
+        if url_match:
+            token = url_match.group(0)
+            token_bytes = len(token.encode("utf-8"))
+            # Keep ordinary URLs on one physical iCalendar line. If the URL
+            # itself is longer than a continuation line, fall back to normal
+            # UTF-8-safe character folding below.
+            if token_bytes <= limit - 1:
+                if current and current_bytes + token_bytes > limit:
+                    lines.append(current)
+                    current = " " + token
+                    current_bytes = 1 + token_bytes
+                else:
+                    current += token
+                    current_bytes += token_bytes
+                index = url_match.end()
+                continue
+
+        char = line[index]
         char_bytes = len(char.encode("utf-8"))
         if current and current_bytes + char_bytes > limit:
             lines.append(current)
@@ -292,6 +317,8 @@ def fold_ical_line(line: str, limit: int = 73) -> list[str]:
         else:
             current += char
             current_bytes += char_bytes
+        index += 1
+
     lines.append(current)
     return lines
 

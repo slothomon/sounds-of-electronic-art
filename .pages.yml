@@ -317,6 +317,79 @@ content:
             label: Link
             type: string
 
+  - name: broadcast-schedule
+    label: Sendungsplanung
+    type: file
+    path: content/broadcast-schedule.json
+    format: json
+    operations:
+      rename: false
+      delete: false
+    fields:
+      - name: anchor
+        label: Erster regulärer Termin
+        type: date
+        readonly: true
+        description: Referenztermin des 8-Wochen-Rhythmus.
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ss"
+      - name: first_episode_number
+        label: Sendungsnummer am Referenztermin
+        type: number
+        readonly: true
+      - name: interval_weeks
+        label: Abstand in Wochen
+        type: number
+        readonly: true
+      - name: horizon_months
+        label: Planungshorizont in Monaten
+        type: number
+        required: true
+        description: Reguläre Sendungen werden mindestens so weit im Voraus erzeugt.
+        options:
+          min: 1
+          max: 24
+      - name: skip_dates
+        label: Ausfallende Sendungen
+        type: date
+        list: true
+        description: Reguläre Termine, die komplett ausfallen. Ein Ausfall verbraucht keine Sendungsnummer.
+        options:
+          format: "yyyy-MM-dd"
+      - name: date_overrides
+        label: Verschobene Sendungen
+        type: object
+        description: Verschiebt einen regulären Termin, behält aber dessen stabile ID und Sendungsnummer.
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{date} → {new_date}"
+        fields:
+          - name: date
+            label: Regulärer Termin
+            type: date
+            required: true
+            options:
+              format: "yyyy-MM-dd"
+          - name: new_date
+            label: Neuer Termin
+            type: date
+            required: true
+            options:
+              time: true
+              format: "yyyy-MM-dd'T'HH:mm:ss"
+              step: 3600
+      - name: details_de
+        label: Standardtext (Deutsch)
+        type: text
+        required: true
+        description: Wird nur für neu automatisch angelegte Sendungen verwendet.
+      - name: details_en
+        label: Standardtext (Englisch)
+        type: text
+        required: true
+        description: Wird nur für neu automatisch angelegte Sendungen verwendet.
 settings:
   content:
     merge: true

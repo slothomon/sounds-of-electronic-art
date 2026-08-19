@@ -249,16 +249,26 @@ def broadcast_guest_title(item: dict, site: dict, language: str = "de") -> str:
     return "" if folded in placeholders else title
 
 def calendar_title(item: dict, site: dict) -> str:
-    """Return the public calendar title for broadcasts and events."""
     item_type = str(item.get("type") or "broadcast").lower()
     if item_type != "broadcast":
-        return str(item.get("title_de") or site["name"])
-    base = str(site.get("name") or "sounds of electronic art")
-    number = episode_number_value(item)
-    if number is not None:
-        base = f"{base} #{number}"
-    guest = broadcast_guest_title(item, site, "de")
-    return f"{base} – {guest}" if guest else base
+        return str(item.get("title_de") or site.get("name") or "sofea").strip()
+
+    number = item.get("episode_number")
+    base = f"sofea #{number}" if number not in (None, "") else "sofea"
+    guest = str(item.get("title_de") or "").strip()
+
+    if not guest or guest.casefold() in {"sounds of electronic art", "sofea", "tba"}:
+        return base
+
+    legacy = re.match(
+        r"^\s*(?:sounds of electronic art|sofea)\s*#?\s*\d+\s*[-–—:]\s*(.+?)\s*$",
+        guest,
+        flags=re.IGNORECASE,
+    )
+    if legacy:
+        guest = legacy.group(1).strip()
+
+    return f"{base} - {guest}" if guest else base
 
 def calendar_filename(item: dict, site: dict) -> str:
     stable_id = str(item.get("id") or "").strip()
@@ -348,7 +358,8 @@ def calendar_event_lines(item: dict, site: dict, event_url: str, dtstamp: str) -
     ).strip()
     calendar_footer = (
         "-----\n\n"
-        f"Livestream: {stream_url}\n\n"
+        "Livestream:\n"
+        f"{stream_url}\n\n"
         "Radio Blau erreicht ihr auf DAB+, sowie\n"
         "UKW 99,2 MHz, 94,4 MHz & 89,2 MHz"
     )

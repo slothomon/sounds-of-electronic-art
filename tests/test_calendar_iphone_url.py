@@ -39,7 +39,7 @@ class CalendarNotesLayoutTests(unittest.TestCase):
     def test_livestream_is_first_item_after_separator(self):
         description = next(line for line in self.event_lines() if line.startswith("DESCRIPTION:"))
         expected = (
-            r"\n\n-----\n\nLivestream: https://www.radioblau.de/stream/"
+            r"\n\n-----\n\nLivestream:\nhttps://www.radioblau.de/stream/"
             r"\n\nRadio Blau erreicht ihr auf DAB+"
         )
         self.assertIn(expected, description)

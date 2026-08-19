@@ -342,18 +342,23 @@ def calendar_event_lines(item: dict, site: dict, event_url: str, dtstamp: str) -
         f"DTEND:{end.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
         f"SUMMARY:{ical_escape(title)}",
     ]
-    stream_url = str(site.get("radio", {}).get("stream_url") or "https://www.radioblau.de/stream/")
+
+    stream_url = str(
+        site.get("radio", {}).get("stream_url") or "https://www.radioblau.de/stream/"
+    ).strip()
     calendar_footer = (
         "-----\n\n"
+        f"Livestream: {stream_url}\n\n"
         "Radio Blau erreicht ihr auf DAB+, sowie\n"
-        "UKW 99,2 MHz, 94,4 MHz & 89,2 MHz\n\n"
-        "LiveStream:\n"
-        f"{stream_url}"
+        "UKW 99,2 MHz, 94,4 MHz & 89,2 MHz"
     )
     description = f"{summary}\n\n{calendar_footer}" if summary else calendar_footer
     raw_lines.append(f"DESCRIPTION:{ical_escape(description)}")
     if location:
         raw_lines.append(f"LOCATION:{ical_escape(location)}")
+
+    # Keep the canonical SOFEA event/detail page as the VEVENT URL. The
+    # livestream remains a separate, visible link in DESCRIPTION.
     raw_lines.extend([
         f"URL:{ical_escape(event_url)}",
         "STATUS:CONFIRMED",

@@ -23,14 +23,14 @@
   ],
   "team": [
     {
-      "name": "Robert Bernsdorf",
-      "alias": "fumé",
-      "alias_url": "https://soundcloud.com/fume"
-    },
-    {
       "name": "Robert Petroschke",
       "alias": "easy.miner",
       "alias_url": "https://soundcloud.com/easy_miner"
+    },
+    {
+      "name": "Robert Bernsdorf",
+      "alias": "fumé",
+      "alias_url": "https://soundcloud.com/fume"
     },
     {
       "name": "Matthias Kämmerer",

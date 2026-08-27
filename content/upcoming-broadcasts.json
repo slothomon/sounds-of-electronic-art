@@ -1,22 +1,23 @@
 [
   {
     "date": "2026-08-29T21:00:00",
+    "episode_number": 101,
     "title_de": "Heckintosh",
     "title_en": "Heckintosh",
-    "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "details_de": "Unsere Gästin ist diesmal Heckintosh. Früher unter anderem im Umfeld der Villa Wuller in Trier aktiv, bereichert sie inzwischen schon seit einiger Zeit die Leipziger Szene.\nAls echte Kennerin elektronischer Musik sind wir sehr gespannt darauf, was sie für uns im Gepäck hat.",
+    "details_en": "Our guest this time is Heckintosh. Formerly active in and around Villa Wuller in Trier, she has been enriching Leipzig’s scene for quite some time now.\nAs she is also a true connoisseur of electronic music, we’re very curious to hear what she has in store for us.",
+    "image": "/assets/images/uploads/heckintoshsw.png",
     "links": [
       {
         "label_de": "Soundcloud",
         "url": "https://on.soundcloud.com/mA4Hf4bToRDnsA3tNy",
         "primary": false
       }
-    ],
-    "id": "broadcast-2026-08-29",
-    "episode_number": 101
+    ]
   },
   {
     "date": "2026-10-24T21:00:00",
+    "episode_number": 102,
     "title_de": "Credit 00",
     "title_en": "Credit 00",
     "details_de": "The man, the myth, the legend.",
@@ -27,21 +28,17 @@
         "url": "https://de.ra.co/dj/credit00",
         "primary": false
       }
-    ],
-    "id": "broadcast-2026-10-24",
-    "episode_number": 102
+    ]
   },
   {
     "date": "2026-12-19T21:00:00",
+    "episode_number": 103,
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2026-12-19",
-    "episode_number": 103
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
-    "id": "broadcast-2027-02-13",
     "date": "2027-02-13T21:00:00",
     "episode_number": 104,
     "title_de": "sounds of electronic art",
@@ -50,7 +47,6 @@
     "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
-    "id": "broadcast-2027-04-10",
     "date": "2027-04-10T21:00:00",
     "episode_number": 105,
     "title_de": "sounds of electronic art",
@@ -59,7 +55,6 @@
     "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
-    "id": "broadcast-2027-06-05",
     "date": "2027-06-05T21:00:00",
     "episode_number": 106,
     "title_de": "sounds of electronic art",
@@ -68,7 +63,6 @@
     "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
-    "id": "broadcast-2027-07-31",
     "date": "2027-07-31T21:00:00",
     "episode_number": 107,
     "title_de": "sounds of electronic art",

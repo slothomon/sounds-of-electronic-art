@@ -1,0 +1,32 @@
+/* Homepage mobile hero: use the badge as the primary brand statement.
+   Desktop remains entirely controlled by site.css. */
+@media (max-width: 900px) {
+  .hero {
+    padding: 1.75rem 0 2.25rem;
+  }
+
+  .hero-grid {
+    gap: 1.15rem;
+  }
+
+  /* Existing markup is copy first, badge second. Reorder only on mobile. */
+  .hero-grid > :first-child {
+    order: 2;
+    text-align: center;
+  }
+
+  .hero-grid > :first-child .eyebrow,
+  .hero-grid > :first-child .hero-title {
+    display: none;
+  }
+
+  .hero-art {
+    order: 1;
+  }
+
+  .hero-subtitle {
+    max-width: 34rem;
+    margin: 0 auto;
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
+  }
+}

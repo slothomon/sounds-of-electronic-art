@@ -67,12 +67,12 @@ content:
         required: true
         description: Kann mit dem deutschen Titel identisch sein.
       - name: details_de
-        label: Text (Deutsch)
+        label: Ankündigungstext (Deutsch)
         type: text
         required: true
-        description: Wird auf der Startseite automatisch gekürzt und in der Detailansicht vollständig gezeigt.
+        description: Wird nach der Sendung als Fallback ins Archiv übernommen.
       - name: details_en
-        label: Text (Englisch)
+        label: Ankündigungstext (Englisch)
         type: text
         required: true
       - name: image
@@ -243,12 +243,26 @@ content:
         type: string
         required: false
         description: Optional. Leer lassen, solange noch keine öffentliche Aufnahme vorhanden ist.
-      - name: details_de
-        label: Text (Deutsch, optional)
+      - name: announcement_de
+        label: Ankündigungstext (Deutsch)
         type: text
-        description: Falls leer, wird der Text aus SoundCloud verwendet. In der Archivliste wird der Text automatisch gekürzt.
+        description: Wird automatisch aus „Demnächst“ übernommen und nur verwendet, wenn kein Text nach der Sendung und keine SoundCloud-Beschreibung vorhanden ist.
+      - name: announcement_en
+        label: Ankündigungstext (Englisch)
+        type: text
+      - name: post_text_de
+        label: Text nach der Sendung (Deutsch)
+        type: text
+        description: Optionaler redaktioneller Nachtext. Hat im Archiv immer Vorrang vor SoundCloud-Beschreibung und Ankündigungstext.
+      - name: post_text_en
+        label: Text nach der Sendung (Englisch)
+        type: text
+      - name: details_de
+        label: Bestehender Archivtext (Deutsch, Legacy)
+        type: text
+        description: Nur für ältere Einträge. Wird wie ein manueller Nachtext behandelt; für neue Einträge bitte „Text nach der Sendung“ verwenden.
       - name: details_en
-        label: Text (Englisch, optional)
+        label: Bestehender Archivtext (Englisch, Legacy)
         type: text
       - name: image
         label: Bild / Artwork (optional)

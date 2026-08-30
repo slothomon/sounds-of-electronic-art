@@ -150,15 +150,33 @@ def sound_url(sound: dict[str, Any]) -> str:
 
 
 def sound_description(sound: dict[str, Any]) -> str:
-    description = str(sound.get("description") or "")
-    for line in description.splitlines():
+    """Return the complete SoundCloud description with stable paragraph breaks."""
+    description = unicodedata.normalize("NFKC", str(sound.get("description") or ""))
+    description = re.sub(r"[\u200b-\u200d\u2060\ufeff]", "", description)
+    description = description.replace("\u00a0", " ").replace("\r\n", "\n").replace("\r", "\n")
+
+    lines: list[str] = []
+    previous_blank = False
+    for raw_line in description.split("\n"):
+        line = re.sub(r"[ \t]+", " ", raw_line).strip()
+        if line:
+            lines.append(line)
+            previous_blank = False
+        elif lines and not previous_blank:
+            lines.append("")
+            previous_blank = True
+    while lines and not lines[-1]:
+        lines.pop()
+    return "\n".join(lines)
+
+
+def sound_summary(description: str, limit: int = 280) -> str:
+    """Keep the former short cache summary while retaining the full description separately."""
+    for line in str(description or "").splitlines():
         candidate = clean_text(line)
-        if candidate and not re.match(r"^https?://", candidate, re.IGNORECASE):
-            return candidate if len(candidate) <= 280 else candidate[:277].rstrip() + "…"
+        if candidate and not re.match(r"^(?:https?://|\[[^\]]+\]\(https?://)", candidate, re.IGNORECASE):
+            return candidate if len(candidate) <= limit else candidate[: limit - 3].rstrip() + "…"
     return ""
-
-
-
 
 def slugify(value: str) -> str:
     text = str(value or "").lower()
@@ -352,7 +370,8 @@ def normalise_sounds(
             "episode_id": episode_id,
             "date": episode_date.isoformat(),
             "title": title,
-            "summary": sound_description(sound),
+            "summary": sound_summary(sound_description(sound)),
+                "description": sound_description(sound),
             "audio_url": url,
             "soundcloud_id": source_id,
             "duration_ms": duration_ms,

@@ -63,7 +63,9 @@ def test_expired_broadcast_moves_without_audio():
         archived = episodes[0]
         assert archived["episode_number"] == 101
         assert archived["episode_id"] == "2026-08-29-heckintosh"
-        assert archived["details_de"] == "Ankündigung"
+        assert archived["announcement_de"] == "Ankündigung"
+        assert archived["announcement_en"] == "Announcement"
+        assert "details_de" not in archived
         assert "audio_url" not in archived
         assert [row["episode_number"] for row in read(root / "content" / "episode-numbers.json")][:2] == [101, 100]
         assert [row["episode_number"] for row in read(root / "content" / "upcoming-broadcasts.json")] == [102]
@@ -98,7 +100,7 @@ def test_existing_audio_is_preserved():
         module.migrate(root, datetime(2026, 8, 30, 2, 0, tzinfo=BERLIN))
         archived = read(root / "content" / "episodes.json")[0]
         assert archived["audio_url"] == "https://soundcloud.com/example/heckintosh"
-        assert archived["details_de"] == "Neue Beschreibung"
+        assert archived["announcement_de"] == "Neue Beschreibung"
 
 
 def test_automatic_number_assignment_and_idempotence():

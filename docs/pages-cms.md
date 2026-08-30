@@ -50,3 +50,7 @@ py scripts\check.py
 ```
 
 Every saved change remains attributable to the editor's own GitHub account.
+
+## Archive text priority
+
+Completed broadcasts are archived independently of SoundCloud. The visible archive text uses this priority: manual post-show text, legacy manual archive text, SoundCloud description, then announcement text. The SoundCloud cache stores both a short summary and the complete description.

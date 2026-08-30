@@ -14,8 +14,6 @@ DEFAULT_BROADCAST_HOURS = 3
 ARCHIVE_FIELDS = (
     "title_de",
     "title_en",
-    "details_de",
-    "details_en",
     "image",
     "social_image",
     "links",
@@ -153,6 +151,14 @@ def archive_from_broadcast(item: dict, number: int) -> dict:
         "title_en": title_en,
         "episode_id": f"{date_value}-{slugify(title_de)}",
     }
+
+    announcement_de = str(item.get("announcement_de") or item.get("details_de") or "").strip()
+    announcement_en = str(item.get("announcement_en") or item.get("details_en") or announcement_de).strip()
+    if announcement_de:
+        archived["announcement_de"] = announcement_de
+    if announcement_en:
+        archived["announcement_en"] = announcement_en
+
     for key in ARCHIVE_FIELDS:
         if key in {"title_de", "title_en"}:
             continue
@@ -162,7 +168,6 @@ def archive_from_broadcast(item: dict, number: int) -> dict:
     # audio_url is intentionally not copied or synthesized. It is added later
     # only when a real recording exists in the SoundCloud archive/cache.
     return archived
-
 
 def merge_archived_metadata(existing: dict, incoming: dict) -> bool:
     """Fill missing editorial fields while preserving existing archive data/audio."""

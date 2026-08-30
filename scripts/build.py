@@ -56,29 +56,62 @@ def slugify(value: str) -> str:
     return text.strip("-")[:80] or "sendung"
 
 
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]\n]+)\]\((https?://[^\s)]+)\)")
+PLAIN_URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
+
+
+def plain_editorial_text(value: object) -> str:
+    """Return prose suitable for cards/meta descriptions without raw link markup."""
+    rows: list[str] = []
+    for raw_line in str(value or "").replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        line = raw_line.strip()
+        if not line or line.casefold() in {"soundcloud", "soundcloud:"}:
+            continue
+        if MARKDOWN_LINK_RE.fullmatch(line) or PLAIN_URL_RE.fullmatch(line):
+            continue
+        line = MARKDOWN_LINK_RE.sub(lambda match: match.group(1), line)
+        rows.append(line)
+    return " ".join(" ".join(rows).split())
+
+
 def card_excerpt(value: str, limit: int = 100) -> str:
     """Return a compact card excerpt while preserving the full detail text."""
-    normalized = " ".join(str(value or "").split())
+    normalized = plain_editorial_text(value)
     if len(normalized) <= limit:
         return normalized
     shortened = normalized[: limit + 1].rsplit(" ", 1)[0].rstrip(" .,;:–—-")
     return (shortened or normalized[:limit].rstrip()) + "…"
 
-
 def content_text(item: dict, language: str = "de") -> str:
-    """Return the single editorial text used for cards and detail pages.
+    """Resolve archive prose by editorial priority.
 
-    ``details_*`` is the current field. ``summary_*`` remains a compatibility
-    fallback for older entries and the imported SoundCloud cache.
+    Priority: post-show text -> legacy manual details -> SoundCloud description
+    -> legacy SoundCloud summary -> announcement. English falls back to German
+    within each editorial layer.
     """
-    primary = str(item.get(f"details_{language}") or item.get(f"summary_{language}") or "").strip()
-    if primary:
-        return primary
-    if language == "en":
-        return str(item.get("details_de") or item.get("summary_de") or "").strip()
-    return str(item.get("summary") or "").strip()
+    fallback_language = "de" if language == "en" else None
 
+    for field in ("post_text", "details"):
+        value = str(item.get(f"{field}_{language}") or "").strip()
+        if not value and fallback_language:
+            value = str(item.get(f"{field}_{fallback_language}") or "").strip()
+        if value:
+            return value
 
+    soundcloud = str(
+        item.get(f"soundcloud_description_{language}")
+        or item.get("soundcloud_description")
+        or item.get(f"summary_{language}")
+        or item.get("summary")
+        or ""
+    ).strip()
+    if soundcloud:
+        return soundcloud
+
+    announcement = str(item.get(f"announcement_{language}") or "").strip()
+    if not announcement and fallback_language:
+        announcement = str(item.get(f"announcement_{fallback_language}") or "").strip()
+    return announcement
 
 def episode_number_value(item: dict) -> int | None:
     """Return an upcoming broadcast episode number as an integer when present."""
@@ -820,15 +853,8 @@ def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -
     return absolute_site_url(canonical_url, social_card_relative_path(kind, item, site))
 
 def detail_description(item: dict, site: dict) -> str:
-    value = (
-        item.get("details_de")
-        or item.get("summary_de")
-        or item.get("summary")
-        or site.get("description_de")
-        or site["name"]
-    )
-    return meta_excerpt(value, 160)
-
+    value = content_text(item, "de") or site.get("description_de") or site["name"]
+    return meta_excerpt(plain_editorial_text(value), 160)
 
 def detail_page_title(kind: str, item: dict, site: dict) -> str:
     title = str(item.get("title_de") or item.get("title") or site["name"])
@@ -874,6 +900,22 @@ def asset_href(value: object, base_path: str) -> str:
     return f"{base_path}/{raw.lstrip('/')}"
 
 
+def inline_editorial_html(value: object) -> str:
+    """Escape prose while allowing simple Markdown-style http(s) links."""
+    raw = str(value or "")
+    chunks: list[str] = []
+    cursor = 0
+    for match in MARKDOWN_LINK_RE.finditer(raw):
+        chunks.append(esc(raw[cursor:match.start()]))
+        chunks.append(
+            f'<a href="{esc(match.group(2))}" target="_blank" rel="noopener noreferrer">'
+            f'{esc(match.group(1))} ↗</a>'
+        )
+        cursor = match.end()
+    chunks.append(esc(raw[cursor:]))
+    return "".join(chunks)
+
+
 def text_paragraphs(value: object) -> str:
     raw = str(value or "").strip()
     if not raw:
@@ -882,8 +924,44 @@ def text_paragraphs(value: object) -> str:
     for paragraph in raw.replace("\r\n", "\n").split("\n\n"):
         paragraph = paragraph.strip()
         if paragraph:
-            paragraphs.append(f"<p>{esc(paragraph).replace(chr(10), '<br>')}</p>")
+            rendered_lines = [inline_editorial_html(line) for line in paragraph.split("\n")]
+            paragraphs.append(f"<p>{'<br>'.join(rendered_lines)}</p>")
     return "".join(paragraphs)
+
+
+def localized_prose(item: dict, field: str) -> str:
+    de_value = item.get(f"{field}_de") or item.get(field) or ""
+    en_value = item.get(f"{field}_en") or item.get(field) or de_value
+    if not de_value and not en_value:
+        return ""
+    return (
+        f'<div class="detail-prose" data-language-panel="de">{text_paragraphs(de_value)}</div>'
+        f'<div class="detail-prose" data-language-panel="en" hidden>{text_paragraphs(en_value)}</div>'
+    )
+
+def localized_collection(item: dict, field: str) -> tuple[list, list]:
+    shared = item.get(field) if isinstance(item.get(field), list) else []
+    de_value = item.get(f"{field}_de") if isinstance(item.get(f"{field}_de"), list) else shared
+    en_value = item.get(f"{field}_en") if isinstance(item.get(f"{field}_en"), list) else shared
+    return list(de_value or []), list(en_value or de_value or [])
+
+def lineup_items(values: list) -> str:
+    rows = []
+    for value in values:
+        if isinstance(value, dict):
+            label = str(value.get("name") or value.get("artist") or value.get("label") or "").strip()
+            url = str(value.get("url") or "").strip()
+        else:
+            label = str(value).strip()
+            url = ""
+        if not label:
+            continue
+        content = esc(label)
+        if url:
+            content = f'<a href="{esc(url)}" target="_blank" rel="noopener noreferrer">{content} ↗</a>'
+        rows.append(f"<li>{content}</li>")
+    return "".join(rows)
+
 
 
 def tracklist_items(values: list) -> str:
@@ -950,9 +1028,9 @@ def music_presentation_items(values: list, language: str) -> str:
 
 
 def music_presentations_section(item: dict) -> str:
-    values = item.get("music_presentations") if isinstance(item.get("music_presentations"), list) else []
-    de_rows = music_presentation_items(values, "de")
-    en_rows = music_presentation_items(values, "en")
+    de_values, en_values = localized_collection(item, "music_presentations")
+    de_rows = music_presentation_items(de_values, "de")
+    en_rows = music_presentation_items(en_values, "en")
     if not de_rows and not en_rows:
         return ""
     return (
@@ -974,6 +1052,30 @@ def tracklist_section(item: dict) -> str:
         f'<ol class="detail-tracklist">{rows}</ol>'
         '</section>'
     )
+
+def detail_collection_section(
+    item: dict,
+    field: str,
+    heading_de: str,
+    heading_en: str,
+    ordered: bool = False,
+) -> str:
+    de_values, en_values = localized_collection(item, field)
+    renderer = tracklist_items if ordered else lineup_items
+    de_rows = renderer(de_values)
+    en_rows = renderer(en_values)
+    if not de_rows and not en_rows:
+        return ""
+    tag = "ol" if ordered else "ul"
+    class_name = "detail-tracklist" if ordered else "detail-lineup"
+    return (
+        '<section class="detail-section">'
+        f'<h3 data-bilingual data-de="{esc(heading_de)}" data-en="{esc(heading_en)}">{esc(heading_de)}</h3>'
+        f'<{tag} class="{class_name}" data-language-panel="de">{de_rows}</{tag}>'
+        f'<{tag} class="{class_name}" data-language-panel="en" hidden>{en_rows}</{tag}>'
+        '</section>'
+    )
+
 
 
 def detail_prose(item: dict) -> str:
@@ -1216,10 +1318,12 @@ def archive_detail_inner(
     value = parse_date(str(item["date"]))
     title_de = clean_archive_title(item["title_de"])
     title_en = clean_archive_title(item.get("title_en") or title_de)
+    visible_item = dict(item)
+    visible_item["details_de"] = content_text(item, "de")
+    visible_item["details_en"] = content_text(item, "en")
     date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
     date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1]} {value.year}"
-    label_de = episode_label(item, "de")
-    label_en = episode_label(item, "en")
+    summary_html = ""
     actions = external_action_links(item)
     audio_url = str(item.get("audio_url") or "").strip()
     if audio_url:
@@ -1232,7 +1336,7 @@ def archive_detail_inner(
     action_html = f'<div class="detail-actions">{"".join(actions)}</div>' if actions else ""
     header_html = (
         '<header class="detail-header">'
-        f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">{esc(label_de)}</p>'
+        '<p class="eyebrow" data-bilingual data-de="Sendung" data-en="Broadcast">Sendung</p>'
         f'<{heading_tag} id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" '
         f'data-en="{esc(title_en)}">{esc(title_de)}</{heading_tag}>'
         '<div class="detail-meta">'
@@ -1242,10 +1346,11 @@ def archive_detail_inner(
     )
     image_html = detail_image(item, base_path, title_de, title_en)
     return (
-        f'{detail_intro(header_html, image_html, "")}'
-        f'{detail_prose(item)}'
+        f'{detail_intro(header_html, image_html, summary_html)}'
+        f'{localized_prose(visible_item, "details")}'
         f'{music_presentations_section(item)}'
-        f'{tracklist_section(item)}'
+        f'{detail_collection_section(item, "lineup", "Mitwirkende", "Contributors")}'
+        f'{detail_collection_section(item, "tracklist", "Tracklist", "Track list", ordered=True)}'
         f'{action_html}'
     )
 
@@ -1403,6 +1508,7 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                     "title_en": clean_archive_title(item["title"]),
                     "summary_de": str(item.get("summary") or ""),
                     "summary_en": str(item.get("summary") or ""),
+                    "soundcloud_description": str(item.get("description") or ""),
                     "audio_url": str(item["audio_url"]),
                     "soundcloud_id": str(item.get("soundcloud_id") or "").strip(),
                     "duration_ms": item.get("duration_ms"),

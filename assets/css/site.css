@@ -2041,3 +2041,63 @@ body {
   }
 }
 /* SOFEA detail title typography v1: end */
+
+/* SOFEA raster hero artwork · retro badge · 2026-08 */
+.hero-art {
+  width: min(100%, 460px);
+  max-width: 460px;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  justify-self: end;
+  border: 0;
+  border-radius: 0;
+  background: transparent url("../images/branding/sofea-hero-dark.png") center / contain no-repeat;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.hero-art::before,
+.hero-art::after,
+.hero-art .frequency {
+  display: none;
+}
+
+html[data-theme="light"] .hero-art {
+  background-image: url("../images/branding/sofea-hero-light.png");
+}
+
+@media (max-width: 900px) {
+  .hero-art {
+    width: min(100%, 460px);
+    justify-self: center;
+  }
+}
+/* SOFEA raster hero artwork · end */
+
+/* SOFEA hero WebP delivery + desktop sizing · 2026-08 */
+.hero-art {
+  /* Modern browsers select lossless WebP; the earlier PNG rule remains a fallback. */
+  background-image: image-set(
+    url("../images/branding/sofea-hero-dark.webp") type("image/webp"),
+    url("../images/branding/sofea-hero-dark.png") type("image/png")
+  );
+}
+
+html[data-theme="light"] .hero-art {
+  background-image: image-set(
+    url("../images/branding/sofea-hero-light.webp") type("image/webp"),
+    url("../images/branding/sofea-hero-light.png") type("image/png")
+  );
+}
+
+@media (min-width: 901px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr);
+  }
+
+  .hero-art {
+    width: min(100%, 500px);
+    max-width: 500px;
+  }
+}
+/* SOFEA hero WebP delivery + desktop sizing · end */

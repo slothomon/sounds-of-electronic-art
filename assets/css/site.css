@@ -2013,3 +2013,31 @@ body {
     font-size: clamp(2.35rem, 11vw, 3.55rem);
   }
 }
+
+/* SOFEA detail title typography v1: start */
+.detail-intro-copy,
+.detail-header {
+  min-width: 0;
+}
+
+.detail-header :is(h1, h2) {
+  margin: 0;
+  max-width: 100%;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-transform: none;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+@media (max-width: 620px) {
+  .detail-header :is(h1, h2) {
+    font-size: clamp(1.7rem, 8vw, 2.15rem);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+}
+/* SOFEA detail title typography v1: end */

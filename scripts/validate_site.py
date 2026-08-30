@@ -366,11 +366,13 @@ def validate_source(root: Path) -> int:
         if not isinstance(episode, dict):
             errors.append(f"{context} must be an object")
             continue
-        for key in ("date", "title_de", "title_en", "audio_url"):
+        for key in ("date", "title_de", "title_en"):
             if not episode.get(key):
                 errors.append(f"{context} is missing required key: {key}")
         validate_common_entry(errors, root, context, episode)
-        validate_url(errors, f"{context}.audio_url", episode.get("audio_url"))
+        audio_url = str(episode.get("audio_url") or "").strip()
+        if audio_url:
+            validate_url(errors, f"{context}.audio_url", audio_url)
         validate_editorial_list(errors, f"{context}.music_presentations", episode.get("music_presentations"))
         validate_editorial_list(errors, f"{context}.tracklist", episode.get("tracklist"))
         identity = episode_id_value(episode)
@@ -476,7 +478,7 @@ def validate_source(root: Path) -> int:
     local_by_id = {
         episode_id_value(item): item
         for item in archive_entries
-        if isinstance(item, dict) and item.get("audio_url")
+        if isinstance(item, dict)
     }
     local_by_source_id = {
         str(item.get("soundcloud_id") or "").strip(): item
@@ -532,6 +534,11 @@ def validate_source(root: Path) -> int:
         if not 1 <= len(listen) <= 5:
             errors.append("content/listen.json must contain 1 to 5 entries")
         known_ids = {episode_id_value(item) for item in final_archive}
+        listenable_ids = {
+            episode_id_value(item)
+            for item in final_archive
+            if str(item.get("audio_url") or "").strip()
+        }
         selected_ids: Counter[str] = Counter()
         for index, row in enumerate(listen, start=1):
             context = f"content/listen.json entry {index}"
@@ -547,6 +554,8 @@ def validate_source(root: Path) -> int:
             selected_ids[identity] += 1
             if identity not in known_ids:
                 errors.append(f"{context}.episode_id is not present in archive data: {identity}")
+            elif identity not in listenable_ids:
+                errors.append(f"{context}.episode_id has no audio_url and cannot be used in Hören: {identity}")
         for identity, count in selected_ids.items():
             if count > 1:
                 errors.append(f"content/listen.json contains duplicate episode_id: {identity}")

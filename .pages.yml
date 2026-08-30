@@ -241,8 +241,8 @@ content:
       - name: audio_url
         label: SoundCloud-URL
         type: string
-        required: true
-        description: Exakt die öffentliche URL der Aufnahme verwenden.
+        required: false
+        description: Optional. Leer lassen, solange noch keine öffentliche Aufnahme vorhanden ist.
       - name: details_de
         label: Text (Deutsch, optional)
         type: text

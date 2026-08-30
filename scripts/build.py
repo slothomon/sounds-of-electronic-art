@@ -145,6 +145,7 @@ def featured_audio_items(selection: list[dict], archive: list[dict]) -> list[dic
     archive_by_id = {episode_id_value(item): item for item in archive}
     resolved: list[dict] = []
     missing: list[str] = []
+    unavailable: list[str] = []
     for row in selection[:5]:
         episode_id = str(row.get("episode_id") or "").strip().lower()
         if not episode_id:
@@ -152,6 +153,10 @@ def featured_audio_items(selection: list[dict], archive: list[dict]) -> list[dic
         item = archive_by_id.get(episode_id)
         if item is None:
             missing.append(episode_id)
+            continue
+        audio_url = str(item.get("audio_url") or "").strip()
+        if not audio_url:
+            unavailable.append(episode_id)
             continue
         title_de = clean_archive_title(item.get("title_de") or item.get("title") or "")
         title_en = clean_archive_title(item.get("title_en") or title_de)
@@ -162,11 +167,15 @@ def featured_audio_items(selection: list[dict], archive: list[dict]) -> list[dic
             "subtitle_de": content_text(item, "de"),
             "subtitle_en": content_text(item, "en"),
             "duration": duration_label(item),
-            "url": str(item["audio_url"]),
+            "url": audio_url,
         })
     if missing:
         raise ValueError(
             "episode_id values from content/listen.json not found in the archive: " + ", ".join(missing)
+        )
+    if unavailable:
+        raise ValueError(
+            "episode_id values from content/listen.json have no audio_url: " + ", ".join(unavailable)
         )
     if not resolved:
         raise ValueError("content/listen.json did not resolve to any archive entries")
@@ -1212,12 +1221,15 @@ def archive_detail_inner(
     label_de = episode_label(item, "de")
     label_en = episode_label(item, "en")
     actions = external_action_links(item)
-    actions.insert(
-        0,
-        f'<a class="button button-primary" href="{esc(item["audio_url"])}" target="_blank" '
-        'rel="noopener noreferrer" data-bilingual data-de="Auf SoundCloud anhören ↗" '
-        'data-en="Listen on SoundCloud ↗">Auf SoundCloud anhören ↗</a>',
-    )
+    audio_url = str(item.get("audio_url") or "").strip()
+    if audio_url:
+        actions.insert(
+            0,
+            f'<a class="button button-primary" href="{esc(audio_url)}" target="_blank" '
+            'rel="noopener noreferrer" data-bilingual data-de="Auf SoundCloud anhören ↗" '
+            'data-en="Listen on SoundCloud ↗">Auf SoundCloud anhören ↗</a>',
+        )
+    action_html = f'<div class="detail-actions">{"".join(actions)}</div>' if actions else ""
     header_html = (
         '<header class="detail-header">'
         f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" data-en="{esc(label_en)}">{esc(label_de)}</p>'
@@ -1234,7 +1246,7 @@ def archive_detail_inner(
         f'{detail_prose(item)}'
         f'{music_presentations_section(item)}'
         f'{tracklist_section(item)}'
-        f'<div class="detail-actions">{"".join(actions)}</div>'
+        f'{action_html}'
     )
 
 def archive_detail_dialog(item: dict, site: dict, base_path: str, detail_url: str) -> str:
@@ -1354,7 +1366,11 @@ def load_archive(episodes: list[dict]) -> list[dict]:
     Local ``episode_id`` is the canonical identity. SoundCloud ID, URL and
     date/title matching remain compatibility fallbacks for older content.
     """
-    local_entries = [item for item in episodes if item.get("audio_url")]
+    local_entries = [
+        item
+        for item in episodes
+        if item.get("date") and (item.get("title_de") or item.get("title"))
+    ]
     local_by_id = {episode_id_value(item): item for item in local_entries}
     local_by_source_id = {
         str(item.get("soundcloud_id") or "").strip(): item
@@ -1472,6 +1488,13 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
         dialog_id = detail_identifier("episode", item, site)
         relative_path = detail_relative_path("episode", item, site)
         detail_url = site_href(base_path, relative_path)
+        audio_url = str(item.get("audio_url") or "").strip()
+        audio_link = (
+            f'<a class="episode-link" href="{esc(audio_url)}" target="_blank" '
+            'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
+            if audio_url
+            else ""
+        )
         rows.append(
             f'<article class="episode" id="{esc(episode_id)}" data-episode '
             f'data-detail-id="{esc(dialog_id)}" data-search="{esc(search_text)}">'
@@ -1482,8 +1505,7 @@ def episode_rows(archive: list[dict], site: dict, base_path: str) -> tuple[str, 
             f'data-detail-id="{esc(dialog_id)}" data-bilingual data-de="{esc(title_de)}" '
             f'data-en="{esc(title_en)}">{esc(title_de)}</a></h3></div>'
             f'{summary_html}</div>'
-            f'<a class="episode-link" href="{esc(item["audio_url"])}" target="_blank" '
-            'rel="noopener noreferrer" data-i18n="play_recording">Aufnahme abspielen ↗</a>'
+            f'{audio_link}'
             '</article>'
         )
         dialogs.append(archive_detail_dialog(item, site, base_path, detail_url))
@@ -1889,7 +1911,7 @@ def main() -> None:
                 "title": item["title_de"],
                 "summary": content_text(item, "de"),
                 "url": absolute_site_url(canonical_url, detail_relative_path("episode", item, site)),
-                "audio_url": item["audio_url"],
+                "audio_url": str(item.get("audio_url") or ""),
                 "music_presentations": item.get("music_presentations") or [],
                 "tracklist": item.get("tracklist") or [],
             }

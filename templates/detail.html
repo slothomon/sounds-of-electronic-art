@@ -32,8 +32,13 @@
   <script>
     (() => {
       try {
-        const theme = localStorage.getItem('sofea-theme') || 'dark';
-        document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
+        const storedTheme = localStorage.getItem('sofea-theme');
+        const theme = ['dark', 'light'].includes(storedTheme) ? storedTheme : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute(
+          'content',
+          theme === 'light' ? '#fdf6e3' : '#151210'
+        );
       } catch (_) {}
     })();
   </script>

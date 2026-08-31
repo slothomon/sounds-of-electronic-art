@@ -115,13 +115,14 @@ Run the source/build/output validation:
 py scripts\check.py
 ```
 
-Run the unit/regression tests:
+Run the unit/regression tests and the dependency-free JavaScript syntax check:
 
 ```cmd
 py -m pytest -q
+node --check assets\js\site.js
 ```
 
-The GitHub Pages and pull-request workflows run both checks before accepting or
+The GitHub Pages and pull-request workflows run these checks before accepting or
 deploying a code change.
 
 The build normally uses the public URL from `content/site.json`. That is fine
@@ -424,8 +425,9 @@ may be removed once the current archive entry references the canonical file.
 
 ## GitHub Actions
 
-- `pages.yml` installs the development requirements, runs the unit tests,
-  executes `scripts/check.py` and deploys the generated `public/` directory.
+- `pages.yml` installs the development requirements, runs the unit tests and
+  JavaScript syntax check, executes `scripts/check.py` and deploys the generated
+  `public/` directory.
 - `quality.yml` runs the same tests and validation for pull requests and manual
   quality checks.
 - `refresh-archive.yml` runs daily and can also be started manually as

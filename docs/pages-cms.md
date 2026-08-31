@@ -57,6 +57,7 @@ Before publishing a larger edit, run locally:
 ```cmd
 py scripts\check.py
 py -m pytest -q
+node --check assets\js\site.js
 ```
 
 Every saved change remains attributable to the editor's own GitHub account.

@@ -17,6 +17,10 @@
         if (['dark', 'light'].includes(storedTheme)) theme = storedTheme;
       } catch (_) {}
       document.documentElement.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute(
+        'content',
+        theme === 'light' ? '#fdf6e3' : '#151210'
+      );
 
       // The hero remains a CSS background because the manual theme toggle must
       // select the matching artwork before first paint. Preload that exact file

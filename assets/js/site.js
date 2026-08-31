@@ -129,6 +129,10 @@
   function applyTheme(nextTheme, persist = true) {
     const theme = nextTheme === 'light' ? 'light' : 'dark';
     root.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'light' ? '#fdf6e3' : '#151210'
+    );
     if (themeIcon) themeIcon.textContent = theme === 'dark' ? '☀' : '☾';
     if (themeToggle) {
       const label = theme === 'dark'

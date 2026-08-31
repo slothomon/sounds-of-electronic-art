@@ -10,7 +10,13 @@
   <script>
     (() => {
       try {
-        document.documentElement.dataset.theme = localStorage.getItem('sofea-theme') || 'dark';
+        const storedTheme = localStorage.getItem('sofea-theme');
+        const theme = ['dark', 'light'].includes(storedTheme) ? storedTheme : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute(
+          'content',
+          theme === 'light' ? '#fdf6e3' : '#151210'
+        );
       } catch (_) {}
     })();
   </script>
@@ -21,7 +27,7 @@
     <div class="shell hero-grid">
       <div>
         <p class="eyebrow">404 · Signal verloren</p>
-        <h1>nicht<br>auf<br>sendung</h1>
+        <h1 class="not-found-title">nicht<br>auf<br>sendung</h1>
         <p class="hero-subtitle">Diese Frequenz ist still. Zurück zu sounds of electronic art.</p>
         <div class="actions"><a class="button button-primary" href="{{ base_path }}/">Zur Startseite</a></div>
       </div>

@@ -288,6 +288,12 @@ h1 {
   color: var(--muted);
   font-size: clamp(1rem, 1.55vw, 1.25rem);
 }
+.not-found-title {
+  max-width: 720px;
+  font-size: clamp(3.1rem, 7vw, 6.25rem);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
 .hero-art {
   position: relative;
   min-height: 330px;
@@ -1511,6 +1517,7 @@ html[data-theme="light"] .detail-dialog {
 @media (max-width: 620px) {
   .shell { width: min(calc(100% - 1.2rem), var(--max)); }
   h1 { font-size: clamp(3.4rem, 18vw, 5.8rem); }
+  .not-found-title { font-size: clamp(2.75rem, 13.5vw, 4.45rem); }
   .section { padding: 3.25rem 0; }
   .section:not(.overview-section) .section-header h2 { font-size: clamp(2.1rem, 11vw, 3.2rem); }
   .overview-listen .player-frame iframe { height: 225px; }

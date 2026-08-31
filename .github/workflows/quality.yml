@@ -25,6 +25,9 @@ jobs:
       - name: Run unit tests
         run: python -m pytest -q
 
+      - name: Check JavaScript syntax
+        run: node --check assets/js/site.js
+
       - name: Validate and build
         run: python scripts/check.py
         env:

@@ -499,6 +499,98 @@
   addEventListener('scroll', updateBackToTop, { passive: true });
   updateBackToTop();
 
+  // SOFEA scheduled LIVE state. The site only uses the editorial schedule;
+  // it does not probe the Radio Blau stream itself.
+  const streamLink = document.querySelector('.nav .listen-link');
+  let liveBroadcastWindows = [];
+  let liveStatusActive = false;
+  let liveBoundaryTimer = null;
+
+  function updateStreamLinkCopy(isLive) {
+    if (!streamLink) return;
+    const labels = {
+      de: isLive ? ['LIVE', 'Jetzt hören'] : ['Livestream', 'Radio Blau'],
+      en: isLive ? ['LIVE', 'Listen now'] : ['Live stream', 'Radio Blau']
+    };
+
+    streamLink.querySelectorAll('.stream-link-label').forEach((panel) => {
+      const panelLanguage = panel.dataset.languagePanel === 'en' ? 'en' : 'de';
+      const [main, secondary] = labels[panelLanguage];
+      const mainNode = panel.querySelector(':scope > span');
+      const secondaryNode = panel.querySelector(':scope > small');
+      if (mainNode) mainNode.textContent = main;
+      if (secondaryNode) secondaryNode.textContent = secondary;
+    });
+
+    streamLink.setAttribute(
+      'aria-label',
+      isLive
+        ? (language === 'en' ? 'SOFEA is live – listen now' : 'SOFEA ist live – jetzt hören')
+        : (language === 'en' ? 'Radio Blau live stream' : 'Livestream von Radio Blau')
+    );
+  }
+
+  function applyLiveStatus(isLive) {
+    if (!streamLink) return;
+    liveStatusActive = isLive;
+    streamLink.classList.toggle('is-sofea-live', isLive);
+    streamLink.dataset.sofeaLive = String(isLive);
+    updateStreamLinkCopy(isLive);
+  }
+
+  function scheduleLiveStatusUpdate() {
+    if (!streamLink) return;
+    if (liveBoundaryTimer) clearTimeout(liveBoundaryTimer);
+
+    const now = Date.now();
+    const isLive = liveBroadcastWindows.some(({ start, end }) => start <= now && now < end);
+    applyLiveStatus(isLive);
+
+    const nextBoundary = liveBroadcastWindows
+      .flatMap(({ start, end }) => [start, end])
+      .filter((value) => value > now)
+      .sort((a, b) => a - b)[0];
+
+    if (Number.isFinite(nextBoundary)) {
+      const delay = Math.min(Math.max(nextBoundary - now + 50, 250), 2_147_000_000);
+      liveBoundaryTimer = setTimeout(scheduleLiveStatusUpdate, delay);
+    }
+  }
+
+  async function loadLiveBroadcastWindows() {
+    if (!streamLink) return;
+    const homePath = body?.dataset.homeUrl || '/';
+    let url;
+    try {
+      url = new URL('live-broadcasts.json', new URL(homePath, location.origin));
+    } catch (_) {
+      applyLiveStatus(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      liveBroadcastWindows = (Array.isArray(payload?.broadcasts) ? payload.broadcasts : [])
+        .map((window) => ({
+          start: Date.parse(window?.start),
+          end: Date.parse(window?.end)
+        }))
+        .filter(({ start, end }) => Number.isFinite(start) && Number.isFinite(end) && end > start);
+    } catch (_) {
+      liveBroadcastWindows = [];
+    }
+    scheduleLiveStatusUpdate();
+  }
+
+  document.addEventListener('sofea:language', () => updateStreamLinkCopy(liveStatusActive));
+  addEventListener('focus', scheduleLiveStatusUpdate);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) scheduleLiveStatusUpdate();
+  });
+  loadLiveBroadcastWindows();
+
   document.querySelectorAll('[data-current-year]').forEach((element) => {
     element.textContent = String(new Date().getFullYear());
   });

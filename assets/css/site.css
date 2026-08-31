@@ -2101,3 +2101,80 @@ html[data-theme="light"] .hero-art {
   }
 }
 /* SOFEA hero WebP delivery + desktop sizing · end */
+
+/* SOFEA scheduled LIVE stream state · 2026-08 */
+.nav .listen-link.is-sofea-live {
+  padding: 0.45rem 0.78rem;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+
+.nav .listen-link.is-sofea-live:hover,
+.nav .listen-link.is-sofea-live:focus-visible {
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+.listen-link.is-sofea-live .stream-link-label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 850;
+  letter-spacing: 0.055em;
+}
+
+.listen-link.is-sofea-live .stream-link-label > span::before {
+  content: "";
+  width: 0.46rem;
+  height: 0.46rem;
+  flex: 0 0 0.46rem;
+  border-radius: 50%;
+  background: var(--rose);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--rose) 28%, transparent);
+  animation: sofea-live-pulse 2.8s ease-out infinite;
+}
+
+@keyframes sofea-live-pulse {
+  0%, 55% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rose) 28%, transparent); }
+  80%, 100% { box-shadow: 0 0 0 0.34rem transparent; }
+}
+
+@media (max-width: 900px) {
+  .nav .listen-link.is-sofea-live {
+    order: -1;
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 36px;
+    padding: 0.42rem 0.68rem;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .nav .listen-link.is-sofea-live .stream-link-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    line-height: 1;
+  }
+
+  .nav .listen-link.is-sofea-live .stream-link-label small {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    letter-spacing: 0;
+  }
+
+  .nav .listen-link.is-sofea-live .stream-link-label small::before {
+    content: "·";
+    margin-right: 0.38rem;
+    font-weight: 900;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listen-link.is-sofea-live .stream-link-label > span::before { animation: none; }
+}
+/* SOFEA scheduled LIVE stream state · end */

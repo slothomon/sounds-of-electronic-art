@@ -1811,6 +1811,28 @@ def main() -> None:
         item["type"] = "broadcast"
     for item in event_entries:
         item["type"] = "event"
+
+    # Publish the exact editorial SOFEA broadcast windows for the client-side
+    # LIVE state. The local Leipzig wall clock is authoritative and is
+    # converted to UTC here so browsers do not need timezone assumptions.
+    live_broadcast_windows = [
+        {
+            "start": (
+                parse_upcoming_date(str(item["date"]))
+                .astimezone(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            ),
+            "end": (
+                upcoming_end(item)
+                .astimezone(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            ),
+        }
+        for item in broadcast_entries
+        if item.get("date")
+    ]
     numbers_by_date = episode_numbers_by_date(episode_number_entries)
     archive = load_archive(archive_entries)
     apply_archive_episode_numbers(archive, numbers_by_date)
@@ -1917,6 +1939,10 @@ def main() -> None:
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir(parents=True)
+    (PUBLIC / "live-broadcasts.json").write_text(
+        json.dumps({"broadcasts": live_broadcast_windows}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
     write_responsive_artworks(upcoming + archive)
     write_social_cards(upcoming, archive, site)

@@ -44,6 +44,29 @@ Example: move the regular slot from 2027-02-13 to 2027-02-20 21:00 while keeping
 
 Do not put the same slot in both `skip_dates` and `date_overrides`.
 
+## Lifecycle
+
+The daily **Refresh SoundCloud archive** workflow first runs
+`scripts/archive_broadcasts.py`. Once a broadcast's three-hour window has ended,
+that script removes it from `content/upcoming-broadcasts.json`, creates or
+completes its local `content/episodes.json` entry and records the canonical
+date/episode-number mapping. A SoundCloud recording is not required for this
+step.
+
+After the SoundCloud cache refresh, `scripts/update_schedule.py` runs and
+refills the configured future horizon. To inspect the archive transition locally
+without writing files, use:
+
+```cmd
+py scripts\archive_broadcasts.py --dry-run
+```
+
+To regenerate/extend the future schedule locally, use:
+
+```cmd
+py scripts\update_schedule.py
+```
+
 ## Calendar notes
 
 The iCalendar output folds long lines according to the existing byte limit while keeping ordinary HTTP(S) URLs on a single physical folded line when possible. This avoids clients treating the livestream URL as a truncated link when the preceding description is long.

@@ -7,17 +7,28 @@ published at [sofea.radio](https://sofea.radio/).
 
 - responsive orange design with dark and Solarized-Light-inspired themes;
 - German default interface with an English switch;
-- separate Pages CMS editors for upcoming broadcasts, events, Hören, episode numbering and archive enrichment;
-- one to five editorially selected recordings with a click-to-load SoundCloud player;
+- Pages CMS editors for upcoming broadcasts, events, Hören, episode numbering,
+  archive enrichment and the recurring broadcast schedule;
+- automatic maintenance of the regular eight-week broadcast schedule, including
+  cancellations and rescheduled slots with stable IDs and episode numbers;
+- automatic rollover of completed broadcasts from **Demnächst** into the
+  permanent local archive, independently of SoundCloud availability;
+- schedule-aware livestream state: the Radio Blau link changes to a highlighted
+  `LIVE` control only while a SOFEA broadcast is actually scheduled;
+- local `Heute` / `Morgen` (`Today` / `Tomorrow`) labels for imminent broadcasts;
+- one to five editorially selected recordings with a click-to-load SoundCloud
+  player;
 - searchable, paginated and statically generated broadcast archive;
-- canonical episode numbering by broadcast date, including multiple sets from the same broadcast;
-- automatic numbering of future broadcasts after the latest confirmed episode;
+- canonical episode numbering by broadcast date, including multiple sets from
+  the same broadcast;
 - crawlable broadcast/event detail pages with progressive-enhancement dialogs;
 - stable local episode IDs independent of SoundCloud permalinks;
 - responsive local episode artwork;
-- individual social cards and structured data;
+- individual social cards, canonical metadata and structured data;
 - RSS, sitemap, subscribable calendar, robots.txt and a custom 404 page;
-- source/build/output validation in local development and GitHub Actions.
+- content-fingerprinted CSS/JavaScript URLs and early preload of the active hero
+  artwork;
+- source/build/output validation plus unit tests in local development and CI.
 
 SoundCloud is contacted only after a visitor explicitly loads the player. The
 site content, archive index, descriptions and cached artwork are generated
@@ -27,36 +38,46 @@ uses SoundCloud as its current source.
 ## Repository structure
 
 ```text
-.github/workflows/pages.yml            Build and deploy GitHub Pages
-.github/workflows/quality.yml          Pull-request validation
-.github/workflows/refresh-archive.yml  Daily/manual SoundCloud refresh
+.github/workflows/pages.yml            Build, test and deploy GitHub Pages
+.github/workflows/quality.yml          Pull-request validation and unit tests
+.github/workflows/refresh-archive.yml  Daily/manual archive + schedule maintenance
 .pages.yml                             Pages CMS form configuration
 assets/                                CSS, JavaScript, logos and source images
 content/site.json                      General site configuration
 content/listen.json                    Ordered Hören selection by episode ID
 content/episode-numbers.json           Canonical broadcast date → episode number mapping
-content/upcoming-broadcasts.json       Upcoming radio broadcasts
+content/broadcast-schedule.json        Recurring broadcast schedule configuration
+content/upcoming-broadcasts.json       Materialized upcoming radio broadcasts
 content/upcoming-events.json           Upcoming events
-content/episodes.json                  Local archive enrichment and overrides
+content/episodes.json                  Permanent local archive enrichment and overrides
 content/archive-cache.json             Cached SoundCloud playlist metadata
 content/legal.json                     Legal-page operator details
+docs/broadcast-schedule.md             Schedule automation and exceptions
 docs/pages-cms.md                      Editorial workflow
 docs/search-console-setup.md           Google Search Console setup
 docs/structured-data.md                Implemented structured data
+scripts/archive_broadcasts.py          Move completed broadcasts into the local archive
 scripts/build.py                       Static-site generator
 scripts/check.py                       Validate → build → validate
 scripts/update_archive.py              SoundCloud metadata/artwork updater
+scripts/update_schedule.py             Maintain the recurring future schedule
 scripts/validate_site.py               Source and generated-site validator
+tests/                                 Unit/regression tests
 templates/                              HTML templates
+requirements.txt                       Build dependencies
+requirements-dev.txt                   Build + test dependencies
+requirements-archive.txt               Build + SoundCloud updater dependencies
 ```
 
-Do not edit `public/`; it is rebuilt and ignored by Git.
+Do not edit `public/`; it is rebuilt and ignored by Git. In particular,
+`public/live-broadcasts.json` is generated from the editorial broadcast data and
+is overwritten by every build.
 
 ## Local workflow
 
 Before starting local work, first update the checkout. This is especially
-important because Pages CMS and the scheduled SoundCloud refresh can create
-commits while another computer is not being used.
+important because Pages CMS and the scheduled archive refresh can create commits
+while another computer is not being used.
 
 ```cmd
 git status
@@ -82,17 +103,26 @@ git rebase origin/main
 
 ## Local quality check and preview
 
-Install the normal build dependencies once:
+For development, install the build and test dependencies once:
 
 ```cmd
-py -m pip install -r requirements.txt
+py -m pip install -r requirements-dev.txt
 ```
 
-Run the same complete source/build/output check used by GitHub Actions:
+Run the source/build/output validation:
 
 ```cmd
 py scripts\check.py
 ```
+
+Run the unit/regression tests:
+
+```cmd
+py -m pytest -q
+```
+
+The GitHub Pages and pull-request workflows run both checks before accepting or
+deploying a code change.
 
 The build normally uses the public URL from `content/site.json`. That is fine
 for a normal visual preview on `localhost:8000`; the generated site still works
@@ -100,8 +130,8 @@ locally because the production domain has no path prefix.
 
 `SITE_URL` is an optional build-time override for canonical URLs, sitemap URLs,
 calendar URLs and deployments below a path prefix. `scripts/check.py` does not
-currently parse a `--site-url` command-line option, so set the environment
-variable instead when an override is actually needed.
+parse a `--site-url` command-line option, so set the environment variable
+instead when an override is actually needed.
 
 PowerShell example:
 
@@ -119,34 +149,72 @@ py -m http.server 8000 --directory public
 
 Then open <http://localhost:8000/>.
 
+## Broadcast lifecycle
+
+The regular SOFEA schedule is configured in
+`content/broadcast-schedule.json`. `scripts/update_schedule.py` materializes the
+future slots into `content/upcoming-broadcasts.json` and keeps the configured
+planning horizon populated.
+
+Regular entries receive a stable ID based on their original slot, for example
+`broadcast-2026-10-24`. A rescheduled broadcast keeps that ID and its episode
+number. A cancelled regular slot is removed and does not consume an episode
+number. See [`docs/broadcast-schedule.md`](docs/broadcast-schedule.md) for the
+exception workflow.
+
+The daily **Refresh SoundCloud archive** workflow performs the lifecycle in this
+order:
+
+1. `scripts/archive_broadcasts.py` moves broadcasts whose three-hour window has
+   ended from `content/upcoming-broadcasts.json` into `content/episodes.json`;
+2. it records the final date/episode-number mapping in
+   `content/episode-numbers.json` if necessary;
+3. `scripts/update_archive.py` refreshes SoundCloud metadata and artwork;
+4. `scripts/update_schedule.py` replenishes the future broadcast horizon;
+5. the resulting source data is validated, committed when changed and the Pages
+   deployment is triggered.
+
+This means a completed broadcast can already exist as an archive page before a
+recording is available on SoundCloud. Playback is exposed only when a real
+recording can be matched; the archive script never invents an `audio_url`.
+
+The generated `live-broadcasts.json` converts the same Leipzig editorial times
+to UTC. The browser uses it only for the schedule-aware LIVE indicator; it does
+not probe the Radio Blau stream.
+
 ## Content model
 
 ### Upcoming broadcasts
 
-Edit `content/upcoming-broadcasts.json` directly or through Pages CMS.
+Regular broadcasts are normally created by `scripts/update_schedule.py`. Use
+**Demnächst – Sendungen** in Pages CMS to add or refine the guest/editorial
+title, announcement text, artwork and links. Use **Sendungsplanung** for a
+cancelled or rescheduled regular slot instead of manually moving/deleting the
+managed entry.
+
+A materialized regular entry looks like this:
 
 ```json
 {
-  "date": "2026-08-29T21:00:00",
-  "title_de": "Heckintosh",
-  "title_en": "Heckintosh",
-  "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-  "details_en": "Three hours of electronic music. Live on Radio Blau.",
-  "links": []
+  "date": "2026-10-24T21:00:00",
+  "episode_number": 102,
+  "title_de": "Credit 00",
+  "title_en": "Credit 00",
+  "details_de": "The man, the myth, the legend.",
+  "details_en": "The man, the myth, the legend.",
+  "links": [],
+  "id": "broadcast-2026-10-24"
 }
 ```
 
-Times are Leipzig wall-clock time without a UTC offset. Broadcasts default to
-three hours.
+Times are Leipzig wall-clock time without a UTC offset. The validator rejects
+invalid or ambiguous daylight-saving transition times. Broadcasts without an
+explicit `end` use the fixed three-hour SOFEA duration.
 
-Future broadcast numbers normally do **not** need to be maintained manually.
-The build starts after the highest confirmed value in
-`content/episode-numbers.json` and assigns numbers to future broadcasts in
-chronological order. Adding an extra future broadcast therefore shifts the
-numbers of later future broadcasts automatically.
-
-An explicit `episode_number` on an upcoming broadcast remains available as an
-advanced override, but should normally be left empty.
+The schedule automation preserves editorial changes on managed future entries.
+A separate, non-regular broadcast may still be added manually; an explicit
+`episode_number` remains available as an advanced override but should not be
+needed for normal regular slots.
 
 ### Upcoming events
 
@@ -177,18 +245,18 @@ Events without `end` default to two hours.
 
 ### Episode numbering
 
-`content/episode-numbers.json` is the canonical historical numbering table. It
-is also editable through **Sendungsnummern** in Pages CMS.
+`content/episode-numbers.json` is the canonical historical numbering table and
+is editable through **Sendungsnummern** in Pages CMS.
 
 ```json
 [
   {
-    "date": "2026-08-15",
-    "episode_number": 100
+    "date": "2026-08-29",
+    "episode_number": 101
   },
   {
     "date": "2026-07-04",
-    "episode_number": 99
+    "episode_number": 100
   }
 ]
 ```
@@ -201,18 +269,19 @@ The mapping is date-based: every archived SoundCloud set with the same broadcast
 date receives the same `episode_number`. This is intentional because one radio
 broadcast can contain multiple separately uploaded sets.
 
-After a broadcast has actually happened, add its final date and number here.
-Future entries in `content/upcoming-broadcasts.json` are then renumbered from the
-new highest confirmed episode on the next build.
-
-An explicit `episode_number` in `content/episodes.json` still takes precedence
-and is intended only for deliberate exceptions.
+For normal scheduled broadcasts, `scripts/archive_broadcasts.py` writes the
+canonical row automatically when the broadcast ends. Manual editing is mainly
+for historical data or deliberate corrections. An explicit `episode_number` in
+`content/episodes.json` still takes precedence and is intended only for
+exceptions.
 
 ### Archive enrichment and identity
 
-SoundCloud supplies the automatically refreshed base metadata. Local editorial
-content in `content/episodes.json` is merged by `episode_id` first. The source
-ID, SoundCloud URL and date/title are compatibility fallbacks for older entries.
+Completed broadcasts are first represented locally in `content/episodes.json`.
+SoundCloud supplies additional automatically refreshed metadata when a recording
+becomes available. Local editorial content is merged by `episode_id` first; the
+source ID, SoundCloud URL and date/title are compatibility fallbacks for older
+entries.
 
 ```json
 {
@@ -222,8 +291,8 @@ ID, SoundCloud URL and date/title are compatibility fallbacks for older entries.
   "title_de": "Werner Benzo (Komplette Sendung)",
   "title_en": "Werner Benzo (Complete broadcast)",
   "audio_url": "https://soundcloud.com/sounds-of-electronic-art/werner-benzo-komplette-sendung",
-  "details_de": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
-  "details_en": "Complete broadcast featuring an interview and music by Werner Benzo.",
+  "post_text_de": "Komplette Sendung mit Interview und Musik von Werner Benzo.",
+  "post_text_en": "Complete broadcast featuring an interview and music by Werner Benzo.",
   "music_presentations": [
     {
       "artist": "Headache",
@@ -245,6 +314,13 @@ An explicit `episode_id` is recommended for locally edited entries. The format
 is lowercase letters, digits and hyphens. If it is absent, the build derives a
 fallback from date and title, for example `2025-11-22-werner-benzo`. Once an ID
 is referenced by `content/listen.json`, keep it stable.
+
+Visible archive prose uses this priority:
+
+1. `post_text_de` / `post_text_en`;
+2. legacy `details_de` / `details_en`;
+3. full SoundCloud description;
+4. archived announcement text.
 
 Normally the episode number comes from `content/episode-numbers.json`. An
 explicit `episode_number` in an archive entry is only an override. When a number
@@ -280,26 +356,29 @@ The archive source is the public SoundCloud playlist:
 https://soundcloud.com/sounds-of-electronic-art/sets/sendungen
 ```
 
-For a new recording to appear automatically in the website archive:
+For a new recording to gain playback on the website:
 
 1. make the SoundCloud track public;
 2. add it to the **Sendungen** playlist;
 3. make sure the SoundCloud metadata exposes the correct broadcast date;
-4. preferably set the final SoundCloud artwork before the first archive refresh;
-5. run **GitHub Actions → Refresh SoundCloud archive → Run workflow**.
+4. preferably set the final SoundCloud artwork before the first refresh;
+5. run **GitHub Actions → Refresh SoundCloud archive → Run workflow** if the
+   daily refresh should not be awaited.
 
-The manual action runs the same strict updater as the scheduled refresh. If the
-cache or artwork changes, the workflow commits `content/archive-cache.json` and
-`assets/images/episodes/`, rebases onto the latest `main`, pushes the result and
-then explicitly dispatches the Pages deployment.
+The manual action runs the same lifecycle as the scheduled daily refresh. The
+SoundCloud updater deliberately retains the existing cache if a transient
+refresh fails, unless it is invoked locally with `--strict`.
 
-The workflow also runs automatically once per day. Running it manually is only
-needed when a new or corrected recording should appear immediately.
+If metadata/artwork or schedule/archive data changes, the workflow commits
+`content/archive-cache.json`, `content/episodes.json`,
+`content/episode-numbers.json`, `content/upcoming-broadcasts.json` and episode
+artwork as needed, rebases onto the latest `main`, pushes the result and then
+explicitly dispatches the Pages deployment.
 
-A new archive item does not need a matching manual `content/episodes.json`
-entry unless editorial text, tracklists, artwork or another override is wanted.
-If its date exists in `content/episode-numbers.json`, its episode number is
-applied automatically during the site build.
+A recording does not require a manually created archive row: the completed
+broadcast is normally already present in `content/episodes.json`, and the build
+merges the SoundCloud recording into it. Older SoundCloud-only material can
+still be represented from the cache without a local enrichment row.
 
 ### Refreshing locally
 
@@ -345,18 +424,22 @@ may be removed once the current archive entry references the canonical file.
 
 ## GitHub Actions
 
-- `pages.yml` runs `scripts/check.py` and deploys the result.
-- `quality.yml` runs the same check for pull requests.
+- `pages.yml` installs the development requirements, runs the unit tests,
+  executes `scripts/check.py` and deploys the generated `public/` directory.
+- `quality.yml` runs the same tests and validation for pull requests and manual
+  quality checks.
 - `refresh-archive.yml` runs daily and can also be started manually as
-  **Refresh SoundCloud archive**. It updates SoundCloud metadata/artwork,
-  commits changes and explicitly dispatches `pages.yml` because a push made by
-  `GITHUB_TOKEN` does not trigger another workflow automatically.
+  **Refresh SoundCloud archive**. It archives completed broadcasts, refreshes
+  SoundCloud metadata/artwork, replenishes the future schedule, validates the
+  resulting source data, commits changes and explicitly dispatches `pages.yml`
+  because a push made by `GITHUB_TOKEN` does not trigger another workflow
+  automatically.
 
 ## Pages CMS
 
 See [`docs/pages-cms.md`](docs/pages-cms.md). The CMS provides editors for
-upcoming broadcasts/events, the Hören selection, canonical episode numbers and
-archive enrichment.
+upcoming broadcasts/events, the Hören selection, canonical episode numbers,
+archive enrichment and recurring broadcast planning.
 
 Each editor should use an individual GitHub account with repository access; do
 not share one account.

@@ -20,10 +20,11 @@ Source (`content/upcoming-broadcasts.json`):
 
 ```json
 {
-  "date": "2026-08-29T21:00:00",
-  "episode_number": 100,
-  "title_de": "sofea #100 – tba",
-  "title_en": "sofea #100 – tba",
+  "id": "broadcast-2026-10-24",
+  "date": "2026-10-24T21:00:00",
+  "episode_number": 102,
+  "title_de": "Credit 00",
+  "title_en": "Credit 00",
   "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
   "details_en": "Three hours of electronic music, live on Radio Blau."
 }

@@ -33,9 +33,7 @@ jobs:
             requirements-archive.txt
 
       - name: Archive completed broadcasts
-
         run: python scripts/archive_broadcasts.py
-
 
       - name: Install archive updater
         run: python -m pip install --disable-pip-version-check -r requirements-archive.txt
@@ -45,6 +43,7 @@ jobs:
 
       - name: Maintain upcoming broadcast schedule
         run: python scripts/update_schedule.py
+
       - name: Validate archive source
         run: |
           python -m json.tool content/archive-cache.json > /dev/null
@@ -54,7 +53,7 @@ jobs:
         id: commit
         shell: bash
         run: |
-          if [ -z "$(git status --porcelain -- content/upcoming-broadcasts.json content/episodes.json content/episode-numbers.json content/archive-cache.json assets/images/episodes content/upcoming-broadcasts.json)" ]; then
+          if [ -z "$(git status --porcelain -- content/upcoming-broadcasts.json content/episodes.json content/episode-numbers.json content/archive-cache.json assets/images/episodes)" ]; then
             echo "Broadcast archive and SoundCloud cache are already up to date."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -62,7 +61,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/upcoming-broadcasts.json content/episodes.json content/episode-numbers.json content/archive-cache.json assets/images/episodes content/upcoming-broadcasts.json
+          git add content/upcoming-broadcasts.json content/episodes.json content/episode-numbers.json content/archive-cache.json assets/images/episodes
           git commit -m "Update archive cache, artwork and broadcast schedule"
           git pull --rebase origin main
           git push origin HEAD:main

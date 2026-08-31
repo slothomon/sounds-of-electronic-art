@@ -43,6 +43,17 @@ def read_json_list(path: Path) -> list[dict]:
     return [item for item in value if isinstance(item, dict)]
 
 
+def asset_bundle_version(paths: list[Path]) -> str:
+    """Return a stable short fingerprint for browser-cached CSS/JS assets."""
+    digest = hashlib.sha256()
+    for path in paths:
+        digest.update(path.relative_to(ROOT).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()[:12]
+
+
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
@@ -1413,16 +1424,20 @@ def upcoming_rows(items: list[dict], site: dict, base_path: str) -> tuple[str, s
                 f'data-en="{esc(card_summary_en)}">{esc(card_summary_de)}</p>'
             )
 
+        date_de = date_long(start, "de")
+        date_en = date_long(start, "en")
+        clock_range = hour_range_clock(start, end)
         footer_parts = [
-            (date_long(start, "de"), date_long(start, "en")),
-            (hour_range_clock(start, end), hour_range_clock(start, end)),
+            (
+                f'<time class="upcoming-date" datetime="{esc(start.isoformat())}" data-upcoming-date '
+                f'data-date-de="{esc(date_de)}" data-date-en="{esc(date_en)}" data-bilingual '
+                f'data-de="{esc(date_de)}" data-en="{esc(date_en)}">{esc(date_de)}</time>'
+            ),
+            f'<span>{esc(clock_range)}</span>',
         ]
         if location:
-            footer_parts.append((location, location))
-        footer_html = '<span class="upcoming-footer-separator" aria-hidden="true">·</span>'.join(
-            f'<span data-bilingual data-de="{esc(de)}" data-en="{esc(en)}">{esc(de)}</span>'
-            for de, en in footer_parts
-        )
+            footer_parts.append(f'<span>{esc(location)}</span>')
+        footer_html = '<span class="upcoming-footer-separator" aria-hidden="true">·</span>'.join(footer_parts)
 
         calendar_button = (
             f'<a class="button calendar-button upcoming-calendar-button" href="{esc(calendar_href)}" '
@@ -1902,6 +1917,15 @@ def main() -> None:
     )
     logo_svg = (ROOT / "assets" / "icons" / "logo.svg").read_text(encoding="utf-8")
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
+    asset_version = asset_bundle_version([
+        ROOT / "assets" / "css" / "site.css",
+        ROOT / "assets" / "css" / "mobile-hero.css",
+        ROOT / "assets" / "js" / "site.js",
+    ])
+    hero_preload_urls = {
+        "dark": site_href(base_path, "assets/images/branding/sofea-hero-dark.webp"),
+        "light": site_href(base_path, "assets/images/branding/sofea-hero-light.webp"),
+    }
     upcoming_html, upcoming_dialogs = upcoming_rows(upcoming[:3], site, base_path)
     episodes_html, episode_dialogs = episode_rows(archive, site, base_path)
     default_social_image = absolute_site_url(canonical_url, "assets/images/sofea-social-card-v3.png")
@@ -1918,6 +1942,8 @@ def main() -> None:
         "build_year": str(datetime.now().year),
         "calendar_feed_href": esc(site_href(base_path, "calendar.ics")),
         "calendar_webcal_url": esc(re.sub(r"^https?://", "webcal://", canonical_url) + "calendar.ics"),
+        "asset_version": asset_version,
+        "hero_preload_urls_json": json.dumps(hero_preload_urls, ensure_ascii=False),
     }
     values = common_values | {
         "page_title": esc("sounds of electronic art – elektronische musik & klubkultur"),

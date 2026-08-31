@@ -499,6 +499,59 @@
   addEventListener('scroll', updateBackToTop, { passive: true });
   updateBackToTop();
 
+  // Keep "Heute / Morgen" labels current even when the static site has not
+  // been rebuilt since the previous day. SOFEA dates always use Leipzig time.
+  const upcomingDateLabels = [...document.querySelectorAll('[data-upcoming-date]')];
+  const berlinDateFormatter = new Intl.DateTimeFormat('en', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  let upcomingDateTimer = null;
+
+  function berlinDayIndex(value) {
+    const parts = Object.fromEntries(
+      berlinDateFormatter.formatToParts(value)
+        .filter((part) => part.type !== 'literal')
+        .map((part) => [part.type, part.value])
+    );
+    return Math.floor(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)) / 86_400_000);
+  }
+
+  function updateUpcomingRelativeDates() {
+    if (!upcomingDateLabels.length) return;
+    const today = berlinDayIndex(new Date());
+
+    upcomingDateLabels.forEach((element) => {
+      const start = new Date(element.getAttribute('datetime') || '');
+      const validStart = Number.isFinite(start.getTime());
+      const dayOffset = validStart ? berlinDayIndex(start) - today : null;
+      const relative = dayOffset === 0
+        ? { de: 'Heute', en: 'Today' }
+        : dayOffset === 1
+          ? { de: 'Morgen', en: 'Tomorrow' }
+          : null;
+      const de = relative?.de || element.dataset.dateDe || '';
+      const en = relative?.en || element.dataset.dateEn || de;
+
+      element.dataset.de = de;
+      element.dataset.en = en;
+      element.textContent = language === 'en' ? en : de;
+      element.classList.toggle('is-relative', Boolean(relative));
+    });
+
+    if (upcomingDateTimer) clearTimeout(upcomingDateTimer);
+    upcomingDateTimer = setTimeout(updateUpcomingRelativeDates, 60_000);
+  }
+
+  document.addEventListener('sofea:language', updateUpcomingRelativeDates);
+  addEventListener('focus', updateUpcomingRelativeDates);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateUpcomingRelativeDates();
+  });
+  updateUpcomingRelativeDates();
+
   // SOFEA scheduled LIVE state. The site only uses the editorial schedule;
   // it does not probe the Radio Blau stream itself.
   const streamLink = document.querySelector('.nav .listen-link');

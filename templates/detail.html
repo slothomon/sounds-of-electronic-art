@@ -37,7 +37,7 @@
       } catch (_) {}
     })();
   </script>
-  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
+  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css?v={{ asset_version }}">
 </head>
 <body data-home-url="{{ home_href }}" data-home-title="{{ page_title }}">
   <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -90,6 +90,6 @@
     </div>
   </footer>
   <button class="back-to-top" type="button" data-back-to-top aria-hidden="true" tabindex="-1" aria-label="Nach oben"><span aria-hidden="true">↑</span></button>
-  <script src="{{ base_path }}/assets/js/site.js" defer></script>
+  <script src="{{ base_path }}/assets/js/site.js?v={{ asset_version }}" defer></script>
 </body>
 </html>

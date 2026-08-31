@@ -11,14 +11,28 @@
   <link rel="icon" href="{{ base_path }}/assets/icons/favicon.svg" type="image/svg+xml">
   <script>
     (() => {
+      let theme = 'dark';
       try {
-        const theme = localStorage.getItem('sofea-theme') || 'dark';
-        document.documentElement.dataset.theme = ['dark', 'light'].includes(theme) ? theme : 'dark';
+        const storedTheme = localStorage.getItem('sofea-theme');
+        if (['dark', 'light'].includes(storedTheme)) theme = storedTheme;
       } catch (_) {}
+      document.documentElement.dataset.theme = theme;
+
+      // The hero remains a CSS background because the manual theme toggle must
+      // select the matching artwork before first paint. Preload that exact file
+      // here so the browser can discover the LCP candidate before site.css.
+      const heroArtwork = {{ hero_preload_urls_json }};
+      const preload = document.createElement('link');
+      preload.rel = 'preload';
+      preload.as = 'image';
+      preload.type = 'image/webp';
+      preload.href = heroArtwork[theme];
+      preload.setAttribute('fetchpriority', 'high');
+      document.head.appendChild(preload);
     })();
   </script>
-  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css">
-  <link rel="stylesheet" href="{{ base_path }}/assets/css/mobile-hero.css" media="(max-width: 900px)">
+  <link rel="stylesheet" href="{{ base_path }}/assets/css/site.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="{{ base_path }}/assets/css/mobile-hero.css?v={{ asset_version }}" media="(max-width: 900px)">
   <link rel="alternate" type="application/rss+xml" title="sounds of electronic art" href="{{ home_href }}feed.xml">
   <link rel="alternate" type="text/calendar" title="sounds of electronic art – Termine" href="{{ calendar_feed_href }}">
   <meta property="og:type" content="website">
@@ -195,6 +209,6 @@
   <button class="back-to-top" type="button" data-back-to-top aria-hidden="true" tabindex="-1" aria-label="Nach oben">
     <span aria-hidden="true">↑</span>
   </button>
-  <script src="{{ base_path }}/assets/js/site.js" defer></script>
+  <script src="{{ base_path }}/assets/js/site.js?v={{ asset_version }}" defer></script>
 </body>
 </html>

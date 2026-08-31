@@ -2076,7 +2076,7 @@ html[data-theme="light"] .hero-art {
 
 /* SOFEA hero WebP delivery + desktop sizing · 2026-08 */
 .hero-art {
-  /* Modern browsers select lossless WebP; the earlier PNG rule remains a fallback. */
+  /* Modern browsers select WebP; the earlier PNG rule remains a fallback. */
   background-image: image-set(
     url("../images/branding/sofea-hero-dark.webp") type("image/webp"),
     url("../images/branding/sofea-hero-dark.png") type("image/png")
@@ -2178,3 +2178,11 @@ html[data-theme="light"] .hero-art {
   .listen-link.is-sofea-live .stream-link-label > span::before { animation: none; }
 }
 /* SOFEA scheduled LIVE stream state · end */
+
+
+/* Upcoming relative date cue · 2026-08 */
+.overview-upcoming .upcoming-date.is-relative {
+  color: var(--accent-soft);
+  font-weight: 800;
+}
+/* Upcoming relative date cue · end */

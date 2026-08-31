@@ -8,15 +8,18 @@ import unicodedata
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+from zoneinfo import ZoneInfo
 
 SITE_HOSTS = {"sofea.radio", "www.sofea.radio"}
 PLACEHOLDER_RE = re.compile(r"\{\{\s*[A-Za-z0-9_]+\s*\}\}")
 ARTWORK_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 EPISODE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,95}$")
+UTC_OFFSET_RE = re.compile(r"(?:Z|[+-]\d{2}:?\d{2})$")
+BERLIN_TZ = ZoneInfo("Europe/Berlin")
 FORBIDDEN_LEGACY_FIELDS = {
     "status", "type", "summary_de", "summary_en", "location_de", "location_en",
     "venue_name", "street_address", "postal_code", "address_locality", "address_region",
@@ -229,6 +232,36 @@ def validate_common_entry(errors: list[str], root: Path, context: str, item: dic
         errors.append(f"{context} uses removed legacy fields: {', '.join(legacy)}")
 
 
+def parse_leipzig_datetime(errors: list[str], context: str, value: object) -> datetime | None:
+    """Parse an editorial local wall clock and reject DST-ambiguous values."""
+    raw = str(value or "").strip()
+    if UTC_OFFSET_RE.search(raw):
+        errors.append(f"{context} must be local Leipzig time without a UTC offset")
+        return None
+    try:
+        local_value = datetime.fromisoformat(raw)
+    except ValueError:
+        errors.append(f"{context} is not a valid ISO local date/time")
+        return None
+    if local_value.tzinfo is not None:
+        errors.append(f"{context} must be local Leipzig time without a UTC offset")
+        return None
+
+    candidates = [local_value.replace(tzinfo=BERLIN_TZ, fold=fold) for fold in (0, 1)]
+    valid_candidates = [
+        candidate
+        for candidate in candidates
+        if candidate.astimezone(timezone.utc).astimezone(BERLIN_TZ).replace(tzinfo=None) == local_value
+    ]
+    if not valid_candidates:
+        errors.append(f"{context} falls into a Europe/Berlin daylight-saving time gap")
+        return None
+    if len({candidate.utcoffset() for candidate in valid_candidates}) > 1:
+        errors.append(f"{context} is ambiguous during a Europe/Berlin daylight-saving time change")
+        return None
+    return valid_candidates[0]
+
+
 def validate_source(root: Path) -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -393,6 +426,7 @@ def validate_source(root: Path) -> int:
 
     upcoming_identity: Counter[tuple[str, str]] = Counter()
     calendar_names: Counter[str] = Counter()
+    broadcast_windows: list[tuple[datetime, datetime, str]] = []
     for filename, required_keys, kind in (
         ("upcoming-broadcasts.json", ("date", "title_de", "title_en", "details_de", "details_en"), "broadcast"),
         ("upcoming-events.json", ("date", "title_de", "title_en", "details_de", "details_en", "location"), "event"),
@@ -401,6 +435,7 @@ def validate_source(root: Path) -> int:
         if not isinstance(entries, list):
             errors.append(f"content/{filename} must contain a JSON array")
             continue
+        previous_start: datetime | None = None
         for index, entry in enumerate(entries, start=1):
             context = f"content/{filename} entry {index}"
             if not isinstance(entry, dict):
@@ -411,20 +446,22 @@ def validate_source(root: Path) -> int:
                     errors.append(f"{context} is missing required key: {key}")
             validate_common_entry(errors, root, context, entry)
             date_value = str(entry.get("date") or "")
-            if re.search(r"(?:Z|[+-]\d{2}:?\d{2})$", date_value):
-                errors.append(f"{context}.date must be local Leipzig time without a UTC offset")
-            try:
-                start = datetime.fromisoformat(date_value)
-            except ValueError:
-                errors.append(f"{context}.date is not a valid ISO local date/time")
-                start = None
+            start = parse_leipzig_datetime(errors, f"{context}.date", date_value)
+            if start and previous_start and start < previous_start:
+                errors.append(f"content/{filename} entries must be sorted by date ascending")
+            if start:
+                previous_start = start
+
+            end: datetime | None = None
             if entry.get("end"):
-                try:
-                    end = datetime.fromisoformat(str(entry["end"]))
-                    if start and end <= start:
-                        errors.append(f"{context}.end must be later than date")
-                except ValueError:
-                    errors.append(f"{context}.end is not a valid ISO local date/time")
+                end = parse_leipzig_datetime(errors, f"{context}.end", entry["end"])
+                if start and end and end <= start:
+                    errors.append(f"{context}.end must be later than date")
+            elif start:
+                end = start + timedelta(hours=3 if kind == "broadcast" else 2)
+
+            if kind == "broadcast" and start and end and end > start:
+                broadcast_windows.append((start, end, context))
             if kind == "event" and entry.get("episode_number") not in (None, ""):
                 errors.append(f"{context}.episode_number is only valid for broadcasts")
             for link_index, link in enumerate(entry.get("links") or [], start=1):
@@ -441,6 +478,13 @@ def validate_source(root: Path) -> int:
             referenced = episode_artwork_reference(entry.get("image"))
             if referenced:
                 referenced_artwork.add(referenced)
+
+    previous_window: tuple[datetime, datetime, str] | None = None
+    for window in sorted(broadcast_windows, key=lambda value: value[0]):
+        if previous_window and window[0] < previous_window[1]:
+            errors.append(f"{window[2]} overlaps {previous_window[2]}")
+        if previous_window is None or window[1] > previous_window[1]:
+            previous_window = window
 
     for identity, count in upcoming_identity.items():
         if count > 1:
@@ -669,6 +713,11 @@ def validate_public(public: Path) -> int:
 
     for source, parser in parsed_documents.items():
         for tag, href in parser.links:
+            parsed_href = urlparse(href)
+            asset_name = Path(parsed_href.path).name
+            if asset_name in {"site.css", "mobile-hero.css", "site.js"}:
+                if not re.search(r"(?:^|&)v=[0-9a-f]{12}(?:&|$)", parsed_href.query):
+                    errors.append(f"{source.relative_to(public)}: static asset lacks a content fingerprint: {href!r}")
             target, fragment = internal_target(public, source, href)
             if target is None:
                 continue
@@ -682,7 +731,7 @@ def validate_public(public: Path) -> int:
                 if target_parser and fragment not in target_parser.ids:
                     errors.append(f"{source.relative_to(public)}: fragment #{fragment} not found in {document_path.relative_to(public)}")
 
-    for name in ("index.html", "404.html", "feed.xml", "sitemap.xml", "robots.txt", "archive.json", "calendar.ics"):
+    for name in ("index.html", "404.html", "feed.xml", "sitemap.xml", "robots.txt", "archive.json", "calendar.ics", "live-broadcasts.json"):
         if not (public / name).exists():
             errors.append(f"missing required generated file: {name}")
 
@@ -721,6 +770,44 @@ def validate_public(public: Path) -> int:
             errors.append("archive.json count does not match its episode list")
     except (OSError, json.JSONDecodeError, AttributeError) as exc:
         errors.append(f"invalid archive.json: {exc}")
+
+    try:
+        live_payload = json.loads((public / "live-broadcasts.json").read_text(encoding="utf-8"))
+        live_windows = live_payload.get("broadcasts") if isinstance(live_payload, dict) else None
+        if not isinstance(live_windows, list):
+            errors.append("live-broadcasts.json broadcasts must be a JSON array")
+        else:
+            previous_start: datetime | None = None
+            previous_end: datetime | None = None
+            for index, window in enumerate(live_windows, start=1):
+                context = f"live-broadcasts.json broadcast {index}"
+                if not isinstance(window, dict):
+                    errors.append(f"{context} must be an object")
+                    continue
+                parsed_window: dict[str, datetime] = {}
+                for field in ("start", "end"):
+                    raw = str(window.get(field) or "")
+                    if not raw.endswith("Z"):
+                        errors.append(f"{context}.{field} must be UTC and end in Z")
+                        continue
+                    try:
+                        parsed_window[field] = datetime.fromisoformat(raw[:-1] + "+00:00")
+                    except ValueError:
+                        errors.append(f"{context}.{field} is not a valid ISO UTC date/time")
+                start = parsed_window.get("start")
+                end = parsed_window.get("end")
+                if not start or not end:
+                    continue
+                if end <= start:
+                    errors.append(f"{context}.end must be later than start")
+                if previous_start and start < previous_start:
+                    errors.append("live-broadcasts.json broadcasts must be sorted by start time")
+                if previous_end and start < previous_end:
+                    errors.append(f"{context} overlaps the previous broadcast window")
+                previous_start = start
+                previous_end = max(previous_end, end) if previous_end else end
+    except (OSError, json.JSONDecodeError, AttributeError) as exc:
+        errors.append(f"invalid live-broadcasts.json: {exc}")
 
     if errors:
         print("Generated-site validation failed:", file=sys.stderr)

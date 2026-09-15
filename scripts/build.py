@@ -10,6 +10,7 @@ import unicodedata
 import shutil
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
+from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -69,6 +70,7 @@ def slugify(value: str) -> str:
 
 MARKDOWN_LINK_RE = re.compile(r"\[([^\]\n]+)\]\((https?://[^\s)]+)\)")
 PLAIN_URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
+SOUNDCLOUD_MENTION_RE = re.compile(r"(?<![\w@.])@([A-Za-z0-9_-]+)")
 TRACKLIST_HEADING_RE = re.compile(r"^\s*tracklist\s*:\s*$", re.IGNORECASE)
 TRACKLIST_ENTRY_RE = re.compile(r"^\s*(?P<artist>.+?)\s+-\s+(?P<title>.+?)\s*$")
 
@@ -791,11 +793,15 @@ def archive_structured_data(item: dict, site: dict, canonical_url: str, detail_u
     return json_ld_script(data)
 
 SOCIAL_CARD_SIZE = (1200, 630)
+SOCIAL_CARD_DIRECTORY = "assets/images/social/hero-v1"
+DEFAULT_SOCIAL_CARD_PATH = f"{SOCIAL_CARD_DIRECTORY}/site.png"
+SOCIAL_CARD_HERO_SIZE = 520
+SOCIAL_CARD_HERO_POSITION = (650, 55)
 
 
 def social_card_relative_path(kind: str, item: dict, site: dict) -> str:
     detail_path = detail_relative_path(kind, item, site).strip("/").replace("/", "-")
-    return f"assets/images/social/{detail_path}.png"
+    return f"{SOCIAL_CARD_DIRECTORY}/{detail_path}.png"
 
 
 def _font_candidates(bold: bool) -> list[Path]:
@@ -850,6 +856,16 @@ def social_card_date(kind: str, item: dict) -> str:
     return f"{value.day}. {MONTHS_DE[value.month - 1]} {value.year}"
 
 
+@lru_cache(maxsize=1)
+def social_card_hero() -> Image.Image:
+    source = ROOT / "assets" / "images" / "branding" / "sofea-hero-dark.png"
+    with Image.open(source) as hero:
+        return hero.convert("RGB").resize(
+            (SOCIAL_CARD_HERO_SIZE, SOCIAL_CARD_HERO_SIZE),
+            Image.Resampling.LANCZOS,
+        )
+
+
 def write_social_card(kind: str, item: dict, site: dict, target: Path) -> None:
     image = Image.new("RGB", SOCIAL_CARD_SIZE, "#171412")
     draw = ImageDraw.Draw(image)
@@ -857,46 +873,54 @@ def write_social_card(kind: str, item: dict, site: dict, target: Path) -> None:
     peach = "#f2b27e"
     ink = "#f7f0e9"
     muted = "#c6b5a8"
-    draw.rounded_rectangle((32, 32, 1168, 598), radius=34, fill="#211b18", outline="#54463e", width=2)
-    draw.rectangle((32, 32, 58, 598), fill=orange)
+    draw.rounded_rectangle((24, 24, 1176, 606), radius=34, fill="#211b18", outline="#8e5738", width=2)
+    image.paste(social_card_hero(), SOCIAL_CARD_HERO_POSITION)
 
-    brand_font = social_font(54, bold=True)
     small_font = social_font(24, bold=True)
     meta_font = social_font(30)
     url_font = social_font(24, bold=True)
 
-    draw.text((96, 78), "sofea", font=brand_font, fill=peach)
-    draw.text((98, 142), "sounds of electronic art", font=small_font, fill=orange)
+    if kind == "site":
+        label = "RADIO BLAU · LEIPZIG"
+        title = str(site["name"])
+        meta = str(site.get("description_de") or "Elektronische Musik, Radio und Klubkultur")
+    else:
+        item_type = str(item.get("type") or "broadcast").lower() if kind == "upcoming" else "broadcast"
+        label = "VERANSTALTUNG" if item_type == "event" else "SENDUNG"
+        number = episode_number_value(item)
+        if number is not None and item_type == "broadcast":
+            label += f" #{number}"
+        if kind == "upcoming":
+            label += " · DEMNÄCHST"
+        title = str(item.get("title_de") or item.get("title") or site["name"])
+        date_text = social_card_date(kind, item)
+        location = str(item.get("location") or ("Radio Blau, Leipzig" if item_type == "broadcast" else "")).strip()
+        meta = date_text + (f" · {location}" if location else "")
 
-    item_type = str(item.get("type") or "broadcast").lower() if kind == "upcoming" else "broadcast"
-    label = "VERANSTALTUNG" if item_type == "event" else "SENDUNG"
-    number = episode_number_value(item)
-    if number is not None and item_type == "broadcast":
-        label += f" #{number}"
-    if kind == "upcoming":
-        label += " · DEMNÄCHST"
-    draw.text((96, 215), label, font=small_font, fill=orange)
+    draw.text((68, 76), label, font=small_font, fill=orange)
+    draw.line((68, 120, 570, 120), fill="#805c54", width=2)
 
-    title = str(item.get("title_de") or item.get("title") or site["name"])
-    title_size = 72 if len(title) <= 30 else 60 if len(title) <= 55 else 50
+    title_size = 68 if len(title) <= 30 else 56 if len(title) <= 55 else 46
     title_font = social_font(title_size, bold=True)
-    title_lines = wrap_social_text(draw, title, title_font, 760, 3)
-    y = 260
+    title_lines = wrap_social_text(draw, title, title_font, 540, 3)
+    y = 158
     line_height = int(title_size * 1.12)
     for line in title_lines:
-        draw.text((96, y), line, font=title_font, fill=ink)
+        draw.text((68, y), line, font=title_font, fill=ink)
         y += line_height
 
-    date_text = social_card_date(kind, item)
-    location = str(item.get("location") or ("Radio Blau, Leipzig" if item_type == "broadcast" else "")).strip()
-    meta = date_text + (f" · {location}" if location else "")
-    draw.text((96, 518), meta, font=meta_font, fill=muted)
-    draw.text((900, 550), "www.sofea.radio", font=url_font, fill=peach)
+    meta_lines = wrap_social_text(draw, meta, meta_font, 540, 2)
+    meta_y = 462 if len(meta_lines) == 1 else 426
+    for line in meta_lines:
+        draw.text((68, meta_y), line, font=meta_font, fill=muted)
+        meta_y += 38
+    draw.text((68, 550), "www.sofea.radio", font=url_font, fill=peach)
 
     target.parent.mkdir(parents=True, exist_ok=True)
     image.save(target, format="PNG", optimize=True)
 
 def write_social_cards(upcoming: list[dict], archive: list[dict], site: dict) -> None:
+    write_social_card("site", {}, site, PUBLIC / DEFAULT_SOCIAL_CARD_PATH)
     for kind, items in (("upcoming", upcoming), ("episode", archive)):
         for item in items:
             if item.get("social_image"):
@@ -965,19 +989,36 @@ def asset_href(value: object, base_path: str) -> str:
     return f"{base_path}/{raw.lstrip('/')}"
 
 
+def soundcloud_mentions_html(value: str) -> str:
+    """Escape prose and link standalone SoundCloud-style ``@handles``."""
+    chunks: list[str] = []
+    cursor = 0
+    for match in SOUNDCLOUD_MENTION_RE.finditer(value):
+        chunks.append(esc(value[cursor:match.start()]))
+        handle = match.group(1)
+        profile_url = f"https://soundcloud.com/{quote(handle, safe='-_')}"
+        chunks.append(
+            f'<a href="{esc(profile_url)}" target="_blank" rel="noopener noreferrer">'
+            f'{esc(match.group(0))} ↗</a>'
+        )
+        cursor = match.end()
+    chunks.append(esc(value[cursor:]))
+    return "".join(chunks)
+
+
 def inline_editorial_html(value: object) -> str:
-    """Escape prose while allowing simple Markdown-style http(s) links."""
+    """Escape prose while allowing links and SoundCloud ``@handles``."""
     raw = str(value or "")
     chunks: list[str] = []
     cursor = 0
     for match in MARKDOWN_LINK_RE.finditer(raw):
-        chunks.append(esc(raw[cursor:match.start()]))
+        chunks.append(soundcloud_mentions_html(raw[cursor:match.start()]))
         chunks.append(
             f'<a href="{esc(match.group(2))}" target="_blank" rel="noopener noreferrer">'
             f'{esc(match.group(1))} ↗</a>'
         )
         cursor = match.end()
-    chunks.append(esc(raw[cursor:]))
+    chunks.append(soundcloud_mentions_html(raw[cursor:]))
     return "".join(chunks)
 
 
@@ -1996,7 +2037,7 @@ def main() -> None:
     }
     upcoming_html, upcoming_dialogs = upcoming_rows(upcoming[:3], site, base_path)
     episodes_html, episode_dialogs = episode_rows(archive, site, base_path)
-    default_social_image = absolute_site_url(canonical_url, "assets/images/sofea-social-card-v3.png")
+    default_social_image = absolute_site_url(canonical_url, DEFAULT_SOCIAL_CARD_PATH)
 
     common_values = {
         "base_path": esc(base_path),

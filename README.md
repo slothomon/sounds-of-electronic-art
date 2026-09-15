@@ -328,6 +328,10 @@ automatically. After an optional blank line, consecutive `artist - title` rows
 become the structured tracklist; the first following blank line ends the
 block. The extracted rows are removed from the normal prose display.
 
+Standalone SoundCloud-style mentions such as `@thomas-heinrich` in archive
+prose automatically link to the matching SoundCloud profile. Mentions inside
+email addresses or existing Markdown links are left untouched.
+
 Visible archive titles omit SoundCloud prefixes such as `sofea 100 -` or
 `sofea #100 -` as well as trailing ISO dates. Other parenthetical information,
 for example `(Komplette Sendung)`, remains visible. The canonical date-based
@@ -339,7 +343,10 @@ is present after merging, it is used in the visible label, social card, archive
 export and Schema.org `episodeNumber` value.
 
 `social_image` is an optional advanced field and must point to a PNG. Without
-it, the build creates an individual PNG social card.
+it, the build creates an individual PNG social card using the current dark hero
+artwork. The homepage card is generated from the same design during every
+build. Generated cards use a versioned URL directory so social platforms fetch
+the current design instead of retaining an older cached image.
 
 ## Hören / Listen
 

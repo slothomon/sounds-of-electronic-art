@@ -795,6 +795,7 @@ def archive_structured_data(item: dict, site: dict, canonical_url: str, detail_u
 SOCIAL_CARD_SIZE = (1200, 630)
 SOCIAL_CARD_DIRECTORY = "assets/images/social/hero-v1"
 DEFAULT_SOCIAL_CARD_PATH = f"{SOCIAL_CARD_DIRECTORY}/site.png"
+LEGACY_SOCIAL_CARD_PATH = "assets/images/sofea-social-card-v3.png"
 SOCIAL_CARD_HERO_SIZE = 520
 SOCIAL_CARD_HERO_POSITION = (650, 55)
 
@@ -920,7 +921,11 @@ def write_social_card(kind: str, item: dict, site: dict, target: Path) -> None:
     image.save(target, format="PNG", optimize=True)
 
 def write_social_cards(upcoming: list[dict], archive: list[dict], site: dict) -> None:
-    write_social_card("site", {}, site, PUBLIC / DEFAULT_SOCIAL_CARD_PATH)
+    default_target = PUBLIC / DEFAULT_SOCIAL_CARD_PATH
+    write_social_card("site", {}, site, default_target)
+    legacy_target = PUBLIC / LEGACY_SOCIAL_CARD_PATH
+    legacy_target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(default_target, legacy_target)
     for kind, items in (("upcoming", upcoming), ("episode", archive)):
         for item in items:
             if item.get("social_image"):

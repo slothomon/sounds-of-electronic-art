@@ -77,6 +77,24 @@ def test_social_card_uses_current_hero_artwork():
             assert card.getpixel((x + centre, y + centre)) == hero.getpixel((centre, centre))
 
 
+def test_legacy_social_card_url_receives_current_design():
+    site = {
+        "name": "sounds of electronic art",
+        "description_de": "Elektronische Musik, Radio und Klubkultur aus Leipzig.",
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        previous_public = module.PUBLIC
+        try:
+            module.PUBLIC = Path(tmp)
+            module.write_social_cards([], [], site)
+        finally:
+            module.PUBLIC = previous_public
+
+        current = Path(tmp) / module.DEFAULT_SOCIAL_CARD_PATH
+        legacy = Path(tmp) / module.LEGACY_SOCIAL_CARD_PATH
+        assert current.read_bytes() == legacy.read_bytes()
+
+
 def test_detail_description_falls_back_after_url_filtering():
     item = {"soundcloud_description": "https://example.com"}
     site = {

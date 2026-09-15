@@ -346,7 +346,9 @@ export and Schema.org `episodeNumber` value.
 it, the build creates an individual PNG social card using the current dark hero
 artwork. The homepage card is generated from the same design during every
 build. Generated cards use a versioned URL directory so social platforms fetch
-the current design instead of retaining an older cached image.
+the current design instead of retaining an older cached image. For compatibility,
+the build also replaces the former `sofea-social-card-v3.png` output with the
+current homepage card.
 
 ## Hören / Listen
 

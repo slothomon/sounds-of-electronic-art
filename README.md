@@ -323,6 +323,16 @@ Visible archive prose uses this priority:
 3. full SoundCloud description;
 4. archived announcement text.
 
+SoundCloud descriptions containing a `Tracklist:` block are parsed
+automatically. After an optional blank line, consecutive `artist - title` rows
+become the structured tracklist; the first following blank line ends the
+block. The extracted rows are removed from the normal prose display.
+
+Visible archive titles omit SoundCloud prefixes such as `sofea 100 -` or
+`sofea #100 -` as well as trailing ISO dates. Other parenthetical information,
+for example `(Komplette Sendung)`, remains visible. The canonical date-based
+episode number is shown in the archive detail label as `Sendung #100`.
+
 Normally the episode number comes from `content/episode-numbers.json`. An
 explicit `episode_number` in an archive entry is only an override. When a number
 is present after merging, it is used in the visible label, social card, archive

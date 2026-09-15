@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import tempfile
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "build.py"
@@ -48,6 +50,84 @@ def test_detail_description_falls_back_after_url_filtering():
         "description_de": "Elektronische Musik, Radio und Klubkultur aus Leipzig.",
     }
     assert module.detail_description(item, site) == site["description_de"]
+
+
+def test_soundcloud_tracklist_is_extracted_from_description():
+    value = (
+        "Ein kurzer Hinweis.\n\n"
+        "Tracklist:\n\n"
+        "Swayzak - Annadub\n"
+        "Delano Smith, Brian Kage - Keep 'em Movin'\n\n"
+        "Danke fürs Zuhören."
+    )
+    prose, tracks = module.extract_soundcloud_tracklist(value)
+    assert prose == "Ein kurzer Hinweis.\n\nDanke fürs Zuhören."
+    assert tracks == [
+        {"artist": "Swayzak", "title": "Annadub"},
+        {"artist": "Delano Smith, Brian Kage", "title": "Keep 'em Movin'"},
+    ]
+
+
+def test_archive_load_structures_tracklist_only_description():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "content").mkdir()
+        cache = {
+            "episodes": [{
+                "episode_id": "2026-08-15-sofea-100-96kbps-komplette-sendung",
+                "date": "2026-08-15",
+                "title": "sofea 100 - 96kbps (komplette Sendung)",
+                "summary": "Tracklist:",
+                "description": "Tracklist:\n\nArtist A - Title A\nArtist B - Title B",
+                "audio_url": "https://soundcloud.com/example/episode-100",
+            }]
+        }
+        (root / "content" / "archive-cache.json").write_text(
+            json.dumps(cache), encoding="utf-8"
+        )
+        previous_root = module.ROOT
+        previous_artwork_dir = module.EPISODE_ARTWORK_DIR
+        try:
+            module.ROOT = root
+            module.EPISODE_ARTWORK_DIR = root / "assets" / "images" / "episodes"
+            episode = module.load_archive([])[0]
+        finally:
+            module.ROOT = previous_root
+            module.EPISODE_ARTWORK_DIR = previous_artwork_dir
+
+    assert episode["title_de"] == "96kbps (komplette Sendung)"
+    assert episode["soundcloud_description"] == ""
+    assert episode["summary_de"] == ""
+    assert episode["tracklist"] == [
+        {"artist": "Artist A", "title": "Title A"},
+        {"artist": "Artist B", "title": "Title B"},
+    ]
+
+
+def test_archive_title_cleanup_preserves_non_date_parentheses():
+    assert (
+        module.clean_archive_title(
+            "sofea #100 - 96kbps (komplette Sendung) (2026-08-15)"
+        )
+        == "96kbps (komplette Sendung)"
+    )
+
+
+def test_archive_detail_header_includes_episode_number():
+    html = module.archive_detail_inner(
+        {
+            "date": "2026-08-15",
+            "episode_number": 100,
+            "title_de": "96kbps (komplette Sendung)",
+            "title_en": "96kbps (complete broadcast)",
+        },
+        {"name": "sounds of electronic art"},
+        "",
+        "h2",
+        "episode-100-heading",
+    )
+    assert 'data-de="Sendung #100"' in html
+    assert 'data-en="Broadcast #100"' in html
 
 
 if __name__ == "__main__":

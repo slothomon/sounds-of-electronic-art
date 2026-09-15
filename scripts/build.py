@@ -69,6 +69,8 @@ def slugify(value: str) -> str:
 
 MARKDOWN_LINK_RE = re.compile(r"\[([^\]\n]+)\]\((https?://[^\s)]+)\)")
 PLAIN_URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
+TRACKLIST_HEADING_RE = re.compile(r"^\s*tracklist\s*:\s*$", re.IGNORECASE)
+TRACKLIST_ENTRY_RE = re.compile(r"^\s*(?P<artist>.+?)\s+-\s+(?P<title>.+?)\s*$")
 
 
 def plain_editorial_text(value: object) -> str:
@@ -83,6 +85,50 @@ def plain_editorial_text(value: object) -> str:
         line = MARKDOWN_LINK_RE.sub(lambda match: match.group(1), line)
         rows.append(line)
     return " ".join(" ".join(rows).split())
+
+
+def extract_soundcloud_tracklist(value: object) -> tuple[str, list[dict[str, str]]]:
+    """Extract a ``Tracklist:`` block and return the remaining prose.
+
+    SoundCloud tracklists use one ``artist - title`` row per line. Blank lines
+    directly after the heading are allowed; the first later blank or malformed
+    row ends the block.
+    """
+    raw = str(value or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    lines = raw.split("\n")
+    for heading_index, line in enumerate(lines):
+        if not TRACKLIST_HEADING_RE.fullmatch(line):
+            continue
+
+        cursor = heading_index + 1
+        while cursor < len(lines) and not lines[cursor].strip():
+            cursor += 1
+
+        tracks: list[dict[str, str]] = []
+        while cursor < len(lines):
+            row = lines[cursor].strip()
+            if not row:
+                break
+            match = TRACKLIST_ENTRY_RE.fullmatch(row)
+            if not match:
+                break
+            tracks.append({
+                "artist": match.group("artist").strip(),
+                "title": match.group("title").strip(),
+            })
+            cursor += 1
+
+        if not tracks:
+            continue
+
+        while cursor < len(lines) and not lines[cursor].strip():
+            cursor += 1
+        before = "\n".join(lines[:heading_index]).strip()
+        after = "\n".join(lines[cursor:]).strip()
+        prose = "\n\n".join(part for part in (before, after) if part)
+        return prose, tracks
+
+    return raw, []
 
 
 def card_excerpt(value: str, limit: int = 100) -> str:
@@ -226,10 +272,16 @@ def featured_audio_items(selection: list[dict], archive: list[dict]) -> list[dic
     return resolved
 
 def clean_archive_title(value: object) -> str:
-    """Remove a redundant trailing SoundCloud date while preserving other notes."""
+    """Remove redundant SoundCloud series/number prefixes and trailing dates."""
     title = " ".join(str(value or "").split())
     title = re.sub(r"\s*\(\s*(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*\)\s*$", "", title)
     title = re.sub(r"\s+(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*$", "", title)
+    title = re.sub(
+        r"^(?:sounds of electronic art|sofea)\s*#?\s*\d+\s*[-–—:]\s*",
+        "",
+        title,
+        flags=re.IGNORECASE,
+    )
     return title.strip()
 
 
@@ -1336,6 +1388,8 @@ def archive_detail_inner(
     visible_item["details_en"] = content_text(item, "en")
     date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
     date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1]} {value.year}"
+    label_de = upcoming_label(item, "de")
+    label_en = upcoming_label(item, "en")
     summary_html = ""
     actions = external_action_links(item)
     audio_url = str(item.get("audio_url") or "").strip()
@@ -1349,7 +1403,8 @@ def archive_detail_inner(
     action_html = f'<div class="detail-actions">{"".join(actions)}</div>' if actions else ""
     header_html = (
         '<header class="detail-header">'
-        '<p class="eyebrow" data-bilingual data-de="Sendung" data-en="Broadcast">Sendung</p>'
+        f'<p class="eyebrow" data-bilingual data-de="{esc(label_de)}" '
+        f'data-en="{esc(label_en)}">{esc(label_de)}</p>'
         f'<{heading_tag} id="{esc(heading_id)}" data-bilingual data-de="{esc(title_de)}" '
         f'data-en="{esc(title_en)}">{esc(title_de)}</{heading_tag}>'
         '<div class="detail-meta">'
@@ -1518,20 +1573,31 @@ def load_archive(episodes: list[dict]) -> list[dict]:
                     continue
                 if not item.get("date") or not item.get("title") or not item.get("audio_url"):
                     continue
+                source_description, automatic_tracklist = extract_soundcloud_tracklist(
+                    item.get("description")
+                )
+                source_summary = str(item.get("summary") or "")
+                if automatic_tracklist and source_summary.strip().casefold() in {"tracklist", "tracklist:"}:
+                    source_summary = ""
                 base = {
                     "date": str(item["date"]),
                     "episode_id": str(item.get("episode_id") or "").strip(),
                     "title_de": clean_archive_title(item["title"]),
                     "title_en": clean_archive_title(item["title"]),
-                    "summary_de": str(item.get("summary") or ""),
-                    "summary_en": str(item.get("summary") or ""),
-                    "soundcloud_description": str(item.get("description") or ""),
+                    "summary_de": source_summary,
+                    "summary_en": source_summary,
+                    "soundcloud_description": source_description,
                     "audio_url": str(item["audio_url"]),
                     "soundcloud_id": str(item.get("soundcloud_id") or "").strip(),
                     "duration_ms": item.get("duration_ms"),
                     "image": str(item.get("image") or ""),
                     "artwork_url": str(item.get("artwork_url") or ""),
                 }
+                cached_tracklist = item.get("tracklist")
+                if isinstance(cached_tracklist, list) and cached_tracklist:
+                    base["tracklist"] = cached_tracklist
+                elif automatic_tracklist:
+                    base["tracklist"] = automatic_tracklist
                 cached_identity = episode_id_value(base)
                 normalised_url = base["audio_url"].rstrip("/")
                 override = (

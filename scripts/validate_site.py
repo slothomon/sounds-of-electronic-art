@@ -101,6 +101,12 @@ def clean_archive_title(value: object) -> str:
     title = " ".join(str(value or "").split())
     title = re.sub(r"\s*\(\s*(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*\)\s*$", "", title)
     title = re.sub(r"\s+(20\d{2})[-_.](\d{1,2})[-_.](\d{1,2})\s*$", "", title)
+    title = re.sub(
+        r"^(?:sounds of electronic art|sofea)\s*#?\s*\d+\s*[-–—:]\s*",
+        "",
+        title,
+        flags=re.IGNORECASE,
+    )
     return title.strip()
 
 

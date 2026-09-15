@@ -1,9 +1,21 @@
 {
   "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
-  "updated_at": "2026-08-31T09:57:05Z",
-  "count": 66,
+  "updated_at": "2026-09-15T08:49:56Z",
+  "count": 67,
   "episodes": [
+    {
+      "episode_id": "2026-08-15-sofea-100-96kbps-komplette-sendung",
+      "date": "2026-08-15",
+      "title": "sofea 100 - 96kbps (komplette Sendung)",
+      "summary": "Tracklist:",
+      "description": "Tracklist:\n\nSwayzak - Annadub\nCrooked Man - Projection\nex_libris - #32 (Walrus)\nFunction - City of Luz\nLovegod - Rendezvous (Janeret Dub)\nDelano Smith, Brian Kage - Keep 'em Movin'\nSublevel - Just Us (D'Julz Remix)\nTen Gallon Hats - Otherside\nTobias Freund - East of Lexington\nJ.S.Zeiter - Taken\nTraumer - District\nFerg - Back In Place\nDelano Smith - Rewired\n77ks - Rasad\nPicasso - Sunbeams\nAcid Mondays - Schlurptastic (D'Julz Remix)\nTerry Francis - Notice Board\nMr. G - My Sound\nDexter - Vanilla Coke (Jeff Bennett Remix)\nBoeing - Area\nDelano Smith - When I was Young\nFour Tet - Human Voice\nThe Lost Souldancer - Memories of Maastricht\nDJ Balduin - Seasun\nDelano Smith, Brian Kage - For the Music\nThurlow Joyce - Varial\nD'oR - That's What I Thought\nCRYME - Like The Music\nFinder - Spin City\nJames Shinra - Back\nPlant43 - Mycofiltration\nCarré - Girl",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/96kbps-komplette-sendung-2026",
+      "soundcloud_id": "2382767604",
+      "duration_ms": 10791564,
+      "artwork_url": "https://i1.sndcdn.com/artworks-awyu7bnvS3eE0pfc-cFMHlA-t500x500.jpg",
+      "image": "assets/images/episodes/2026-08-15-sofea-100-96kbps-komplette-sendung.jpg"
+    },
     {
       "episode_id": "2026-07-04-thomas-heinrich-taask-96kbps",
       "date": "2026-07-04",

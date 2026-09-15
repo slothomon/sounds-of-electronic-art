@@ -41,8 +41,19 @@ def test_markdown_links_are_safe_and_cards_stay_clean():
     assert module.card_excerpt(value, 180) == "Danke!"
 
 
+def test_detail_description_falls_back_after_url_filtering():
+    item = {"soundcloud_description": "https://example.com"}
+    site = {
+        "name": "sounds of electronic art",
+        "description_de": "Elektronische Musik, Radio und Klubkultur aus Leipzig.",
+    }
+    assert module.detail_description(item, site) == site["description_de"]
+
+
 if __name__ == "__main__":
     test_archive_text_priority()
     print("PASS test_archive_text_priority")
     test_markdown_links_are_safe_and_cards_stay_clean()
     print("PASS test_markdown_links_are_safe_and_cards_stay_clean")
+    test_detail_description_falls_back_after_url_filtering()
+    print("PASS test_detail_description_falls_back_after_url_filtering")

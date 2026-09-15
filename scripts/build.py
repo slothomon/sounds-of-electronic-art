@@ -864,8 +864,10 @@ def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -
     return absolute_site_url(canonical_url, social_card_relative_path(kind, item, site))
 
 def detail_description(item: dict, site: dict) -> str:
-    value = content_text(item, "de") or site.get("description_de") or site["name"]
-    return meta_excerpt(plain_editorial_text(value), 160)
+    value = plain_editorial_text(content_text(item, "de"))
+    if not value:
+        value = plain_editorial_text(site.get("description_de") or site["name"])
+    return meta_excerpt(value, 160)
 
 def detail_page_title(kind: str, item: dict, site: dict) -> str:
     title = str(item.get("title_de") or item.get("title") or site["name"])

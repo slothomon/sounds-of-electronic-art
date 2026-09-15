@@ -2,4 +2,4 @@
 Pillow==12.3.0
 
 # Windows does not ship the IANA time-zone database used by zoneinfo.
-tzdata==2026.3; sys_platform == "win32"
+tzdata==2026.4; sys_platform == "win32"

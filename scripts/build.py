@@ -543,6 +543,13 @@ def detail_identifier(kind: str, item: dict, site: dict) -> str:
 
 
 def detail_relative_path(kind: str, item: dict, site: dict) -> str:
+    if kind == "episode":
+        # The persisted ID survives display-title and SoundCloud-title edits.
+        # url_path preserves the few URLs published before this rule.
+        path = str(item.get("url_path") or f"sendungen/{episode_id_value(item)}/")
+        if not re.fullmatch(r"sendungen/[a-z0-9][a-z0-9-]*/", path):
+            raise ValueError(f"Invalid archive URL path: {path!r}")
+        return path
     title = str(item.get("title_de") or item.get("title") or site["name"])
     title_for_slug = re.sub(r"\s*\(\d{4}-\d{2}-\d{2}\)\s*$", "", title).strip()
     custom_slug = str(item.get("slug") or "").strip()
@@ -606,7 +613,7 @@ def series_schema(site: dict, canonical_url: str, compact: bool = False) -> dict
             str(link["url"])
             for link in site.get("social", [])
             if isinstance(link, dict) and link.get("url")
-        ],
+        ] + ([site["radio"]["show_url"]] if site.get("radio", {}).get("show_url") else []),
         "creator": [
             {
                 "@type": "Person",
@@ -944,11 +951,64 @@ def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -
         return absolute_site_url(canonical_url, raw)
     return absolute_site_url(canonical_url, social_card_relative_path(kind, item, site))
 
+def archive_summary(item: dict, site: dict, language: str = "de") -> str:
+    """Factual fallback; never invent an artist biography or a recording."""
+    value = parse_date(str(item["date"])[:10])
+    title = str(item.get(f"title_{language}") or item.get("title_de") or item.get("title") or site["name"])
+    number = episode_number_value(item)
+    station = site.get("radio", {}).get("name") or "Radio Blau"
+    show = f"{site['name']} ({site.get('short_name') or 'sofea'})"
+    if language == "en":
+        date = f"{value.day} {MONTHS_EN[value.month - 1]} {value.year}"
+        episode = f"episode #{number}" if number is not None else "broadcast"
+        text = f"{title}: {show}, {episode} on {date} on {station}."
+        return text + (" Recording available on SoundCloud." if item.get("audio_url") else "")
+    date = f"{value.day}. {MONTHS_DE[value.month - 1]} {value.year}"
+    episode = f"Sendung #{number}" if number is not None else "Sendung"
+    text = f"{title}: {show}, {episode} vom {date} auf {station}."
+    return text + (" Aufnahme auf SoundCloud anhören." if item.get("audio_url") else "")
+
+
 def detail_description(item: dict, site: dict) -> str:
     value = plain_editorial_text(content_text(item, "de"))
     if not value:
-        value = plain_editorial_text(site.get("description_de") or site["name"])
+        value = archive_summary(item, site) if item.get("date") else str(site.get("description_de") or "")
     return meta_excerpt(value, 160)
+
+
+def sitemap_lastmod(item: dict) -> str | None:
+    """Use a known per-entry edit date, never the cache refresh time."""
+    raw = str(item.get("updated_at") or "")[:10]
+    try:
+        return datetime.strptime(raw, "%Y-%m-%d").date().isoformat() if raw else None
+    except ValueError:
+        return None
+
+
+def write_archive_redirects(archive: list[dict], site: dict, canonical_url: str) -> int:
+    """GitHub Pages-compatible redirects for old announcement URLs."""
+    redirects: dict[str, str] = {}
+    for item in archive:
+        target = detail_relative_path("episode", item, site)
+        for alias in item.get("redirect_from", []):
+            if not isinstance(alias, str) or not re.fullmatch(r"(?:sendungen|termine)/[a-z0-9][a-z0-9-]*/", alias):
+                raise ValueError(f"Invalid redirect path: {alias!r}")
+            if alias == target:
+                raise ValueError(f"Redirect points to itself: {alias}")
+            if alias in redirects and redirects[alias] != target:
+                raise ValueError(f"Conflicting redirect targets for {alias}")
+            redirects[alias] = target
+    for alias, target in redirects.items():
+        if (PUBLIC / alias / "index.html").exists():
+            raise ValueError(f"Redirect would overwrite a published page: {alias}")
+        if not (PUBLIC / target / "index.html").is_file():
+            raise ValueError(f"Redirect target does not exist: {target}")
+    template = (ROOT / "templates" / "redirect.html").read_text(encoding="utf-8")
+    for alias, target in redirects.items():
+        output = PUBLIC / alias / "index.html"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(render(template, {"target_url": esc(absolute_site_url(canonical_url, target))}), encoding="utf-8")
+    return len(redirects)
 
 def detail_page_title(kind: str, item: dict, site: dict) -> str:
     title = str(item.get("title_de") or item.get("title") or site["name"])
@@ -1430,8 +1490,8 @@ def archive_detail_inner(
     title_de = clean_archive_title(item["title_de"])
     title_en = clean_archive_title(item.get("title_en") or title_de)
     visible_item = dict(item)
-    visible_item["details_de"] = content_text(item, "de")
-    visible_item["details_en"] = content_text(item, "en")
+    visible_item["details_de"] = content_text(item, "de") or archive_summary(item, site, "de")
+    visible_item["details_en"] = content_text(item, "en") or archive_summary(item, site, "en")
     date_de = f"{value.day:02d}. {MONTHS_DE[value.month - 1]} {value.year}"
     date_en = f"{value.day:02d} {MONTHS_EN[value.month - 1]} {value.year}"
     label_de = upcoming_label(item, "de")
@@ -1978,7 +2038,7 @@ def main() -> None:
         for item in broadcast_entries
         if upcoming_end(item).astimezone(timezone.utc) > now_utc
     ]
-    assign_upcoming_episode_numbers(future_broadcasts, numbers_by_date)
+    assign_upcoming_episode_numbers(broadcast_entries, numbers_by_date)
     future_events = [
         item
         for item in event_entries
@@ -1986,6 +2046,12 @@ def main() -> None:
     ]
     upcoming = sorted(
         future_broadcasts + future_events,
+        key=lambda item: parse_upcoming_date(str(item["date"])),
+    )
+    # Keep ended announcements reachable until the archive job records their
+    # old URLs. They no longer appear in the homepage's future schedule.
+    upcoming_pages = sorted(
+        broadcast_entries + future_events,
         key=lambda item: parse_upcoming_date(str(item["date"])),
     )
 
@@ -2060,7 +2126,7 @@ def main() -> None:
         "hero_preload_urls_json": json.dumps(hero_preload_urls, ensure_ascii=False),
     }
     values = common_values | {
-        "page_title": esc("sounds of electronic art – elektronische musik & klubkultur"),
+        "page_title": esc(f"{site['name']} ({site.get('short_name') or 'sofea'}) | {site['radio']['name']} Leipzig"),
         "description": esc(site["description_de"]),
         "canonical_url": esc(canonical_url),
         "structured_data_html": homepage_structured_data(site, canonical_url),
@@ -2084,8 +2150,8 @@ def main() -> None:
         encoding="utf-8",
     )
     shutil.copytree(ROOT / "assets", PUBLIC / "assets")
-    write_responsive_artworks(upcoming + archive)
-    write_social_cards(upcoming, archive, site)
+    write_responsive_artworks(upcoming_pages + archive)
+    write_social_cards(upcoming_pages, archive, site)
     (PUBLIC / "calendar.ics").write_text(
         calendar_feed_content(upcoming, site, canonical_url),
         encoding="utf-8",
@@ -2094,7 +2160,7 @@ def main() -> None:
 
     calendar_dir = PUBLIC / "calendar"
     calendar_dir.mkdir(parents=True, exist_ok=True)
-    for item in upcoming:
+    for item in upcoming_pages:
         filename = calendar_filename(item, site)
         detail_url = absolute_site_url(canonical_url, detail_relative_path("upcoming", item, site))
         (calendar_dir / filename).write_text(
@@ -2129,7 +2195,7 @@ def main() -> None:
         (PUBLIC / filename).write_text(render(legal_template, current_values), encoding="utf-8")
 
     detail_template = (ROOT / "templates" / "detail.html").read_text(encoding="utf-8")
-    for index, item in enumerate(upcoming):
+    for index, item in enumerate(upcoming_pages):
         relative_path = detail_relative_path("upcoming", item, site)
         output_dir = PUBLIC / relative_path
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -2147,7 +2213,7 @@ def main() -> None:
             "detail_back_de": "← Zurück zu Demnächst",
             "detail_back_en": "← Back to upcoming",
             "detail_content": upcoming_detail_page(item, site, base_path),
-            "detail_navigation": detail_navigation(upcoming, index, "upcoming", site, base_path),
+            "detail_navigation": detail_navigation(upcoming_pages, index, "upcoming", site, base_path),
         }
         (output_dir / "index.html").write_text(render(detail_template, detail_values), encoding="utf-8")
 
@@ -2171,6 +2237,8 @@ def main() -> None:
             "detail_navigation": detail_navigation(archive, index, "episode", site, base_path),
         }
         (output_dir / "index.html").write_text(render(detail_template, detail_values), encoding="utf-8")
+
+    write_archive_redirects(archive, site, canonical_url)
 
     archive_export = {
         "source": archive_playlist_url,
@@ -2227,19 +2295,13 @@ def main() -> None:
         (canonical_url + "impressum.html", None),
         (canonical_url + "datenschutz.html", None),
     ]
-    for item in upcoming:
-        lastmod = str(item.get("updated_at") or "")[:10] or None
+    for item in upcoming_pages:
+        lastmod = sitemap_lastmod(item)
         sitemap_entries.append(
             (absolute_site_url(canonical_url, detail_relative_path("upcoming", item, site)), lastmod)
         )
-    cache_lastmod: str | None = None
-    try:
-        cache_value = read_json(ROOT / "content" / "archive-cache.json")
-        cache_lastmod = str(cache_value.get("updated_at") or "")[:10] or None
-    except (OSError, json.JSONDecodeError, AttributeError, TypeError):
-        cache_lastmod = None
     for item in archive:
-        lastmod = str(item.get("updated_at") or "")[:10] or cache_lastmod
+        lastmod = sitemap_lastmod(item)
         sitemap_entries.append(
             (absolute_site_url(canonical_url, detail_relative_path("episode", item, site)), lastmod)
         )

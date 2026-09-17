@@ -3,13 +3,14 @@
   "short_name": "sofea",
   "tagline_de": "Elektronische Musik, Radio und Klubkultur aus Leipzig.",
   "tagline_en": "Electronic music, radio and club culture from Leipzig.",
-  "description_de": "sounds of electronic art ist eine alle acht Wochen ausgestrahlte Radiosendung auf Radio Blau über elektronische Musik, Künstler:innen und Klubkultur.",
-  "description_en": "sounds of electronic art is a radio show broadcast every eight weeks on Radio Blau, exploring electronic music, artists and club culture.",
+  "description_de": "sounds of electronic art (sofea): Elektronische Musik und Klubkultur auf Radio Blau in Leipzig. Sendetermine, Gäste und Aufnahmen seit 2011.",
+  "description_en": "sounds of electronic art (sofea): Electronic music and club culture on Radio Blau in Leipzig. Broadcast dates, guests and recordings since 2011.",
   "url": "https://sofea.radio",
   "radio": {
     "name": "Radio Blau",
     "url": "https://www.radioblau.de/",
-    "stream_url": "https://www.radioblau.de/stream/"
+    "stream_url": "https://www.radioblau.de/stream/",
+    "show_url": "https://www.radioblau.de/redaktion/sounds-of-electronic-art/"
   },
   "social": [
     {

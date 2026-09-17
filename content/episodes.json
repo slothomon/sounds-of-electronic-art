@@ -10,7 +10,11 @@
     "announcement_de": "Unsere Gästin ist diesmal Heckintosh. Früher unter anderem im Umfeld der Villa Wuller in Trier aktiv, bereichert sie nun schon seit einiger Zeit die Leipziger Szene.\n Als echte Kennerin elektronischer Musik sind wir sehr gespannt darauf, was sie für uns im Gepäck hat.",
     "announcement_en": "This time we invited Heckintosh. Formerly active in and around Villa Wuller in Trier, she has been enriching Leipzig’s scene for quite some time now.\n As she is also a true connoisseur of electronic music, we’re very curious to hear what she has in store for us.",
     "post_text_de": "Dank geht raus an Heckintosh für den lustigen Abend bei uns und die feine musikalische Auswahl.\nViel Freude beim Nachhören!\n\nSoundcloud:\n[soundcloud.com/user-893541878-773894123](https://soundcloud.com/user-893541878-773894123)",
-    "post_text_en": "Many thanks to Heckintosh for the fun evening with us and the fine selection of music.\nEnjoy listening!\n\nSoundCloud:\n[soundcloud.com/user-893541878-773894123](https://soundcloud.com/user-893541878-773894123)"
+    "post_text_en": "Many thanks to Heckintosh for the fun evening with us and the fine selection of music.\nEnjoy listening!\n\nSoundCloud:\n[soundcloud.com/user-893541878-773894123](https://soundcloud.com/user-893541878-773894123)",
+    "redirect_from": [
+      "termine/broadcast-2026-08-29/",
+      "termine/2026-08-29-heckintosh/"
+    ]
   },
   {
     "episode_id": "2026-03-14-neele",
@@ -222,5 +226,19 @@
     "title_en": "Monomood",
     "details_de": "Sendung mit Monomood vom 24. Mai 2014.",
     "details_en": "Broadcast featuring Monomood from 24 May 2014."
+  },
+  {
+    "episode_id": "2026-08-15-sofea-100-96kbps-komplette-sendung",
+    "date": "2026-08-15",
+    "title_de": "96kbps (komplette Sendung)",
+    "title_en": "96kbps (komplette Sendung)",
+    "url_path": "sendungen/2026-08-15-96kbps-komplette-sendung/"
+  },
+  {
+    "episode_id": "2023-10-06-scherbert",
+    "date": "2023-06-10",
+    "title_de": "Scherbert",
+    "title_en": "Scherbert",
+    "url_path": "sendungen/2023-06-10-scherbert/"
   }
 ]

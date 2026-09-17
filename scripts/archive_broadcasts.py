@@ -19,6 +19,7 @@ ARCHIVE_FIELDS = (
     "links",
     "music_presentations",
     "tracklist",
+    "url_path",
 )
 
 
@@ -151,6 +152,9 @@ def archive_from_broadcast(item: dict, number: int) -> dict:
         "title_en": title_en,
         "episode_id": f"{date_value}-{slugify(title_de)}",
     }
+    stable_id = str(item.get("id") or "").strip()
+    old_path = f"termine/{slugify(stable_id)}/" if stable_id else f"termine/{date_value}-{slugify(title_de)}/"
+    archived["redirect_from"] = list(dict.fromkeys([*item.get("redirect_from", []), old_path]))
 
     announcement_de = str(item.get("announcement_de") or item.get("details_de") or "").strip()
     announcement_en = str(item.get("announcement_en") or item.get("details_en") or announcement_de).strip()
@@ -174,6 +178,12 @@ def merge_archived_metadata(existing: dict, incoming: dict) -> bool:
     changed = False
     for key, value in incoming.items():
         if key == "audio_url":
+            continue
+        if key == "redirect_from":
+            merged = list(dict.fromkeys([*existing.get(key, []), *value]))
+            if merged != existing.get(key):
+                existing[key] = merged
+                changed = True
             continue
         if existing.get(key) in (None, "", []):
             existing[key] = value

@@ -42,6 +42,9 @@ content:
       rename: false
       delete: false
     fields:
+      - name: id
+        type: string
+        hidden: true
       - name: date
         label: Beginn
         type: date
@@ -95,6 +98,9 @@ content:
       rename: false
       delete: false
     fields:
+      - name: id
+        type: string
+        hidden: true
       - name: date
         label: Beginn
         type: date
@@ -210,7 +216,14 @@ content:
         pattern:
           regex: "^[a-z0-9][a-z0-9-]{2,95}$"
           message: Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.
-        description: Stabile interne ID, z. B. 2026-03-14-neele. Falls leer, leitet der Build sie aus Datum und Titel ab. Nach der Verwendung unter Hören nicht mehr ändern.
+        description: Stabile ID und Grundlage der öffentlichen URL, z. B. 2026-03-14-neele. Nach der Veröffentlichung nicht mehr ändern; den sichtbaren Titel kannst du jederzeit bearbeiten.
+      - name: url_path
+        type: string
+        hidden: true
+      - name: redirect_from
+        type: string
+        list: true
+        hidden: true
       - name: date
         label: Sendungsdatum
         type: date

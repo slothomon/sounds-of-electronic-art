@@ -43,6 +43,7 @@ class DocumentParser(HTMLParser):
         self.json_ld_blocks: list[str] = []
         self.in_json_ld = False
         self.json_ld_parts: list[str] = []
+        self.redirect_targets: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {key: value or "" for key, value in attrs}
@@ -63,6 +64,9 @@ class DocumentParser(HTMLParser):
             self.canonical.append(values["href"])
         if tag == "meta" and values.get("name") == "description":
             self.description.append(values.get("content", ""))
+        if tag == "meta" and values.get("http-equiv", "").lower() == "refresh":
+            match = re.fullmatch(r"0;\s*url=(https?://\S+)", values.get("content", ""))
+            self.redirect_targets.append(match.group(1) if match else "")
         if tag == "title":
             self.in_title = True
         if tag == "script" and values.get("type", "").lower() == "application/ld+json":
@@ -129,7 +133,9 @@ def validate_episode_id(errors: list[str], context: str, item: dict) -> None:
 
 def detail_path(kind: str, item: dict) -> str:
     if kind == "episode":
-        return f"sendungen/{episode_id_value(item)}/"
+        return str(item.get("url_path") or f"sendungen/{episode_id_value(item)}/")
+    if item.get("id"):
+        return f"termine/{slugify(item['id'])}/"
     title = clean_archive_title(item.get("title_de") or item.get("title") or "sendung")
     date_value = str(item.get("date") or "")[:10]
     return f"termine/{date_value}-{slugify(title)}/"
@@ -282,6 +288,7 @@ def validate_source(root: Path) -> int:
         root / "templates" / "detail.html",
         root / "templates" / "legal.html",
         root / "templates" / "404.html",
+        root / "templates" / "redirect.html",
         root / "docs" / "structured-data.md",
         root / "content" / "site.json",
         root / "content" / "listen.json",
@@ -409,6 +416,14 @@ def validate_source(root: Path) -> int:
             if not episode.get(key):
                 errors.append(f"{context} is missing required key: {key}")
         validate_common_entry(errors, root, context, episode)
+        if episode.get("url_path") and not re.fullmatch(r"sendungen/[a-z0-9][a-z0-9-]*/", str(episode["url_path"])):
+            errors.append(f"{context}.url_path must be a relative sendungen/<slug>/ path")
+        aliases = episode.get("redirect_from", [])
+        if not isinstance(aliases, list) or any(
+            not isinstance(alias, str) or not re.fullmatch(r"(?:sendungen|termine)/[a-z0-9][a-z0-9-]*/", alias)
+            for alias in aliases
+        ):
+            errors.append(f"{context}.redirect_from must be an array of relative detail paths")
         audio_url = str(episode.get("audio_url") or "").strip()
         if audio_url:
             validate_url(errors, f"{context}.audio_url", audio_url)
@@ -712,12 +727,22 @@ def validate_public(public: Path) -> int:
         is_structured = relative == Path("index.html") or (
             len(relative.parts) >= 3 and relative.parts[0] in {"sendungen", "termine"}
         )
-        if is_structured and not parser.json_ld_blocks:
+        if is_structured and not parser.json_ld_blocks and not parser.redirect_targets:
             errors.append(f"{relative}: missing structured data")
+        if parser.redirect_targets:
+            if len(parser.redirect_targets) != 1 or not parser.redirect_targets[0]:
+                errors.append(f"{relative}: expected one instant redirect to an absolute URL")
+            elif parser.canonical != parser.redirect_targets:
+                errors.append(f"{relative}: redirect target and canonical URL differ")
         if relative == Path("index.html") and re.search(r"<iframe\b", text, flags=re.IGNORECASE):
             errors.append("index.html: SoundCloud iframe must not be present before user interaction")
 
     for source, parser in parsed_documents.items():
+        for redirect in parser.redirect_targets:
+            target, _ = internal_target(public, source, redirect)
+            target_parser = parsed_documents.get(target.resolve()) if target else None
+            if target_parser is None or target_parser.redirect_targets or target == source:
+                errors.append(f"{source.relative_to(public)}: redirect must target a real local canonical page")
         for tag, href in parser.links:
             parsed_href = urlparse(href)
             asset_name = Path(parsed_href.path).name
@@ -754,6 +779,12 @@ def validate_public(public: Path) -> int:
                 errors.append(f"sitemap.xml contains an unexpected host: {location}")
             elif not output_target(public, parsed.path).exists():
                 errors.append(f"sitemap.xml points to a missing page: {location}")
+            else:
+                document = parsed_documents.get(output_target(public, parsed.path).resolve())
+                if document is None:
+                    errors.append(f"sitemap.xml points to a non-HTML file: {location}")
+                elif document.redirect_targets:
+                    errors.append(f"sitemap.xml contains a redirect: {location}")
     except (OSError, ET.ParseError) as exc:
         errors.append(f"invalid sitemap.xml: {exc}")
 

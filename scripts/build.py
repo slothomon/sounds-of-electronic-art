@@ -954,19 +954,18 @@ def detail_social_image(item: dict, site: dict, canonical_url: str, kind: str) -
 def archive_summary(item: dict, site: dict, language: str = "de") -> str:
     """Factual fallback; never invent an artist biography or a recording."""
     value = parse_date(str(item["date"])[:10])
-    title = str(item.get(f"title_{language}") or item.get("title_de") or item.get("title") or site["name"])
     number = episode_number_value(item)
     station = site.get("radio", {}).get("name") or "Radio Blau"
     show = f"{site['name']} ({site.get('short_name') or 'sofea'})"
     if language == "en":
         date = f"{value.day} {MONTHS_EN[value.month - 1]} {value.year}"
         episode = f"episode #{number}" if number is not None else "broadcast"
-        text = f"{title}: {show}, {episode} on {date} on {station}."
-        return text + (" Recording available on SoundCloud." if item.get("audio_url") else "")
+        label = f"Recording of {episode}" if item.get("audio_url") else episode.capitalize()
+        return f"{show} – {label} from {date} on {station}."
     date = f"{value.day}. {MONTHS_DE[value.month - 1]} {value.year}"
     episode = f"Sendung #{number}" if number is not None else "Sendung"
-    text = f"{title}: {show}, {episode} vom {date} auf {station}."
-    return text + (" Aufnahme auf SoundCloud anhören." if item.get("audio_url") else "")
+    label = f"Mitschnitt der {episode}" if item.get("audio_url") else episode
+    return f"{show} – {label} vom {date} auf {station}."
 
 
 def detail_description(item: dict, site: dict) -> str:

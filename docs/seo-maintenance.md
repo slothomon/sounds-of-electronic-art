@@ -3,8 +3,9 @@
 The homepage identifies the show as **sounds of electronic art (sofea)** and
 connects it to Radio Blau and Leipzig. German remains the default language.
 Existing editorial descriptions take precedence over generated summaries.
-Where an episode has no prose, the build adds a factual summary with its title,
-broadcast date, number where known, and a recording link only when one exists.
+Where an episode has no prose, the build adds a factual summary with its
+broadcast date and number where known. It calls the episode a recording only
+when an audio link exists.
 This summary appears on the episode page and supplies its meta-description
 fallback. It does not invent genres, biographical details or audio availability.
 

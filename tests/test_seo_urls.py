@@ -41,10 +41,17 @@ def test_existing_url_exceptions_remain_published():
 def test_fallback_is_specific_and_only_promises_existing_audio():
     item = {"date": "2020-01-01", "title_de": "Guest", "episode_number": 50}
     summary = build.detail_description(item, site)
-    assert "Guest" in summary and "#50" in summary and "1. Januar 2020" in summary
-    assert "SoundCloud" not in summary
+    assert "Guest" not in summary and "#50" in summary and "1. Januar 2020" in summary
+    assert "Mitschnitt" not in summary and "SoundCloud" not in summary
     item["audio_url"] = "https://soundcloud.com/example/recording"
-    assert "SoundCloud" in build.archive_summary(item, site)
+    assert build.archive_summary(item, site) == (
+        "sounds of electronic art (sofea) – Mitschnitt der Sendung #50 "
+        "vom 1. Januar 2020 auf Radio Blau."
+    )
+    assert build.archive_summary(item, site, "en") == (
+        "sounds of electronic art (sofea) – Recording of episode #50 "
+        "from 1 January 2020 on Radio Blau."
+    )
     item["post_text_de"] = "An existing editorial description."
     assert build.detail_description(item, site) == item["post_text_de"]
 

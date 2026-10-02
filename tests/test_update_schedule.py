@@ -74,6 +74,20 @@ class BroadcastScheduleTests(unittest.TestCase):
         self.assertEqual(row["details_de"], "Custom")
         self.assertEqual(row["links"][0]["label"], "Info")
 
+    def test_missing_stable_id_is_restored_for_existing_guest(self):
+        existing = [{
+            "date": "2026-10-24T21:00:00",
+            "episode_number": 102,
+            "title_de": "Guest",
+            "title_en": "Guest",
+            "details_de": "Custom",
+            "details_en": "Custom EN",
+        }]
+        rows = update_schedule.maintain_schedule(self.site(), existing, self.now())
+        row = next(item for item in rows if item["date"] == "2026-10-24T21:00:00")
+        self.assertEqual(row["id"], "broadcast-2026-10-24")
+        self.assertEqual(row["title_de"], "Guest")
+
     def test_skip_date_removes_regular_slot(self):
         site = self.site()
         site["broadcast_schedule"]["skip_dates"] = ["2027-02-13"]

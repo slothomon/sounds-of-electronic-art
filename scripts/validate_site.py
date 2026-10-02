@@ -114,6 +114,12 @@ def clean_archive_title(value: object) -> str:
     return title.strip()
 
 
+def archive_match_key(item: dict) -> tuple[str, str]:
+    date_value = str(item.get("date") or "")[:10]
+    title = str(item.get("title_de") or item.get("title") or "")
+    return date_value, slugify(clean_archive_title(title))
+
+
 def derived_episode_id(item: dict) -> str:
     date_value = str(item.get("date") or "")[:10] or "undated"
     title = clean_archive_title(item.get("title_de") or item.get("title") or "sendung")
@@ -274,6 +280,56 @@ def parse_leipzig_datetime(errors: list[str], context: str, value: object) -> da
     return valid_candidates[0]
 
 
+def expected_regular_broadcast_id(schedule: object, date_value: str) -> str | None:
+    """Return the stable ID for a managed regular broadcast date, if any."""
+    if not isinstance(schedule, dict):
+        return None
+    try:
+        anchor = datetime.fromisoformat(str(schedule["anchor"]))
+        candidate = datetime.fromisoformat(date_value)
+        interval_days = int(schedule.get("interval_weeks", 8)) * 7
+    except (KeyError, TypeError, ValueError):
+        return None
+    if anchor.tzinfo is not None or candidate.tzinfo is not None or interval_days <= 0:
+        return None
+
+    raw_overrides = schedule.get("date_overrides", []) or []
+    if isinstance(raw_overrides, dict):
+        override_pairs = raw_overrides.items()
+    elif isinstance(raw_overrides, list):
+        override_pairs = (
+            (item.get("date"), item.get("new_date"))
+            for item in raw_overrides
+            if isinstance(item, dict)
+        )
+    else:
+        override_pairs = ()
+
+    overridden_slots: set[str] = set()
+    for raw_slot_date, raw_new_date in override_pairs:
+        slot_date = str(raw_slot_date or "").strip()
+        new_date = str(raw_new_date or "").strip()
+        if not slot_date or not new_date:
+            continue
+        overridden_slots.add(slot_date)
+        try:
+            if datetime.fromisoformat(new_date) == candidate:
+                return f"broadcast-{datetime.fromisoformat(slot_date).date().isoformat()}"
+        except ValueError:
+            continue
+
+    delta_days = (candidate.date() - anchor.date()).days
+    if delta_days < 0 or delta_days % interval_days != 0 or candidate.time() != anchor.time():
+        return None
+    slot_date = candidate.date().isoformat()
+    if slot_date in overridden_slots:
+        return None
+    skip_dates = {str(value or "").strip() for value in (schedule.get("skip_dates", []) or [])}
+    if slot_date in skip_dates:
+        return None
+    return f"broadcast-{slot_date}"
+
+
 def validate_source(root: Path) -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -291,6 +347,7 @@ def validate_source(root: Path) -> int:
         root / "templates" / "redirect.html",
         root / "docs" / "structured-data.md",
         root / "content" / "site.json",
+        root / "content" / "broadcast-schedule.json",
         root / "content" / "listen.json",
         root / "content" / "episodes.json",
         root / "content" / "upcoming-broadcasts.json",
@@ -304,6 +361,7 @@ def validate_source(root: Path) -> int:
 
     json_paths = [
         root / "content" / "site.json",
+        root / "content" / "broadcast-schedule.json",
         root / "content" / "listen.json",
         root / "content" / "episodes.json",
         root / "content" / "upcoming-broadcasts.json",
@@ -342,6 +400,11 @@ def validate_source(root: Path) -> int:
         for index, value in enumerate(site.get("team") or [], start=1):
             if isinstance(value, dict):
                 validate_url(errors, f"content/site.json team[{index}].alias_url", value.get("alias_url"))
+
+    broadcast_schedule = parsed_json.get("broadcast-schedule.json")
+    if not isinstance(broadcast_schedule, dict):
+        errors.append("content/broadcast-schedule.json must contain a JSON object")
+        broadcast_schedule = {}
 
     episode_number_path = root / "content" / "episode-numbers.json"
     episode_number_entries: list[dict] = []
@@ -468,6 +531,10 @@ def validate_source(root: Path) -> int:
             validate_common_entry(errors, root, context, entry)
             date_value = str(entry.get("date") or "")
             start = parse_leipzig_datetime(errors, f"{context}.date", date_value)
+            if kind == "broadcast" and start:
+                expected_id = expected_regular_broadcast_id(broadcast_schedule, date_value)
+                if expected_id and str(entry.get("id") or "").strip() != expected_id:
+                    errors.append(f"{context}.id must be {expected_id} for the regular broadcast slot")
             if start and previous_start and start < previous_start:
                 errors.append(f"content/{filename} entries must be sorted by date ascending")
             if start:
@@ -555,6 +622,11 @@ def validate_source(root: Path) -> int:
         for item in archive_entries
         if isinstance(item, dict) and item.get("audio_url")
     }
+    local_by_key = {
+        archive_match_key(item): item
+        for item in archive_entries
+        if isinstance(item, dict) and item.get("date") and (item.get("title_de") or item.get("title"))
+    }
     final_archive: list[dict] = []
     seen_final_ids: set[str] = set()
     for cached in cache_entries:
@@ -573,6 +645,7 @@ def validate_source(root: Path) -> int:
             local_by_id.get(cached_identity)
             or local_by_source_id.get(merged["soundcloud_id"])
             or local_by_url.get(url)
+            or local_by_key.get(archive_match_key(merged))
         )
         if override:
             merged.update(override)

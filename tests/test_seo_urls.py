@@ -99,6 +99,15 @@ def test_announcement_survives_until_archiving_then_redirects(tmp_path, monkeypa
     monkeypatch.setattr(build, "write_social_cards", lambda *args: None)
     monkeypatch.delenv("SITE_URL", raising=False)
 
+    # Keep this lifecycle test independent from the editorial guest currently
+    # assigned to the real 2026-10-24 broadcast slot.
+    upcoming_path = root / "content/upcoming-broadcasts.json"
+    upcoming = json.loads(upcoming_path.read_text(encoding="utf-8"))
+    broadcast = next(item for item in upcoming if item.get("id") == "broadcast-2026-10-24")
+    broadcast["title_de"] = "Regression Guest"
+    broadcast["title_en"] = "Regression Guest"
+    upcoming_path.write_text(json.dumps(upcoming, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
     class AfterBroadcast(datetime):
         @classmethod
         def now(cls, tz=None):
@@ -113,7 +122,7 @@ def test_announcement_survives_until_archiving_then_redirects(tmp_path, monkeypa
 
     assert archiver.migrate(root, AfterBroadcast.now()) == 1
     build.main()
-    target = "https://sofea.radio/sendungen/2026-10-24-credit-00/"
+    target = "https://sofea.radio/sendungen/2026-10-24-regression-guest/"
     assert f'content="0; url={target}"' in announcement.read_text(encoding="utf-8")
     assert f'rel="canonical" href="{target}"' in announcement.read_text(encoding="utf-8")
     sitemap = (root / "public/sitemap.xml").read_text(encoding="utf-8")

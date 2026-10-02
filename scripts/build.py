@@ -29,6 +29,14 @@ WEEKDAYS_DE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samst
 WEEKDAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 BERLIN_TZ = ZoneInfo("Europe/Berlin")
 
+# A few archive pages were published before episode_id became the canonical
+# URL source. Keep those public URLs in code so an editorial CMS rewrite cannot
+# accidentally remove them by dropping optional metadata from episodes.json.
+PUBLISHED_EPISODE_URL_PATHS = {
+    "2026-08-15-sofea-100-96kbps-komplette-sendung": "sendungen/2026-08-15-96kbps-komplette-sendung/",
+    "2023-10-06-scherbert": "sendungen/2023-06-10-scherbert/",
+}
+
 
 def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -545,8 +553,14 @@ def detail_identifier(kind: str, item: dict, site: dict) -> str:
 def detail_relative_path(kind: str, item: dict, site: dict) -> str:
     if kind == "episode":
         # The persisted ID survives display-title and SoundCloud-title edits.
-        # url_path preserves the few URLs published before this rule.
-        path = str(item.get("url_path") or f"sendungen/{episode_id_value(item)}/")
+        # A small compatibility map protects URLs published before this rule
+        # even if Pages CMS drops the optional url_path metadata.
+        episode_id = episode_id_value(item)
+        path = str(
+            item.get("url_path")
+            or PUBLISHED_EPISODE_URL_PATHS.get(episode_id)
+            or f"sendungen/{episode_id}/"
+        )
         if not re.fullmatch(r"sendungen/[a-z0-9][a-z0-9-]*/", path):
             raise ValueError(f"Invalid archive URL path: {path!r}")
         return path

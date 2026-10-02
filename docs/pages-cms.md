@@ -62,6 +62,19 @@ node --check assets\js\site.js
 
 Every saved change remains attributable to the editor's own GitHub account.
 
+## System-owned metadata
+
+The CMS uses `settings.content.merge: true`. Stable/generated keys such as a
+materialized broadcast `id`, archive `url_path` and `redirect_from` deliberately
+do not appear as hidden form fields in `.pages.yml`. Pages CMS merge mode keeps
+keys that are outside the editor schema, while hidden schema fields may be
+omitted when the structured JSON file is serialized. Keep these system-owned
+keys outside the form schema unless they are intentionally made editable.
+
+The build also keeps the two already-published legacy archive URL exceptions in
+code. Their public addresses therefore survive even if an editorial save removes
+the optional `url_path` value from `content/episodes.json`.
+
 ## Archive text priority
 
 Completed broadcasts are archived independently of SoundCloud by the scheduled

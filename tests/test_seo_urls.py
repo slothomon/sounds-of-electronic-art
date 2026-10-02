@@ -31,11 +31,17 @@ def test_archive_address_survives_title_and_date_corrections():
     assert build.detail_relative_path("episode", item, site) == original
 
 
-def test_existing_url_exceptions_remain_published():
+def test_existing_url_exceptions_remain_published_when_cms_drops_url_path():
     items = build.load_archive(build.read_json_list(ROOT / "content/episodes.json"))
-    paths = {item["episode_id"]: build.detail_relative_path("episode", item, site) for item in items}
-    assert paths["2026-08-15-sofea-100-96kbps-komplette-sendung"] == "sendungen/2026-08-15-96kbps-komplette-sendung/"
-    assert paths["2023-10-06-scherbert"] == "sendungen/2023-06-10-scherbert/"
+    by_id = {item["episode_id"]: item for item in items}
+    expected = {
+        "2026-08-15-sofea-100-96kbps-komplette-sendung": "sendungen/2026-08-15-96kbps-komplette-sendung/",
+        "2023-10-06-scherbert": "sendungen/2023-06-10-scherbert/",
+    }
+    for episode_id, path in expected.items():
+        item = dict(by_id[episode_id])
+        item.pop("url_path", None)
+        assert build.detail_relative_path("episode", item, site) == path
 
 
 def test_fallback_is_specific_and_only_promises_existing_audio():

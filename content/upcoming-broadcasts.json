@@ -27,7 +27,8 @@
         "url": "https://karokaro.bandcamp.com/",
         "primary": false
       }
-    ]
+    ],
+    "id": "broadcast-2026-10-24"
   },
   {
     "date": "2026-12-19T21:00:00",
@@ -35,7 +36,8 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2026-12-19"
   },
   {
     "date": "2027-02-13T21:00:00",
@@ -50,7 +52,8 @@
         "url": "https://de.ra.co/dj/credit00",
         "primary": false
       }
-    ]
+    ],
+    "id": "broadcast-2027-02-13"
   },
   {
     "date": "2027-04-10T21:00:00",
@@ -58,7 +61,8 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2027-04-10"
   },
   {
     "date": "2027-06-05T21:00:00",
@@ -66,7 +70,8 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2027-06-05"
   },
   {
     "date": "2027-07-31T21:00:00",
@@ -74,7 +79,8 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2027-07-31"
   },
   {
     "date": "2027-09-25T21:00:00",
@@ -82,6 +88,7 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau."
+    "details_en": "Three hours of electronic music. Live on Radio Blau.",
+    "id": "broadcast-2027-09-25"
   }
 ]

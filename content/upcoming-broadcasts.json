@@ -6,6 +6,7 @@
     "title_en": "philipp rmke",
     "details_de": "Wir freuen uns auf philipp rmke. Langjähriger Radiohost von wolkigmusic auf Radio Blau, begnadeter DJ, Mitglied der Electric Island Crew und eine Hälfte von KARO. ",
     "details_en": "We’re looking forward to welcoming philipp rmke. He was the longtime host of wolkigmusic on Radio Blau, is a gifted DJ, member of the Electric Island crew and one half of KARO.",
+    "image": "/assets/images/uploads/philipp-rmke-v2.jpg",
     "links": [
       {
         "label_de": "RA",
@@ -27,8 +28,7 @@
         "url": "https://karokaro.bandcamp.com/",
         "primary": false
       }
-    ],
-    "id": "broadcast-2026-10-24"
+    ]
   },
   {
     "date": "2026-12-19T21:00:00",
@@ -36,8 +36,7 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2026-12-19"
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
     "date": "2027-02-13T21:00:00",
@@ -52,8 +51,7 @@
         "url": "https://de.ra.co/dj/credit00",
         "primary": false
       }
-    ],
-    "id": "broadcast-2027-02-13"
+    ]
   },
   {
     "date": "2027-04-10T21:00:00",
@@ -61,8 +59,7 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2027-04-10"
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
     "date": "2027-06-05T21:00:00",
@@ -70,8 +67,7 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2027-06-05"
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
     "date": "2027-07-31T21:00:00",
@@ -79,8 +75,7 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2027-07-31"
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   },
   {
     "date": "2027-09-25T21:00:00",
@@ -88,7 +83,6 @@
     "title_de": "sounds of electronic art",
     "title_en": "sounds of electronic art",
     "details_de": "Drei Stunden elektronische Musik. Live auf Radio Blau.",
-    "details_en": "Three hours of electronic music. Live on Radio Blau.",
-    "id": "broadcast-2027-09-25"
+    "details_en": "Three hours of electronic music. Live on Radio Blau."
   }
 ]

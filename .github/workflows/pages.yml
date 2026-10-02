@@ -30,6 +30,11 @@ jobs:
       - name: Install build and test requirements
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
 
+      # Pages CMS edits top-level JSON arrays. Normalize generated schedule
+      # metadata in the ephemeral checkout before tests/build as a safety net.
+      - name: Normalize managed broadcast metadata
+        run: python scripts/update_schedule.py
+
       - name: Run unit tests
         run: python -m pytest -q
 

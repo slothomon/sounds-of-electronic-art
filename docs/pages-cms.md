@@ -64,12 +64,20 @@ Every saved change remains attributable to the editor's own GitHub account.
 
 ## System-owned metadata
 
-The CMS uses `settings.content.merge: true`. Stable/generated keys such as a
-materialized broadcast `id`, archive `url_path` and `redirect_from` deliberately
-do not appear as hidden form fields in `.pages.yml`. Pages CMS merge mode keeps
-keys that are outside the editor schema, while hidden schema fields may be
-omitted when the structured JSON file is serialized. Keep these system-owned
-keys outside the form schema unless they are intentionally made editable.
+`upcoming-broadcasts.json`, `upcoming-events.json` and `episodes.json` are
+top-level JSON arrays. Pages CMS rewrites array items from the configured field
+schema, so generated keys inside an item cannot rely on repository-level merge
+mode alone. System-owned keys such as a materialized broadcast `id`, archive
+`url_path` and `redirect_from` therefore remain in `.pages.yml` as `readonly`
+fields. Editors can see the technical value but cannot change it, and Pages CMS
+serializes it back with the rest of the item.
+
+The Pages deployment also runs `scripts/update_schedule.py` in its temporary
+checkout before tests and the build. This is a safety net: if an editor session
+using stale CMS configuration ever drops a managed broadcast ID, the deployment
+reconstructs the deterministic ID without discarding artwork or other editorial
+fields. The scheduled archive refresh later writes the normalized schedule back
+to the repository as usual.
 
 The build also keeps the two already-published legacy archive URL exceptions in
 code. Their public addresses therefore survive even if an editorial save removes

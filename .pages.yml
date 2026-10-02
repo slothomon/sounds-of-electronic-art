@@ -41,10 +41,14 @@ content:
     operations:
       rename: false
       delete: false
-    # Stable/generated metadata (for example id) deliberately stays outside
-    # the CMS schema. With settings.content.merge=true, Pages CMS preserves
-    # unmanaged keys instead of serializing hidden fields away.
+    # Stable/generated metadata must remain part of the schema for top-level
+    # JSON arrays. Readonly keeps it serialized without allowing edits.
     fields:
+      - name: id
+        label: Technische ID
+        type: string
+        readonly: true
+        description: Wird automatisch aus dem regulären Sendetermin erzeugt.
       - name: date
         label: Beginn
         type: date
@@ -97,9 +101,12 @@ content:
     operations:
       rename: false
       delete: false
-    # Keep generated identity keys outside the schema so merge mode preserves
-    # them across editorial saves.
+    # Preserve optional technical identity across edits of the top-level array.
     fields:
+      - name: id
+        label: Technische ID
+        type: string
+        readonly: true
       - name: date
         label: Beginn
         type: date
@@ -216,8 +223,17 @@ content:
           regex: "^[a-z0-9][a-z0-9-]{2,95}$"
           message: Nur Kleinbuchstaben, Ziffern und Bindestriche verwenden.
         description: Stabile ID und Grundlage der öffentlichen URL, z. B. 2026-03-14-neele. Nach der Veröffentlichung nicht mehr ändern; den sichtbaren Titel kannst du jederzeit bearbeiten.
-      # url_path and redirect_from are intentionally unmanaged CMS keys. Merge
-      # mode preserves them without exposing them as hidden editor fields.
+      - name: url_path
+        label: Veröffentlichter URL-Pfad
+        type: string
+        readonly: true
+        description: Technische Kompatibilitätsangabe; nicht redaktionell ändern.
+      - name: redirect_from
+        label: Historische Weiterleitungen
+        type: string
+        list: true
+        readonly: true
+        description: Technische Kompatibilitätsangabe; nicht redaktionell ändern.
       - name: date
         label: Sendungsdatum
         type: date

@@ -82,11 +82,13 @@ class BroadcastScheduleTests(unittest.TestCase):
             "title_en": "Guest",
             "details_de": "Custom",
             "details_en": "Custom EN",
+            "image": "/assets/images/uploads/guest.jpg",
         }]
         rows = update_schedule.maintain_schedule(self.site(), existing, self.now())
         row = next(item for item in rows if item["date"] == "2026-10-24T21:00:00")
         self.assertEqual(row["id"], "broadcast-2026-10-24")
         self.assertEqual(row["title_de"], "Guest")
+        self.assertEqual(row["image"], "/assets/images/uploads/guest.jpg")
 
     def test_skip_date_removes_regular_slot(self):
         site = self.site()

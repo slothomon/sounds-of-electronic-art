@@ -1,9 +1,21 @@
 {
   "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
-  "updated_at": "2026-09-18T08:23:32Z",
-  "count": 67,
+  "updated_at": "2026-10-02T11:41:50Z",
+  "count": 68,
   "episodes": [
+    {
+      "episode_id": "2026-08-29-sofea-101-heckintosh",
+      "date": "2026-08-29",
+      "title": "sofea 101 - Heckintosh",
+      "summary": "Dank geht raus an Heckintosh für den lustigen Abend bei uns und die feine musikalische Auswahl.",
+      "description": "Dank geht raus an Heckintosh für den lustigen Abend bei uns und die feine musikalische Auswahl.\nViel Freude beim Nachhören!\n\nHeckintosh findet ihr hier:\nhttps://soundcloud.com/user-893541878-773894123",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/2026-08-29-sofea-101",
+      "soundcloud_id": "2391224463",
+      "duration_ms": 8189855,
+      "artwork_url": "https://i1.sndcdn.com/artworks-GvmO1Eth3D60Cx7z-SDEOog-t500x500.jpg",
+      "image": "assets/images/episodes/2026-08-29-sofea-101-heckintosh.jpg"
+    },
     {
       "episode_id": "2026-08-15-sofea-100-96kbps-komplette-sendung",
       "date": "2026-08-15",

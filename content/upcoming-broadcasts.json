@@ -1,37 +1,5 @@
 [
   {
-    "date": "2026-10-24T21:00:00",
-    "episode_number": 102,
-    "title_de": "philipp rmke",
-    "title_en": "philipp rmke",
-    "details_de": "Wir freuen uns auf philipp rmke. Langjähriger Radiohost von wolkigmusic auf Radio Blau, begnadeter DJ, Mitglied der Electric Island Crew und eine Hälfte von KARO. ",
-    "details_en": "We’re looking forward to welcoming philipp rmke. He was the longtime host of wolkigmusic on Radio Blau, is a gifted DJ, member of the Electric Island crew and one half of KARO.",
-    "image": "/assets/images/uploads/philipp-rmke-v2.jpg",
-    "links": [
-      {
-        "label_de": "RA",
-        "url": "https://ra.co/dj/philipprmke",
-        "primary": false
-      },
-      {
-        "label_de": "Instagram",
-        "url": "https://www.instagram.com/_rmke_/",
-        "primary": false
-      },
-      {
-        "label_de": "Soundcloud",
-        "url": "https://soundcloud.com/philipprmke",
-        "primary": false
-      },
-      {
-        "label_de": "Bandcamp",
-        "url": "https://karokaro.bandcamp.com/",
-        "primary": false
-      }
-    ],
-    "id": "broadcast-2026-10-24"
-  },
-  {
     "date": "2026-12-19T21:00:00",
     "episode_number": 103,
     "title_de": "sounds of electronic art",

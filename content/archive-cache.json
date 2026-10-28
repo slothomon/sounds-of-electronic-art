@@ -1,9 +1,21 @@
 {
   "version": 2,
   "source": "https://soundcloud.com/sounds-of-electronic-art/sets/sendungen",
-  "updated_at": "2026-10-02T11:41:50Z",
-  "count": 68,
+  "updated_at": "2026-10-28T09:53:06Z",
+  "count": 69,
   "episodes": [
+    {
+      "episode_id": "2026-10-24-sofea-102-philipp-rmke",
+      "date": "2026-10-24",
+      "title": "sofea 102 - philipp rmke",
+      "summary": "Mitschnitt des Radio Sets von @philipprmke.",
+      "description": "Mitschnitt des Radio Sets von @philipprmke.\nSchön, dich mal wieder bei Radio Blau gehabt zu haben und danke für dieses schöne Set.",
+      "audio_url": "https://soundcloud.com/sounds-of-electronic-art/sofea-102-philipp-rmke-2026-10",
+      "soundcloud_id": "2426172744",
+      "duration_ms": 6855402,
+      "artwork_url": "https://i1.sndcdn.com/artworks-ZqPkqScPKCq8Ez6F-jAyIqg-t500x500.jpg",
+      "image": "assets/images/episodes/2026-10-24-sofea-102-philipp-rmke.jpg"
+    },
     {
       "episode_id": "2026-08-29-sofea-101-heckintosh",
       "date": "2026-08-29",

@@ -1,5 +1,9 @@
 [
   {
+    "label": "philipp rmke",
+    "episode_id": "2026-10-24-philipp-rmke"
+  },
+  {
     "label": "Heckintosh",
     "episode_id": "2026-08-29-heckintosh"
   },
@@ -14,9 +18,5 @@
   {
     "label": "sofea & friends",
     "episode_id": "2026-01-17-sofea-friends"
-  },
-  {
-    "label": "R22",
-    "episode_id": "2025-06-07-r22"
   }
 ]

@@ -132,6 +132,28 @@ def test_announcement_survives_until_archiving_then_redirects(tmp_path, monkeypa
     episodes = [item for item in episodes if str(item.get("date", ""))[:10] != "2026-10-24"]
     episodes_path.write_text(json.dumps(episodes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
+    # This test removes the production episode from its isolated checkout.
+    # The editorial Hören selection may reference exactly that episode, so
+    # use any other playable archive entry for this unrelated build input.
+    playable = next(
+        (
+            item for item in build.load_archive(episodes)
+            if str(item.get("date") or "")[:10] != "2026-10-24"
+            and str(item.get("audio_url") or "").strip()
+        ),
+        None,
+    )
+    assert playable is not None, "lifecycle test needs an unrelated playable archive entry"
+    listen_path = root / "content/listen.json"
+    listen_path.write_text(
+        json.dumps(
+            [{"label": "Regression recording", "episode_id": build.episode_id_value(playable)}],
+            ensure_ascii=False,
+            indent=2,
+        ) + "\n",
+        encoding="utf-8",
+    )
+
     class AfterBroadcast(datetime):
         @classmethod
         def now(cls, tz=None):

@@ -109,10 +109,28 @@ def test_announcement_survives_until_archiving_then_redirects(tmp_path, monkeypa
     # assigned to the real 2026-10-24 broadcast slot.
     upcoming_path = root / "content/upcoming-broadcasts.json"
     upcoming = json.loads(upcoming_path.read_text(encoding="utf-8"))
-    broadcast = next(item for item in upcoming if item.get("id") == "broadcast-2026-10-24")
-    broadcast["title_de"] = "Regression Guest"
-    broadcast["title_en"] = "Regression Guest"
+    # Recreate the past broadcast in this isolated checkout. Once an episode
+    # has aired, the real announcement is no longer present in the live data.
+    upcoming = [item for item in upcoming if item.get("id") != "broadcast-2026-10-24"]
+    upcoming.append(
+        {
+            "id": "broadcast-2026-10-24",
+            "date": "2026-10-24T21:00:00",
+            "episode_number": 102,
+            "title_de": "Regression Guest",
+            "title_en": "Regression Guest",
+            "details_de": "Regression announcement",
+            "details_en": "Regression announcement",
+        }
+    )
     upcoming_path.write_text(json.dumps(upcoming, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    # Remove the real episode only from the test copy so its lifecycle can
+    # start before archiving. The canonical episode number remains reserved.
+    episodes_path = root / "content/episodes.json"
+    episodes = json.loads(episodes_path.read_text(encoding="utf-8"))
+    episodes = [item for item in episodes if str(item.get("date", ""))[:10] != "2026-10-24"]
+    episodes_path.write_text(json.dumps(episodes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     class AfterBroadcast(datetime):
         @classmethod

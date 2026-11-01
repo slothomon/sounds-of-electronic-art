@@ -1,5 +1,5 @@
 # Image generation for per-page Open Graph / social cards.
-Pillow==12.3.0
+Pillow==13.0.0
 
 # Windows does not ship the IANA time-zone database used by zoneinfo.
-tzdata==2026.4; sys_platform == "win32"
+tzdata==2026.6; sys_platform == "win32"
